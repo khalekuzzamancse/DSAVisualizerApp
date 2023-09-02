@@ -6,10 +6,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -19,17 +22,19 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.abs
 
 @Preview
 @Composable
 private fun PPP() {
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxSize()
     ) {
@@ -57,9 +62,11 @@ private fun PPP() {
                     parentPositionRelativeToRoot = updatedMap
 
                 }) {
-                D(
+                Element(
                     modifier = Modifier
-                        .size(cellWidth), offset = currentPositionRelativeToParent[i] ?: Offset.Zero
+                        .size(cellWidth),
+                    offset = currentPositionRelativeToParent[i] ?: Offset.Zero,
+                    label = "$i"
                 ) {
                     val updatedMap = currentPositionRelativeToParent.toMutableMap()
                     updatedMap[i] = (it.positionInRoot() - parentPositionRelativeToRoot[i]!!)
@@ -104,9 +111,10 @@ private fun PPP() {
 
 
 @Composable
-private fun D(
+private fun Element(
     modifier: Modifier = Modifier,
     offset: Offset = Offset.Zero,
+    label:String,
     onGlobalPositionChange: (LayoutCoordinates) -> Unit
 ) {
     var accumulatedDrag by remember { mutableStateOf(offset) }
@@ -135,7 +143,13 @@ private fun D(
             .onGloballyPositioned {
                 globalPosition = it
             }
-    )
+    ){
+        Text(
+            text = label,
+            style = TextStyle(color = Color.White, fontSize = 16.sp),
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
 }
 
 private fun shouldSnap(
@@ -148,7 +162,6 @@ private fun shouldSnap(
     val centerDistanceFromTopLeft = cellSizePx / 2
     val dx = abs(cellTopLeftRelativeToRoot.x - elementTopLeftRelativeToRoot.x)
     val dy = abs(cellTopLeftRelativeToRoot.y - elementTopLeftRelativeToRoot.y)
-    Log.i("MethodSnap()", "$cellTopLeftRelativeToRoot : $elementTopLeftRelativeToRoot : $dx,$dy")
 
     return dx <= centerDistanceFromTopLeft && dy <= centerDistanceFromTopLeft
 }

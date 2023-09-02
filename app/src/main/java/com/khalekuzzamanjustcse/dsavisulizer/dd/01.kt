@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -18,7 +17,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,7 +46,7 @@ private fun PPP() {
                 cellPositionInWindow[1] = it.positionInWindow()
                 elementExactPositionInParent[1] = it.positionInWindow()
             }) {
-            D(currentPostion) {
+            Element(currentPostion) {
                 currentPostion = it.positionInParent()
                 elementCurrentPositionInWindow[1] = it.positionInWindow()
                 // Log.i("GlobalPositionParent2:","$currentPostion ,:${it.positionInWindow()-it.positionInParent()}")
@@ -75,7 +73,7 @@ private fun PPP() {
                 cellPositionInWindow[2] = it.positionInWindow()
                 elementExactPositionInParent[2] = it.positionInWindow()
             }) {
-            D(currentPostion2) {
+            Element(currentPostion2) {
                 currentPostion2 = it.positionInParent()
                 elementCurrentPositionInWindow[2] = it.positionInWindow()
                 val positionInParent =
@@ -100,7 +98,7 @@ private fun PPP() {
 }
 
 @Composable
-private fun D(
+private fun Element(
     offset: Offset = Offset.Zero,
     size: Dp = 100.dp,
     onGlobalPositionChange: (LayoutCoordinates) -> Unit
