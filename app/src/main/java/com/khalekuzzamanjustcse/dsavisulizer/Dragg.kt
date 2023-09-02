@@ -23,20 +23,29 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 @Preview
-@Preview
 @Composable
-fun DraggableBox() {
-    var offset by remember { mutableStateOf(Offset(50f, 100f)) }
+fun DraggableBoxList() {
+    val n = 2
+    var initialOffsets by remember {
+        mutableStateOf(
+            (1..n).associateWith { Offset(50f, it * 100f) }
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
-        D(offset = offset) { newOffset ->
-            offset = newOffset
+        for (i in 1..n) {
+            D(id = i, offset = initialOffsets[i] ?: Offset.Zero) { newOffset ->
+                val updatedOffsets = initialOffsets.toMutableMap()
+                updatedOffsets[i] = newOffset
+                initialOffsets = updatedOffsets
+            }
         }
     }
 }
 
 @Composable
-private fun D(offset: Offset, onOffsetChange: (Offset) -> Unit) {
-    var accumulatedDrag = Offset(0f, 0f)
+private fun D(id: Int, offset: Offset, onOffsetChange: (Offset) -> Unit) {
+    var accumulatedDrag by remember { mutableStateOf(Offset(0f, 0f)) }
 
     Box(
         modifier = Modifier
