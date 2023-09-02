@@ -19,8 +19,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -29,36 +27,40 @@ import androidx.compose.ui.unit.dp
 @Preview
 @Composable
 private fun PPP() {
-    var parentOriginRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
-    Row(
+    var parentPositionRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
+    Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
         val cellWidth = 100.dp
-        var currentPostion by remember { mutableStateOf(emptyMap<Int, Offset>()) }
+        var currentPositionRelativeToParent by remember { mutableStateOf(emptyMap<Int, Offset>()) }
+        var currentPositionRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
 
-        for (i in 1..2) {
+        for (i in 1..3) {
             Box(modifier = Modifier
                 .size(cellWidth)
                 .border(color = Color.Black, width = 2.dp)
                 .onGloballyPositioned {
-                    val updatedMap = parentOriginRelativeToRoot.toMutableMap()
+                    val updatedMap = parentPositionRelativeToRoot.toMutableMap()
                     updatedMap[i] = it.positionInParent()
-                    parentOriginRelativeToRoot = updatedMap
+                    parentPositionRelativeToRoot = updatedMap
                 }) {
                 D(
                     modifier = Modifier
-                        .size(cellWidth), offset = currentPostion[i] ?: Offset.Zero
+                        .size(cellWidth), offset = currentPositionRelativeToParent[i] ?: Offset.Zero
                 ) {
-                    val updatedMap = currentPostion.toMutableMap()
-                    updatedMap[i] = (it.positionInRoot() - parentOriginRelativeToRoot[i]!!)
-                    currentPostion = updatedMap
+                    val updatedMap = currentPositionRelativeToParent.toMutableMap()
+                    updatedMap[i] = (it.positionInRoot() - parentPositionRelativeToRoot[i]!!)
+                    currentPositionRelativeToParent = updatedMap
+                    //
+                    val relativeToRoot = currentPositionRelativeToRoot.toMutableMap()
+                    relativeToRoot[i] = it.positionInRoot()
+                    currentPositionRelativeToRoot = relativeToRoot
                 }
 
             }
         }
-
-        Log.i("ParentPositionRelativeRoot", "$parentOriginRelativeToRoot")
+        Log.i("currentPositionRelativeToRoot", "$currentPositionRelativeToRoot")
     }
 
 }
@@ -68,7 +70,6 @@ private fun PPP() {
 private fun D(
     modifier: Modifier = Modifier,
     offset: Offset = Offset.Zero,
-    size: Dp = 100.dp,
     onGlobalPositionChange: (LayoutCoordinates) -> Unit
 ) {
     var accumulatedDrag by remember { mutableStateOf(offset) }
