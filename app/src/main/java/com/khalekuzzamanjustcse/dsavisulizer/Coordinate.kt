@@ -37,12 +37,6 @@ import kotlin.math.abs
 private fun Coor() {
     val cellCoordinates = mutableMapOf<Int, Offset>()
     val elementCoordinates = mutableMapOf<Int, Offset>()
-
-    var initialOffset by remember {
-        mutableStateOf(Offset(50f, 50f))
-    }
-
-
     Row(
         modifier = Modifier.fillMaxSize(
         )
@@ -53,7 +47,7 @@ private fun Coor() {
         Log.i("CellSize", "$cellSizePx")
 
 
-        for (i in 1..1) {
+        for (i in 1..2) {
             Box(modifier = Modifier
                 .size(cellWidth)
                 .border(color = Color.Black, width = 2.dp)
@@ -61,17 +55,13 @@ private fun Coor() {
                     cellCoordinates[i] = it.positionInWindow()
                 }
             ) {
-//                Element {
-//                    elementCoordinates[i] = it
-//                    Log.i("Coordinate:Cells", cellCoordinates.toString())
-//                    Log.i("Coordinate:Elements", elementCoordinates.toString())
-////                    Log.i("Coordinate:ElemenentCenter", cellCenterCoordinates.toString())
-//
-//                }
-                Element2(initialOffset) {
-                    initialOffset+=it
-                    Log.i("OffsetElement2", "$it")
+                Element {
+                    elementCoordinates[i] = it
+                    Log.i("Coordinate:Cells", cellCoordinates.toString())
+                    Log.i("Coordinate:Elements", elementCoordinates.toString())
+
                 }
+
             }
         }
 
@@ -99,8 +89,6 @@ private fun Element(
     var offsetX by remember { mutableStateOf(0.dp) }
     var offsetY by remember { mutableStateOf(0.dp) }
 
-
-
     Box(
         modifier = Modifier
             .size(100.dp)
@@ -127,34 +115,3 @@ private fun Element(
     }
 }
 
-@Composable
-private fun Element2(
-    initialOffset: Offset,
-    onPositionChanged: (Offset) -> Unit
-) {
-
-    Box(
-        modifier = Modifier
-            .size(100.dp)
-            .offset {
-                IntOffset(initialOffset.x.toInt(), initialOffset.y.toInt())
-            }
-            .pointerInput(Unit) {
-                detectDragGestures { _, dragAmount ->
-                    var offset=initialOffset
-                    offset = Offset(offset.x + dragAmount.x, offset.y + dragAmount.y)
-                    onPositionChanged(offset)
-                }
-            }
-            .background(Color(0xFF4DB6AC))
-            .onGloballyPositioned {
-               // onPositionChanged(Offset(it.positionInWindow().x, it.positionInWindow().y))
-            }
-    ) {
-        Text(
-            text = "Hi",
-            style = TextStyle(color = Color.Black, fontSize = 16.sp),
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
