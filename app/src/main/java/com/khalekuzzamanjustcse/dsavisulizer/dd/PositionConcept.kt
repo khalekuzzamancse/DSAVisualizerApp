@@ -70,19 +70,24 @@ private fun PPP() {
                     currentPositionRelativeToRoot = relativeToRoot
 
                     //Snapping
-                    val nearestCell=parentPositionRelativeToRoot[i]?: Offset.Zero
-                   val snap= shouldSnap(
-                        cellTopLeftRelativeToRoot =nearestCell ,
-                        elementTopLeftRelativeToRoot = currentPositionRelativeToRoot[i]?: Offset.Zero,
-                        density=density,
-                        cellSize = cellWidth
-                    )
-                    if(snap){
-                        Log.i("SnapYES$i","aj")
-                        val updatedMap = currentPositionRelativeToParent.toMutableMap()
-                        updatedMap[i] =Offset(0f,0f)
-                        currentPositionRelativeToParent = updatedMap
+                    var nearestCell: Offset? = null
+                    parentPositionRelativeToRoot.forEach {
+                        val snap = shouldSnap(
+                            cellTopLeftRelativeToRoot = it.value,
+                            elementTopLeftRelativeToRoot = currentPositionRelativeToRoot[i]
+                                ?: Offset.Zero,
+                            density = density,
+                            cellSize = cellWidth
+                        )
+                        if (snap) {
+                            Log.i("SnapYES", "${it.key}")
+                            nearestCell = it.value
+                            val updatedMap = currentPositionRelativeToParent.toMutableMap()
+                            updatedMap[i] = nearestCell!! - parentPositionRelativeToRoot[i]!!
+                            currentPositionRelativeToParent = updatedMap
+                        }
                     }
+
 
                 }
 
