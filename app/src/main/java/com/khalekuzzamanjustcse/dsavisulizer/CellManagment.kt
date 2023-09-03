@@ -9,25 +9,25 @@ data class CellManager(
 ) {
 
     fun addCell(
-        id: Int,
+        cellId: Int,
         positionInRoot: Offset = Offset.Zero,
         currentElement: Element? = null
     ): CellManager {
-        val cell = Cell(positionInRoot = positionInRoot, cellSize = cellSize)
+        val cell = Cell(
+            positionInRoot = positionInRoot,
+            cellSize = cellSize,
+            currentElement = currentElement
+        )
         val updatedMap = cells
-        updatedMap[id] = cell
+        updatedMap[cellId] = cell
         return this.copy(cells = updatedMap)
     }
 
-    fun removeCell(id: Int): CellManager {
-        val updatedMap = cells
-        updatedMap.remove(id)
-        return this.copy(cells = updatedMap)
+    fun getCellPositionInRoot(cellId: Int): Offset {
+        return cells[cellId]?.positionInRoot ?: Offset.Infinite
     }
 
-    fun getCellPositionInRoot(id: Int): Offset {
-        return cells[id]?.positionInRoot ?: Offset.Infinite
-    }
+    fun getElementAtCell(cellId: Int): Element? = cells[cellId]?.currentElement
 
     fun updateCurrentElement(cellId: Int, element: Element): CellManager {
         val updatedMap = cells
@@ -47,16 +47,7 @@ data class CellManager(
         return this.copy(cells = updatedMap)
     }
 
-    fun updateTargetElement(cellId: Int, element: Element): CellManager {
-        val updatedMap = cells
-        val oldCell = updatedMap[cellId]
-        if (oldCell != null) {
-            updatedMap[cellId] = oldCell.updateTargetElement(element)
-        }
-        return this.copy(cells = updatedMap)
-    }
-
-    fun findCellByPositionInRoot(position: Offset): Int {
+    fun findCellIdByPositionInRoot(position: Offset): Int {
         cells.forEach { cell ->
             if (cell.value.positionInRoot == position)
                 return cell.key
@@ -74,7 +65,8 @@ data class CellManager(
     }
 
     fun isCellEmpty(cellId: Int) = cells[cellId]?.isEmpty() ?: true
-    fun isCellNotEmpty(cellId: Int) = cells[cellId]?.isNotEmpty() ?: false
+    fun isNotCellEmpty(cellId: Int) = !isCellEmpty(cellId)
+
 
 }
 

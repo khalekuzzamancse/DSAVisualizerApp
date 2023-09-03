@@ -1,14 +1,19 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.Dp
 
 data class ElementManager(
     val elements: MutableMap<Int, Element> = mutableMapOf(),
 ) {
-    fun addElement(id: Int, element: Element): ElementManager {
+    fun addElement(element: Element): ElementManager {
         val updatedMap = elements
-        updatedMap[id] = element
+        updatedMap[element.id] = element
+        return this.copy(elements = updatedMap)
+    }
+
+    fun removeElement(element: Element?): ElementManager {
+        val updatedMap = elements
+        updatedMap.entries.removeAll { it.value == element }
         return this.copy(elements = updatedMap)
     }
 
@@ -29,6 +34,7 @@ data class ElementManager(
         }
         return this.copy(elements = updatedMap)
     }
+
     fun updatePreviousPositionInRoot(elementId: Int, position: Offset): ElementManager {
         val updatedMap = elements
         val oldElement = updatedMap[elementId]
@@ -37,8 +43,6 @@ data class ElementManager(
         }
         return this.copy(elements = updatedMap)
     }
-
-
     fun getElement(id: Int): Element? {
         return elements[id]
     }
@@ -50,10 +54,12 @@ data class Element(
     val positionInRoot: Offset = Offset.Zero,
     val previousPositionInRoot: Offset = Offset.Zero,
     val positionInParent: Offset = Offset.Zero,
-    val value: Int
+    val value: Int,
+    val id: Int,
 ) {
 
     fun updatePositionInRoot(position: Offset) = this.copy(positionInRoot = position)
     fun updatePositionInParent(position: Offset) = this.copy(positionInParent = position)
-    fun updatePreviousPositionInRoot(position: Offset) = this.copy(previousPositionInRoot = position)
+    fun updatePreviousPositionInRoot(position: Offset) =
+        this.copy(previousPositionInRoot = position)
 }

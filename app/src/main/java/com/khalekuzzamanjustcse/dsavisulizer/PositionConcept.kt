@@ -1,15 +1,13 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import android.util.Log
-import androidx.compose.foundation.background
+import android.widget.Toast
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -18,21 +16,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /*
 Concept Used:
@@ -52,22 +46,15 @@ private fun PPP() {
     var cellManager by remember { mutableStateOf(CellManager(cellSize = cellWidth)) }
     var currentPositionRelativeToParent by remember { mutableStateOf(emptyMap<Int, Offset>()) }
     var elementManager by remember { mutableStateOf(ElementManager()) }
+    val context = LocalContext.current
 
 
-    //creating cells
     for (i in 1..n) {
-        cellManager = cellManager.addCell(id = i)
+        val element = Element(value = i, id = i)
+        cellManager = cellManager.addCell(cellId = i, currentElement = element)
+        elementManager = elementManager.addElement(element)
     }
-    //adding elements
-    for (i in 1..n) {
-        val element = Element(value = i)
-        cellManager = cellManager.updateCurrentElement(cellId = i, element = element)
-        elementManager = elementManager.addElement(id = i, element)
-    }
-    val values = cellManager.cells.mapValues {
-        it.value.currentElement?.value ?: 0
-    }
-    Log.i("CellStatus:Initial", "$values")
+
     //lambdas
     val updateElementPosition: (Int, Offset) -> Unit = { i, positionInRoot ->
         val positionInParent = positionInRoot - cellManager.getCellPositionInRoot(i)
@@ -78,10 +65,53 @@ private fun PPP() {
         //
 
     }
+    val removeElement: (Int) -> Unit = { cellId ->
+        val element = cellManager.getElementAtCell(cellId)
+        cellManager = cellManager.removeCurrentElement(cellId)
+        elementManager = elementManager.removeElement(element)
+        val temp = currentPositionRelativeToParent.toMutableMap()
+        if (element != null) {
+            temp.remove(element.id)
+        }
+        currentPositionRelativeToParent = temp
+
+        Log.i(
+            "HSFJsjfjj", "" +
+                    "\n$element" +
+                    "\n$cellManager" +
+                    "\n$elementManager" +
+                    "$\n$currentPositionRelativeToParent"
+        )
+
+    }
+
+
+    val onElementAddedInCell: (Int, Offset) -> Unit = { elementId, cellPosition ->
+        val addAtId = cellManager.findCellIdByPositionInRoot(cellPosition)
+        if (cellManager.isNotCellEmpty(addAtId)) {
+            Toast.makeText(context, "Cell is not Empty\nValue will be replace", Toast.LENGTH_LONG)
+                .show()
+            //   removeElement(addAtId)
+        }
+        val element = elementManager.getElement(elementId)
+        if (element != null)
+            cellManager.updateCurrentElement(addAtId, element)
+
+    }
+
+    val onElementRemovedFromCell: (Offset) -> Unit = { position ->
+        val removedFrom = cellManager.findCellIdByPositionInRoot(position)
+        cellManager.removeCurrentElement(removedFrom)
+    }
+    val onPreviousPositionChanged: (Int, Offset) -> Unit = { elementId, previousPosition ->
+        elementManager = elementManager.updatePreviousPositionInRoot(
+            elementId,
+            previousPosition
+        )
+    }
 
 
     val onDragEnd: (Int, LayoutCoordinates) -> Unit = { elementId, coordinateAfterDrag ->
-
         val nearestCellId: Int? = SnapUtils(
             cellsPositionRelativeToRoot = cellManager.cells.mapValues { (_, cell) -> cell.positionInRoot }
                 .toMap(),
@@ -94,20 +124,12 @@ private fun PPP() {
         if (nearestCellId != null) {
             val cellPosition = cellManager.getCellPositionInRoot(nearestCellId);
             updateElementPosition(elementId, cellPosition)
-
-            val addedAt = cellManager.findCellByPositionInRoot(cellPosition)
-            val element=elementManager.getElement(elementId)
-            if(element != null)
-            cellManager.updateCurrentElement(addedAt, element)
+            onElementAddedInCell(elementId, cellPosition)
         }
 
-        //finally
-        val v = cellManager.cells.mapValues {
-            it.value.currentElement?.value ?: 0
-        }
-        Log.i("CellStatus:Dragged", "$v")
 
     }
+
 
     //UI
 
@@ -116,8 +138,8 @@ private fun PPP() {
             modifier = Modifier
                 .padding(8.dp)
         ) {
-            elementManager.elements.forEach {
-                val elementId = it.key
+            for (i in 1..n) {
+                val cellId = i
                 Box(modifier = Modifier
                     .size(cellWidth)
                     .border(color = Color.Black, width = 2.dp)
@@ -125,39 +147,35 @@ private fun PPP() {
                     .onGloballyPositioned {
                         cellManager =
                             cellManager.updateCellPositionInRoot(
-                                cellId = elementId,
+                                cellId = cellId,
                                 position = it.positionInRoot()
                             )
                     }) {
-
                     CellElement(
                         modifier = Modifier
                             .size(cellWidth),
-                        offset = currentPositionRelativeToParent[elementId] ?: Offset.Zero,
-                        label = "$elementId",
+                        offset = currentPositionRelativeToParent[cellId] ?: Offset.Zero,
+                        label = "$cellId",
                         onDragStart = {
                             val previousPosition = it.positionInRoot()
-
-                            elementManager = elementManager.updatePreviousPositionInRoot(
-                                elementId,
-                                previousPosition
-                            )
-                            val removedFrom = cellManager.findCellByPositionInRoot(previousPosition)
-                            cellManager.removeCurrentElement(removedFrom)
-
+                            onPreviousPositionChanged(cellId, previousPosition)
+                            onElementRemovedFromCell(previousPosition)
                         },
-                        onDragEnd = { globalPosition -> onDragEnd(elementId, globalPosition) }
+                        onDragEnd = { globalPosition -> onDragEnd(cellId, globalPosition) }
                     )
                 }
             }
+
         }
+
+
         //
         TemporaryVariable(
             modifier = Modifier.padding(16.dp),
             cellWidth = cellWidth
         ) {
             cellManager =
-                cellManager.addCell(id = n + 1, positionInRoot = it.positionInRoot())
+                cellManager.addCell(cellId = n + 1, positionInRoot = it.positionInRoot())
 
         }
 
@@ -186,53 +204,4 @@ private fun TemporaryVariable(
 
 }
 
-@Composable
-private fun CellElement(
-    modifier: Modifier = Modifier,
-    offset: Offset = Offset.Zero,
-    label: String,
-    onDragStart: (LayoutCoordinates) -> Unit,
-    onDragEnd: (LayoutCoordinates) -> Unit,
-) {
-    var currentPosition by remember { mutableStateOf(offset) }
-    var globalCoordinate by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
-
-    Box(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    offset.x.toInt() + currentPosition.x.toInt(),
-                    offset.y.toInt() + currentPosition.y.toInt()
-                )
-            }
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragStart = {
-                        globalCoordinate?.let {
-                            onDragStart(it)
-                        }
-                    },
-                    onDragEnd = {
-                        globalCoordinate?.let { onDragEnd(it) }
-                        currentPosition = offset
-
-                    },
-                    onDrag = { change, dragAmount ->
-                        currentPosition = currentPosition.plus(dragAmount)
-                        change.consume()
-                    }
-                )
-            }
-            .background(color = Color.Blue)
-            .onGloballyPositioned {
-                globalCoordinate = it
-            }
-    ) {
-        Text(
-            text = label,
-            style = TextStyle(color = Color.White, fontSize = 16.sp),
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
