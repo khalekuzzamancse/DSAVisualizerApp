@@ -32,6 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.abs
 
+/*
+Concept Used:
+*Relation among;Position In Root, Position in Parent,Position in Window
+*Transformation of origin(Coordinate geometry)
+*find the same position coordinate   with respect two different origin
+
+ */
 @Preview
 @Composable
 private fun PPP() {
@@ -82,7 +89,7 @@ private fun PPP() {
         }
 
 
-        for (i in 1..3) {
+        for (i in 1..5) {
             Box(modifier = Modifier
                 .size(cellWidth)
                 .border(color = Color.Black, width = 2.dp)
