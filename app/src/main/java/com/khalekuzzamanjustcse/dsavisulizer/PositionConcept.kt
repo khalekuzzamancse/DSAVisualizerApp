@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.abs
 
 /*
 Concept Used:
@@ -98,7 +97,7 @@ private fun PPP() {
                     .onGloballyPositioned {
                         updateCellsPositionRelativeToRoot(i, it.positionInRoot())
                     }) {
-                    Element(
+                    CellElement(
                         modifier = Modifier
                             .size(cellWidth),
                         offset = currentPositionRelativeToParent[i] ?: Offset.Zero,
@@ -110,7 +109,8 @@ private fun PPP() {
         //
         TemporaryVariable(
             modifier = Modifier.padding(16.dp),
-            cellWidth = cellWidth) {
+            cellWidth = cellWidth
+        ) {
             updateCellsPositionRelativeToRoot(n + 1, it.positionInRoot())
         }
 
@@ -121,12 +121,12 @@ private fun PPP() {
 
 @Composable
 private fun TemporaryVariable(
-    modifier: Modifier=Modifier,
+    modifier: Modifier = Modifier,
     cellWidth: Dp,
     onGlobalPositionChange: (LayoutCoordinates) -> Unit
 ) {
     //temporary variable
-    Column(modifier=modifier) {
+    Column(modifier = modifier) {
         Text(text = "Temp")
         Box(
             modifier = Modifier
@@ -136,11 +136,11 @@ private fun TemporaryVariable(
                 .onGloballyPositioned(onGlobalPositionChange)
         )
     }
- 
+
 }
 
 @Composable
-private fun Element(
+private fun CellElement(
     modifier: Modifier = Modifier,
     offset: Offset = Offset.Zero,
     label: String,
