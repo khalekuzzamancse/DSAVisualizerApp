@@ -1,17 +1,19 @@
-package com.khalekuzzamanjustcse.dsavisulizer.dd
+package com.khalekuzzamanjustcse.dsavisulizer
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -19,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -43,13 +44,40 @@ private fun PPP() {
         var parentPositionRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
         var currentPositionRelativeToParent by remember { mutableStateOf(emptyMap<Int, Offset>()) }
         var currentPositionRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
-        var cellPositionRelativeToRoot = parentPositionRelativeToRoot
 
-        //
         //
         val cellWidth = 100.dp
         val density = LocalDensity.current.density
-        val cellWidthPx = cellWidth.value * density
+
+        //lambdas
+        val updateCurrentPositionRelativeParent: (Int, Offset) -> Unit = { i, positionInRoot ->
+            val updatedMap = currentPositionRelativeToParent.toMutableMap()
+            updatedMap[i] = (positionInRoot - parentPositionRelativeToRoot[i]!!)
+            currentPositionRelativeToParent = updatedMap
+        }
+        val updateCurrentPositionRelativeRoot: (Int, Offset) -> Unit = { i, positionInRoot ->
+            val relativeToRoot = currentPositionRelativeToRoot.toMutableMap()
+            relativeToRoot[i] = positionInRoot
+            currentPositionRelativeToRoot = relativeToRoot
+        }
+        val updateCellsPositionRelativeToRoot: (Int, Offset) -> Unit = { i, positionInRoot ->
+            val updatedMap = parentPositionRelativeToRoot.toMutableMap()
+            updatedMap[i] = positionInRoot
+            parentPositionRelativeToRoot = updatedMap
+        }
+        val onGlobalPositionChange: (Int, LayoutCoordinates) -> Unit = { i, it ->
+            updateCurrentPositionRelativeParent(i, it.positionInRoot())
+            updateCurrentPositionRelativeRoot(i, it.positionInRoot())
+            val nearestCell: Offset? = SnapUtils(
+                cellsPositionRelativeToRoot = parentPositionRelativeToRoot,
+                currentPositionRelativeToRoot = currentPositionRelativeToRoot[i]
+                    ?: Offset.Zero,
+                density = density,
+                cellWidth = cellWidth
+            ).findNearestCell()
+            if (nearestCell != null)
+                updateCurrentPositionRelativeParent(i, nearestCell)
+        }
 
 
         for (i in 1..3) {
@@ -57,54 +85,18 @@ private fun PPP() {
                 .size(cellWidth)
                 .border(color = Color.Black, width = 2.dp)
                 .onGloballyPositioned {
-                    val updatedMap = parentPositionRelativeToRoot.toMutableMap()
-                    updatedMap[i] = it.positionInParent()
-                    parentPositionRelativeToRoot = updatedMap
-
+                    updateCellsPositionRelativeToRoot(i, it.positionInRoot())
                 }) {
                 Element(
                     modifier = Modifier
                         .size(cellWidth),
                     offset = currentPositionRelativeToParent[i] ?: Offset.Zero,
                     label = "$i"
-                ) {
-                    val updatedMap = currentPositionRelativeToParent.toMutableMap()
-                    updatedMap[i] = (it.positionInRoot() - parentPositionRelativeToRoot[i]!!)
-                    currentPositionRelativeToParent = updatedMap
-                    //
-                    val relativeToRoot = currentPositionRelativeToRoot.toMutableMap()
-                    relativeToRoot[i] = it.positionInRoot()
-                    currentPositionRelativeToRoot = relativeToRoot
-
-                    //Snapping
-                    var nearestCell: Offset? = null
-                    parentPositionRelativeToRoot.forEach {
-                        val snap = shouldSnap(
-                            cellTopLeftRelativeToRoot = it.value,
-                            elementTopLeftRelativeToRoot = currentPositionRelativeToRoot[i]
-                                ?: Offset.Zero,
-                            density = density,
-                            cellSize = cellWidth
-                        )
-                        if (snap) {
-                            Log.i("SnapYES", "${it.key}")
-                            nearestCell = it.value
-                            val updatedMap = currentPositionRelativeToParent.toMutableMap()
-                            updatedMap[i] = nearestCell!! - parentPositionRelativeToRoot[i]!!
-                            currentPositionRelativeToParent = updatedMap
-                        }
-                    }
-
-
-                }
-
+                ) { globalPosition -> onGlobalPositionChange(i, globalPosition) }
             }
         }
-        Log.i(
-            "currentPositionRelativeToRoot", "" +
-                    "$currentPositionRelativeToRoot" +
-                    "\n$cellPositionRelativeToRoot"
-        )
+
+
     }
 
 }
@@ -114,7 +106,7 @@ private fun PPP() {
 private fun Element(
     modifier: Modifier = Modifier,
     offset: Offset = Offset.Zero,
-    label:String,
+    label: String,
     onGlobalPositionChange: (LayoutCoordinates) -> Unit
 ) {
     var accumulatedDrag by remember { mutableStateOf(offset) }
@@ -143,7 +135,7 @@ private fun Element(
             .onGloballyPositioned {
                 globalPosition = it
             }
-    ){
+    ) {
         Text(
             text = label,
             style = TextStyle(color = Color.White, fontSize = 16.sp),
@@ -152,16 +144,33 @@ private fun Element(
     }
 }
 
-private fun shouldSnap(
-    cellTopLeftRelativeToRoot: Offset,
-    elementTopLeftRelativeToRoot: Offset,
-    cellSize: Dp,
-    density: Float
-): Boolean {
-    val cellSizePx = cellSize.value * density
-    val centerDistanceFromTopLeft = cellSizePx / 2
-    val dx = abs(cellTopLeftRelativeToRoot.x - elementTopLeftRelativeToRoot.x)
-    val dy = abs(cellTopLeftRelativeToRoot.y - elementTopLeftRelativeToRoot.y)
+class SnapUtils(
+    private val cellsPositionRelativeToRoot: Map<Int, Offset>,
+    private val currentPositionRelativeToRoot: Offset,
+    private val density: Float,
+    private val cellWidth: Dp
+) {
+    fun findNearestCell(): Offset? {
+        cellsPositionRelativeToRoot.forEach {
+            val snap = shouldSnap(
+                cellTopLeftRelativeToRoot = it.value,
+                elementTopLeftRelativeToRoot = currentPositionRelativeToRoot,
+            )
+            if (snap)
+                return it.value
+        }
+        return null
+    }
 
-    return dx <= centerDistanceFromTopLeft && dy <= centerDistanceFromTopLeft
+    private fun shouldSnap(
+        cellTopLeftRelativeToRoot: Offset,
+        elementTopLeftRelativeToRoot: Offset,
+    ): Boolean {
+        val cellSizePx = cellWidth.value * density
+        val centerDistanceFromTopLeft = cellSizePx / 2
+        val dx = abs(cellTopLeftRelativeToRoot.x - elementTopLeftRelativeToRoot.x)
+        val dy = abs(cellTopLeftRelativeToRoot.y - elementTopLeftRelativeToRoot.y)
+        return dx <= centerDistanceFromTopLeft && dy <= centerDistanceFromTopLeft
+
+    }
 }
