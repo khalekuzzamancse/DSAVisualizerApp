@@ -10,14 +10,14 @@ class SnapUtils(
     private val density: Float,
     private val cellWidth: Dp
 ) {
-    fun findNearestCell(): Offset? {
+    fun findNearestCellId(): Int? {
         cellsPositionRelativeToRoot.forEach {
             val snap = shouldSnap(
                 cellTopLeftRelativeToRoot = it.value,
                 elementTopLeftRelativeToRoot = currentPositionRelativeToRoot,
             )
             if (snap)
-                return it.value
+                return it.key
         }
         return null
     }

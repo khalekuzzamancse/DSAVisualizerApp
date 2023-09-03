@@ -2,21 +2,37 @@ package com.khalekuzzamanjustcse.dsavisulizer
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
-class  CellManager{
 
-}
-data class Cell(
-    val positionInRoot: Offset = Offset.Zero,
-    val cellSize: Dp,
-    val currentElement: Element? = null,
-    val targetElement: Element? = null,
+data class ElementManager(
+    val elements: MutableMap<Int, Element> = mutableMapOf(),
 ) {
-    fun isEmpty() = currentElement == null
-    fun isNotEmpty() = !isEmpty()
-    fun doesContainTargetElement() = (currentElement != null && targetElement == currentElement)
-    fun removeElement() = this.copy(currentElement = null)
-    fun updateCurrentElement(element: Element) = this.copy(currentElement = element)
-    fun updateTargetElement(element: Element) = this.copy(targetElement = element)
+    fun addElement(id: Int, element: Element): ElementManager {
+        val updatedMap = elements
+        updatedMap[id] = element
+        return this.copy(elements = updatedMap)
+    }
+
+    fun updatePositionInParent(elementId: Int, position: Offset): ElementManager {
+        val updatedMap = elements
+        val oldElement = updatedMap[elementId]
+        if (oldElement != null) {
+            updatedMap[elementId] = oldElement.updatePositionInParent(position)
+        }
+        return this.copy(elements = updatedMap)
+    }
+    fun updatePositionInRoot(elementId: Int, position: Offset): ElementManager {
+        val updatedMap = elements
+        val oldElement = updatedMap[elementId]
+        if (oldElement != null) {
+            updatedMap[elementId] = oldElement.updatePositionInRoot(position)
+        }
+        return this.copy(elements = updatedMap)
+    }
+
+    fun getElement(id: Int): Element? {
+        return elements[id]
+    }
+
 
 }
 

@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -44,63 +45,94 @@ Concept Used:
 @Preview
 @Composable
 private fun PPP() {
-    var parentPositionRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
-    var currentPositionRelativeToParent by remember { mutableStateOf(emptyMap<Int, Offset>()) }
-    var currentPositionRelativeToRoot by remember { mutableStateOf(emptyMap<Int, Offset>()) }
-
-    //
     val cellWidth = 100.dp
     val density = LocalDensity.current.density
     val n = 5
+    //states
+    var cellManager by remember { mutableStateOf(CellManager(cellSize = cellWidth)) }
+    var currentPositionRelativeToParent by remember { mutableStateOf(emptyMap<Int, Offset>()) }
+    var elementManager by remember { mutableStateOf(ElementManager()) }
 
+    //adding elements
+    for (i in 1..n) {
+        elementManager = elementManager.addElement(id = i, Element(value = i))
+    }
     //lambdas
     val updateCurrentPositionRelativeParent: (Int, Offset) -> Unit = { i, positionInRoot ->
-        val updatedMap = currentPositionRelativeToParent.toMutableMap()
-        updatedMap[i] = (positionInRoot - parentPositionRelativeToRoot[i]!!)
-        currentPositionRelativeToParent = updatedMap
+        val position = positionInRoot - cellManager.getCellPositionInRoot(i)
+        elementManager = elementManager.updatePositionInParent(i, position)
+        currentPositionRelativeToParent =
+            elementManager.elements.mapValues { (_, element) -> element.positionInParent }
+
     }
     val updateCurrentPositionRelativeRoot: (Int, Offset) -> Unit = { i, positionInRoot ->
-        val relativeToRoot = currentPositionRelativeToRoot.toMutableMap()
-        relativeToRoot[i] = positionInRoot
-        currentPositionRelativeToRoot = relativeToRoot
+        elementManager = elementManager.updatePositionInRoot(i, positionInRoot)
     }
-    val updateCellsPositionRelativeToRoot: (Int, Offset) -> Unit = { i, positionInRoot ->
-        val updatedMap = parentPositionRelativeToRoot.toMutableMap()
-        updatedMap[i] = positionInRoot
-        parentPositionRelativeToRoot = updatedMap
-    }
+
+
     val onGlobalPositionChange: (Int, LayoutCoordinates) -> Unit = { i, it ->
         updateCurrentPositionRelativeParent(i, it.positionInRoot())
         updateCurrentPositionRelativeRoot(i, it.positionInRoot())
-        val nearestCell: Offset? = SnapUtils(
-            cellsPositionRelativeToRoot = parentPositionRelativeToRoot,
-            currentPositionRelativeToRoot = currentPositionRelativeToRoot[i]
-                ?: Offset.Zero,
+        val cellPositionInRoot =
+            cellManager.cells.mapValues { (_, cell) -> cell.positionInRoot }.toMap()
+        val currentPositionInRoot = elementManager.getElement(i)?.positionInRoot ?: Offset.Zero
+        //removed from cell
+        cellManager = cellManager.removeCurrentElement(i)
+        //find nearest cell to snap
+        val nearestCellId: Int? = SnapUtils(
+            cellsPositionRelativeToRoot = cellPositionInRoot,
+            currentPositionRelativeToRoot = currentPositionInRoot,
             density = density,
             cellWidth = cellWidth
-        ).findNearestCell()
-        if (nearestCell != null)
-            updateCurrentPositionRelativeParent(i, nearestCell)
+        ).findNearestCellId()
+        //
+
+        if (nearestCellId != null) {
+            val cellPosition = cellManager.getCellPositionInRoot(nearestCellId);
+            updateCurrentPositionRelativeParent(i, cellPosition)
+
+            val element = elementManager.getElement(i)
+            if (element != null) {
+                cellManager = cellManager.updateCurrentElement(nearestCellId, element)
+
+            }
+
+
+        }
+
+        //printing
+       val values= cellManager.cells.mapValues {
+           it.value.currentElement?.value ?: 0
+        }
+        Log.i("CellStatus","$values")
+
     }
+
+    //UI
 
     Column(modifier = Modifier.fillMaxSize()) {
         FlowRow(
             modifier = Modifier
                 .padding(8.dp)
         ) {
-
-            for (i in 1..n) {
+            elementManager.elements.forEach {
+                val i = it.key
                 Box(modifier = Modifier
                     .size(cellWidth)
                     .border(color = Color.Black, width = 2.dp)
                     .padding(8.dp)
                     .onGloballyPositioned {
-                        updateCellsPositionRelativeToRoot(i, it.positionInRoot())
+                        cellManager =
+                            cellManager.addCell(id = i, positionInRoot = it.positionInRoot())
+
                     }) {
+
+
                     CellElement(
                         modifier = Modifier
                             .size(cellWidth),
                         offset = currentPositionRelativeToParent[i] ?: Offset.Zero,
+
                         label = "$i"
                     ) { globalPosition -> onGlobalPositionChange(i, globalPosition) }
                 }
@@ -111,7 +143,8 @@ private fun PPP() {
             modifier = Modifier.padding(16.dp),
             cellWidth = cellWidth
         ) {
-            updateCellsPositionRelativeToRoot(n + 1, it.positionInRoot())
+            cellManager =
+                cellManager.addCell(id = n + 1, positionInRoot = it.positionInRoot())
         }
 
     }
@@ -180,4 +213,3 @@ private fun CellElement(
         )
     }
 }
-
