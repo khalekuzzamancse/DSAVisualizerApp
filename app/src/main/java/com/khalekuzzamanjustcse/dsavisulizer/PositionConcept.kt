@@ -53,10 +53,21 @@ private fun PPP() {
     var currentPositionRelativeToParent by remember { mutableStateOf(emptyMap<Int, Offset>()) }
     var elementManager by remember { mutableStateOf(ElementManager()) }
 
-    //adding elements
+
+    //creating cells with adding elements
+    //creating cells with adding elements
     for (i in 1..n) {
-        elementManager = elementManager.addElement(id = i, Element(value = i))
+        cellManager = cellManager.addCell(id = i)
     }
+    for (i in 1..n) {
+        val element = Element(value = i)
+        cellManager = cellManager.updateCurrentElement(cellId = i, element = element)
+        elementManager = elementManager.addElement(id = i, element)
+    }
+    val values = cellManager.cells.mapValues {
+        it.value.currentElement?.value ?: 0
+    }
+    Log.i("CellStatus:Initial", "$values")
     //lambdas
     val updateCurrentPositionRelativeParent: (Int, Offset) -> Unit = { i, positionInRoot ->
         val position = positionInRoot - cellManager.getCellPositionInRoot(i)
@@ -101,10 +112,10 @@ private fun PPP() {
         }
 
         //printing
-       val values= cellManager.cells.mapValues {
-           it.value.currentElement?.value ?: 0
+        val values = cellManager.cells.mapValues {
+            it.value.currentElement?.value ?: 0
         }
-        Log.i("CellStatus","$values")
+        Log.i("CellStatus", "$values")
 
     }
 
@@ -123,8 +134,10 @@ private fun PPP() {
                     .padding(8.dp)
                     .onGloballyPositioned {
                         cellManager =
-                            cellManager.addCell(id = i, positionInRoot = it.positionInRoot())
-
+                            cellManager.updateCellPositionInRoot(
+                                cellId = i,
+                                position = it.positionInRoot()
+                            )
                     }) {
 
 
@@ -145,6 +158,7 @@ private fun PPP() {
         ) {
             cellManager =
                 cellManager.addCell(id = n + 1, positionInRoot = it.positionInRoot())
+
         }
 
     }

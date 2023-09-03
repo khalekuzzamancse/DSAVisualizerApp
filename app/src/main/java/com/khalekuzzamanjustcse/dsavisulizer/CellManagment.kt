@@ -8,7 +8,11 @@ data class CellManager(
     val cellSize: Dp,
 ) {
 
-    fun addCell(id: Int, positionInRoot: Offset): CellManager {
+    fun addCell(
+        id: Int,
+        positionInRoot: Offset = Offset.Zero,
+        currentElement: Element? = null
+    ): CellManager {
         val cell = Cell(positionInRoot = positionInRoot, cellSize = cellSize)
         val updatedMap = cells
         updatedMap[id] = cell
@@ -30,6 +34,15 @@ data class CellManager(
         val oldCell = updatedMap[cellId]
         if (oldCell != null) {
             updatedMap[cellId] = oldCell.updateCurrentElement(element)
+        }
+        return this.copy(cells = updatedMap)
+    }
+
+    fun updateCellPositionInRoot(cellId: Int, position: Offset): CellManager {
+        val updatedMap = cells
+        val oldCell = updatedMap[cellId]
+        if (oldCell != null) {
+            updatedMap[cellId] = oldCell.updatePositionInRoot(position)
         }
         return this.copy(cells = updatedMap)
     }
@@ -69,5 +82,6 @@ data class Cell(
     fun removCurrentElement() = this.copy(currentElement = null)
     fun updateCurrentElement(element: Element) = this.copy(currentElement = element)
     fun updateTargetElement(element: Element) = this.copy(targetElement = element)
+    fun updatePositionInRoot(position: Offset) = this.copy(positionInRoot = position)
 
 }
