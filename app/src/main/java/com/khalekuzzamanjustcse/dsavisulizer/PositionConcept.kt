@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ private fun PPP() {
 
     Row(
         modifier = Modifier
+            .padding(8.dp)
             .fillMaxSize()
     ) {
 
@@ -84,6 +86,7 @@ private fun PPP() {
             Box(modifier = Modifier
                 .size(cellWidth)
                 .border(color = Color.Black, width = 2.dp)
+                .padding(8.dp)
                 .onGloballyPositioned {
                     updateCellsPositionRelativeToRoot(i, it.positionInRoot())
                 }) {
