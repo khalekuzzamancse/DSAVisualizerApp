@@ -54,11 +54,11 @@ private fun PPP() {
     var elementManager by remember { mutableStateOf(ElementManager()) }
 
 
-    //creating cells with adding elements
-    //creating cells with adding elements
+    //creating cells
     for (i in 1..n) {
         cellManager = cellManager.addCell(id = i)
     }
+    //adding elements
     for (i in 1..n) {
         val element = Element(value = i)
         cellManager = cellManager.updateCurrentElement(cellId = i, element = element)
@@ -69,53 +69,43 @@ private fun PPP() {
     }
     Log.i("CellStatus:Initial", "$values")
     //lambdas
-    val updateCurrentPositionRelativeParent: (Int, Offset) -> Unit = { i, positionInRoot ->
-        val position = positionInRoot - cellManager.getCellPositionInRoot(i)
-        elementManager = elementManager.updatePositionInParent(i, position)
+    val updateElementPosition: (Int, Offset) -> Unit = { i, positionInRoot ->
+        val positionInParent = positionInRoot - cellManager.getCellPositionInRoot(i)
+        elementManager = elementManager.updatePositionInParent(i, positionInParent)
+        elementManager = elementManager.updatePositionInRoot(i, positionInRoot)
         currentPositionRelativeToParent =
             elementManager.elements.mapValues { (_, element) -> element.positionInParent }
+        //
 
     }
-    val updateCurrentPositionRelativeRoot: (Int, Offset) -> Unit = { i, positionInRoot ->
-        elementManager = elementManager.updatePositionInRoot(i, positionInRoot)
-    }
 
 
-    val onGlobalPositionChange: (Int, LayoutCoordinates) -> Unit = { i, it ->
-        updateCurrentPositionRelativeParent(i, it.positionInRoot())
-        updateCurrentPositionRelativeRoot(i, it.positionInRoot())
-        val cellPositionInRoot =
-            cellManager.cells.mapValues { (_, cell) -> cell.positionInRoot }.toMap()
-        val currentPositionInRoot = elementManager.getElement(i)?.positionInRoot ?: Offset.Zero
-        //removed from cell
-        cellManager = cellManager.removeCurrentElement(i)
-        //find nearest cell to snap
+    val onDragEnd: (Int, LayoutCoordinates) -> Unit = { elementId, coordinateAfterDrag ->
+
         val nearestCellId: Int? = SnapUtils(
-            cellsPositionRelativeToRoot = cellPositionInRoot,
-            currentPositionRelativeToRoot = currentPositionInRoot,
+            cellsPositionRelativeToRoot = cellManager.cells.mapValues { (_, cell) -> cell.positionInRoot }
+                .toMap(),
+            currentPositionRelativeToRoot = coordinateAfterDrag.positionInRoot(),
             density = density,
             cellWidth = cellWidth
         ).findNearestCellId()
-        //
 
+        //Snap to nearest cell
         if (nearestCellId != null) {
             val cellPosition = cellManager.getCellPositionInRoot(nearestCellId);
-            updateCurrentPositionRelativeParent(i, cellPosition)
+            updateElementPosition(elementId, cellPosition)
 
-            val element = elementManager.getElement(i)
-            if (element != null) {
-                cellManager = cellManager.updateCurrentElement(nearestCellId, element)
-
-            }
-
-
+            val addedAt = cellManager.findCellByPositionInRoot(cellPosition)
+            val element=elementManager.getElement(elementId)
+            if(element != null)
+            cellManager.updateCurrentElement(addedAt, element)
         }
 
-        //printing
-        val values = cellManager.cells.mapValues {
+        //finally
+        val v = cellManager.cells.mapValues {
             it.value.currentElement?.value ?: 0
         }
-        Log.i("CellStatus", "$values")
+        Log.i("CellStatus:Dragged", "$v")
 
     }
 
@@ -127,7 +117,7 @@ private fun PPP() {
                 .padding(8.dp)
         ) {
             elementManager.elements.forEach {
-                val i = it.key
+                val elementId = it.key
                 Box(modifier = Modifier
                     .size(cellWidth)
                     .border(color = Color.Black, width = 2.dp)
@@ -135,19 +125,29 @@ private fun PPP() {
                     .onGloballyPositioned {
                         cellManager =
                             cellManager.updateCellPositionInRoot(
-                                cellId = i,
+                                cellId = elementId,
                                 position = it.positionInRoot()
                             )
                     }) {
 
-
                     CellElement(
                         modifier = Modifier
                             .size(cellWidth),
-                        offset = currentPositionRelativeToParent[i] ?: Offset.Zero,
+                        offset = currentPositionRelativeToParent[elementId] ?: Offset.Zero,
+                        label = "$elementId",
+                        onDragStart = {
+                            val previousPosition = it.positionInRoot()
 
-                        label = "$i"
-                    ) { globalPosition -> onGlobalPositionChange(i, globalPosition) }
+                            elementManager = elementManager.updatePreviousPositionInRoot(
+                                elementId,
+                                previousPosition
+                            )
+                            val removedFrom = cellManager.findCellByPositionInRoot(previousPosition)
+                            cellManager.removeCurrentElement(removedFrom)
+
+                        },
+                        onDragEnd = { globalPosition -> onDragEnd(elementId, globalPosition) }
+                    )
                 }
             }
         }
@@ -191,33 +191,42 @@ private fun CellElement(
     modifier: Modifier = Modifier,
     offset: Offset = Offset.Zero,
     label: String,
-    onGlobalPositionChange: (LayoutCoordinates) -> Unit
+    onDragStart: (LayoutCoordinates) -> Unit,
+    onDragEnd: (LayoutCoordinates) -> Unit,
 ) {
-    var accumulatedDrag by remember { mutableStateOf(offset) }
-    var globalPosition by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var currentPosition by remember { mutableStateOf(offset) }
+    var globalCoordinate by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
 
     Box(
         modifier = modifier
             .offset {
                 IntOffset(
-                    offset.x.toInt() + accumulatedDrag.x.toInt(),
-                    offset.y.toInt() + accumulatedDrag.y.toInt()
+                    offset.x.toInt() + currentPosition.x.toInt(),
+                    offset.y.toInt() + currentPosition.y.toInt()
                 )
             }
             .pointerInput(Unit) {
                 detectDragGestures(
+                    onDragStart = {
+                        globalCoordinate?.let {
+                            onDragStart(it)
+                        }
+                    },
                     onDragEnd = {
-                        globalPosition?.let { onGlobalPositionChange(it) }
-                        accumulatedDrag = offset
+                        globalCoordinate?.let { onDragEnd(it) }
+                        currentPosition = offset
+
+                    },
+                    onDrag = { change, dragAmount ->
+                        currentPosition = currentPosition.plus(dragAmount)
+                        change.consume()
                     }
-                ) { change, dragAmount ->
-                    accumulatedDrag = accumulatedDrag.plus(dragAmount)
-                    change.consume()
-                }
+                )
             }
             .background(color = Color.Blue)
             .onGloballyPositioned {
-                globalPosition = it
+                globalCoordinate = it
             }
     ) {
         Text(

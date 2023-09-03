@@ -20,6 +20,7 @@ data class ElementManager(
         }
         return this.copy(elements = updatedMap)
     }
+
     fun updatePositionInRoot(elementId: Int, position: Offset): ElementManager {
         val updatedMap = elements
         val oldElement = updatedMap[elementId]
@@ -28,6 +29,15 @@ data class ElementManager(
         }
         return this.copy(elements = updatedMap)
     }
+    fun updatePreviousPositionInRoot(elementId: Int, position: Offset): ElementManager {
+        val updatedMap = elements
+        val oldElement = updatedMap[elementId]
+        if (oldElement != null) {
+            updatedMap[elementId] = oldElement.updatePreviousPositionInRoot(position)
+        }
+        return this.copy(elements = updatedMap)
+    }
+
 
     fun getElement(id: Int): Element? {
         return elements[id]
@@ -38,9 +48,12 @@ data class ElementManager(
 
 data class Element(
     val positionInRoot: Offset = Offset.Zero,
+    val previousPositionInRoot: Offset = Offset.Zero,
     val positionInParent: Offset = Offset.Zero,
     val value: Int
 ) {
+
     fun updatePositionInRoot(position: Offset) = this.copy(positionInRoot = position)
     fun updatePositionInParent(position: Offset) = this.copy(positionInParent = position)
+    fun updatePreviousPositionInRoot(position: Offset) = this.copy(previousPositionInRoot = position)
 }

@@ -56,6 +56,14 @@ data class CellManager(
         return this.copy(cells = updatedMap)
     }
 
+    fun findCellByPositionInRoot(position: Offset): Int {
+        cells.forEach { cell ->
+            if (cell.value.positionInRoot == position)
+                return cell.key
+        }
+        return -1
+    }
+
     fun removeCurrentElement(cellId: Int): CellManager {
         val updatedMap = cells
         val oldCell = updatedMap[cellId]
