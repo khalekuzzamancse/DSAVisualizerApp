@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,15 +48,17 @@ Concept Used:
 @Composable
 private fun PPP() {
     val cellWidth = 100.dp
-
-    val n = 5
+    val n = 10
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
     var allCellPlaced by remember { mutableStateOf(false) }
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())
+    ) {
         FlowRow(
             modifier = Modifier
                 .padding(8.dp)
@@ -68,7 +72,7 @@ private fun PPP() {
                         val tempCell = cellPosition.toMutableMap()
                         tempCell[i] = (it.positionInParent())
                         cellPosition = tempCell
-                        allCellPlaced = cellPosition.size == 5
+                        allCellPlaced = cellPosition.size == n
                     })
 
             }
@@ -84,9 +88,6 @@ private fun PPP() {
                     initialPosition = cellPosition[i] ?: Offset.Zero,
                 )
             }
-
-
-
 
         }
 
@@ -121,7 +122,7 @@ private fun CellE(
     Box(
         modifier = modifier
             .padding(padding)
-            .size(size-padding-padding)
+            .size(size - padding - padding)
             .offset {
                 IntOffset(
                     offset.x.roundToInt(),
