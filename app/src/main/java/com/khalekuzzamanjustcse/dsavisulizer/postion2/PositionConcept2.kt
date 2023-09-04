@@ -2,6 +2,7 @@ package com.khalekuzzamanjustcse.dsavisulizer.postion2
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -20,14 +21,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 
 /*
 Concept Used:
@@ -41,21 +46,12 @@ Concept Used:
 @Composable
 private fun PPP() {
     val cellWidth = 100.dp
-    val density = LocalDensity.current.density
-    val padding = 8.dp
-    val paddingPx =(padding.value * density).toInt()
 
     val n = 5
     var cellPosition by remember {
-        mutableStateOf(listOf<Offset>())
+        mutableStateOf(mapOf<Int, Offset>())
     }
-    var offset by remember {
-        mutableStateOf(mapOf<Int, IntOffset>())
-    }
-
-    fun getIntOffset(offset: Offset): IntOffset {
-        return IntOffset(offset.x.toInt(), offset.y.toInt())
-    }
+    var allCellPlaced by remember { mutableStateOf(false) }
 
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -69,43 +65,86 @@ private fun PPP() {
                     .border(color = Color.Black, width = 2.dp)
                     .padding(8.dp)
                     .onGloballyPositioned {
-                        val tempCell = cellPosition.toMutableList()
-                        tempCell.add(it.positionInParent())
+                        val tempCell = cellPosition.toMutableMap()
+                        tempCell[i] = (it.positionInParent())
                         cellPosition = tempCell
+                        allCellPlaced = cellPosition.size == 5
                     })
+
             }
+
 
         }
 
-        for (i in 1..n) {
-            Box(
-                modifier = Modifier
-                    .size(cellWidth - 16.dp)
-                    .offset {
-                        offset[i - 1] ?: IntOffset.Zero
-                    }
-                    .background(color = Color.Blue)
-                    .onGloballyPositioned {
-                        val temp = offset.toMutableMap()
-                        temp[i - 1] =
-                            (temp[i - 1]?.minus(getIntOffset(it.positionInParent()))
-                                ?: IntOffset.Zero) + getIntOffset(cellPosition[i - 1])+
-                                    IntOffset(paddingPx,paddingPx)
-                        offset = temp
 
-                    }
-            ) {
-                Text(
-                    text = "$i",
-                    style = TextStyle(color = Color.White, fontSize = 16.sp),
-                    modifier = Modifier.align(Alignment.Center)
+        if (allCellPlaced) {
+            for(i in 1..n){
+                CellE(
+                    label = "$i",
+                    initialPosition = cellPosition[i] ?: Offset.Zero,
                 )
             }
-        }
 
+
+
+
+        }
 
     }
 
 
 }
+
+@Composable
+private fun CellE(
+    modifier: Modifier = Modifier,
+    label: String,
+    initialPosition: Offset = Offset.Zero,
+    initialOffset: Offset = Offset(0f, 0f),
+    size: Dp = 100.dp
+) {
+    var offset by remember { mutableStateOf(initialOffset) }
+    var initialPositionNotSet by remember { mutableStateOf(true) }
+    val density = LocalDensity.current.density
+    val padding = 8.dp
+    val paddingPx = (padding.value * density)
+    val paddingOffset = Offset(paddingPx, paddingPx)
+
+    val initialPositionSetup: (LayoutCoordinates) -> Unit = {
+        if (initialPositionNotSet) {
+            offset = initialPosition - it.positionInParent()+paddingOffset
+            initialPositionNotSet = false
+        }
+
+    }
+
+    Box(
+        modifier = modifier
+            .padding(padding)
+            .size(size-padding-padding)
+            .offset {
+                IntOffset(
+                    offset.x.roundToInt(),
+                    offset.y.roundToInt()
+                )
+            }
+            .onGloballyPositioned {
+                initialPositionSetup(it)
+            }
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    offset = offset.plus(dragAmount)
+                    change.consume()
+                }
+            }
+            .background(color = Color.Blue)
+    ) {
+        Text(
+            text = label,
+            style = TextStyle(color = Color.White, fontSize = 16.sp),
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
 
