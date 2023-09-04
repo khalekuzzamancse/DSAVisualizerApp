@@ -46,6 +46,7 @@ private fun PPP() {
         mutableStateOf(mapOf<Int, Offset>())
     }
     var allCellPlaced by remember { mutableStateOf(false) }
+
     val density = LocalDensity.current.density
     val snapUtils by remember(cellPosition) {
         mutableStateOf(
@@ -83,7 +84,7 @@ private fun PPP() {
         }
 
         if (allCellPlaced) {
-            for (i in 1..numberOfElements - 2) {
+            for (i in 1..numberOfElements) {
                 CellE(
                     label = "$i",
                     currentOffset = cellPosition[i] ?: Offset.Zero
@@ -91,8 +92,7 @@ private fun PPP() {
                     var finalPosition = it
                     val nearestCellId: Int =
                         snapUtils.findNearestCellId(elementCurrentPosition = it)
-                    val pos = cellPosition[nearestCellId] ?: it
-                    finalPosition = pos
+                    finalPosition = cellPosition[nearestCellId] ?: it
                     //returning the final position though lambda
                     finalPosition
                 }
