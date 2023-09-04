@@ -48,7 +48,7 @@ Concept Used:
 @Composable
 private fun PPP() {
     val cellWidth = 100.dp
-    val n = 10
+    val numberOfElements = 25
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
@@ -63,7 +63,7 @@ private fun PPP() {
             modifier = Modifier
                 .padding(8.dp)
         ) {
-            for (i in 1..n) {
+            for (i in 1..numberOfElements) {
                 Box(modifier = Modifier
                     .size(cellWidth)
                     .border(color = Color.Black, width = 2.dp)
@@ -72,7 +72,7 @@ private fun PPP() {
                         val tempCell = cellPosition.toMutableMap()
                         tempCell[i] = (it.positionInParent())
                         cellPosition = tempCell
-                        allCellPlaced = cellPosition.size == n
+                        allCellPlaced = cellPosition.size == numberOfElements
                     })
 
             }
@@ -82,7 +82,7 @@ private fun PPP() {
 
 
         if (allCellPlaced) {
-            for(i in 1..n){
+            for(i in 1..numberOfElements){
                 CellE(
                     label = "$i",
                     initialPosition = cellPosition[i] ?: Offset.Zero,
