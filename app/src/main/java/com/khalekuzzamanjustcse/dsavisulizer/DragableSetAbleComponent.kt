@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.dsavisulizer.postion2
+package com.khalekuzzamanjustcse.dsavisulizer
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -25,11 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,15 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.khalekuzzamanjustcse.dsavisulizer.SnapUtils
 import kotlin.math.roundToInt
 
-/*
-Concept Used:
-*Relation among;Position In Root, Position in Parent,Position in Window
-*Transformation of origin(Coordinate geometry)
-*find the same position coordinate   with respect two different origin
- */
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
@@ -55,18 +48,16 @@ private fun PPP() {
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
-    var allCellPlaced by remember { mutableStateOf(false) }
-    val density = LocalDensity.current.density
 
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .padding(8.dp)
     ) {
         FlowRow(
             modifier = Modifier
-                .padding(8.dp)
         ) {
             for (i in 1..numberOfElements) {
                 Box(modifier = Modifier
@@ -77,76 +68,56 @@ private fun PPP() {
                         val tempCell = cellPosition.toMutableMap()
                         tempCell[i] = (it.positionInParent())
                         cellPosition = tempCell
-                        allCellPlaced = cellPosition.size == numberOfElements
                     })
 
             }
 
-
         }
 
         var currentOffset by remember {
-            mutableStateOf(Offset(0f,0f))
+            mutableStateOf(Offset.Zero)
         }
-
-        if (allCellPlaced) {
-                CellE(
-                    label = "$1",
-                    initialPosition = cellPosition[1] ?: Offset.Zero,
-                    currentOffset =currentOffset
-                ) {
-
-                }
-            }
-
+        CellE(
+            label = "$1",
+            currentOffset = currentOffset
+        ) {
+            //returing offset
+           // Offset(200f, 0f)
+            it
         }
 
     }
 
-
-
+}
 
 @Composable
 private fun CellE(
     modifier: Modifier = Modifier,
     label: String,
-    initialPosition: Offset = Offset.Zero,
     currentOffset: Offset = Offset(0f, 0f),
     size: Dp = 100.dp,
-    onDragEnd: (Offset) -> Unit,
+    onDragEnd: (Offset) -> Offset,
 ) {
     var offset by remember { mutableStateOf(currentOffset) }
-    var initialPositionNotSet by remember { mutableStateOf(true) }
     val padding = 8.dp
-
     var globalCoordinate by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    val initialPositionSetup: (LayoutCoordinates) -> Unit = {
-        if (initialPositionNotSet) {
-            offset = initialPosition - it.positionInParent()
-            initialPositionNotSet = false
-        }
-
-    }
-
     Box(
         modifier = modifier
             .size(size)
-            .offset {
-                IntOffset(
-                    offset.x.roundToInt(),
-                    offset.y.roundToInt()
-                )
+            .graphicsLayer {
+                translationX = offset.x
+                translationY = offset.y
             }
             .onGloballyPositioned {
-                initialPositionSetup(it)
                 globalCoordinate = it
-
+                Log.i("GlobalCooridate", "${globalCoordinate!!.positionInParent()}")
             }
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
-                        globalCoordinate?.let { onDragEnd(it.positionInParent()) }
-
+                        globalCoordinate?.let {
+                            offset = onDragEnd(it.positionInParent())
+                        }
                     },
                     onDrag = { change, dragAmount ->
                         offset = offset.plus(dragAmount)
@@ -166,5 +137,3 @@ private fun CellE(
         )
     }
 }
-
-//
