@@ -60,11 +60,9 @@ fun DraggableElementPreview() {
         )
     }
     val onDragEnd: (Offset) -> Offset = {
-        var finalPosition = it
         val nearestCellId: Int =
             snapUtils.findNearestCellId(elementCurrentPosition = it)
-        finalPosition = cellPosition[nearestCellId] ?: it
-
+        val finalPosition = cellPosition[nearestCellId] ?: it
         finalPosition
     }
 
