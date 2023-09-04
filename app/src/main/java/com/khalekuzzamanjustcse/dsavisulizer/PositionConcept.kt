@@ -112,20 +112,20 @@ private fun PPP() {
 
 
     val onDragEnd: (Int, LayoutCoordinates) -> Unit = { elementId, coordinateAfterDrag ->
-        val nearestCellId: Int? = SnapUtils(
-            cellsPositionRelativeToRoot = cellManager.cells.mapValues { (_, cell) -> cell.positionInRoot }
-                .toMap(),
-            currentPositionRelativeToRoot = coordinateAfterDrag.positionInRoot(),
-            density = density,
-            cellWidth = cellWidth
-        ).findNearestCellId()
-
-        //Snap to nearest cell
-        if (nearestCellId != null) {
-            val cellPosition = cellManager.getCellPositionInRoot(nearestCellId);
-            updateElementPosition(elementId, cellPosition)
-            onElementAddedInCell(elementId, cellPosition)
-        }
+//        val nearestCellId: Int? = SnapUtils(
+//            cellsPosition = cellManager.cells.mapValues { (_, cell) -> cell.positionInRoot }
+//                .toMap(),
+//            elementCurrentPosition = coordinateAfterDrag.positionInRoot(),
+//            density = density,
+//            cellWidth = cellWidth
+//        ).findNearestCellId()
+//
+//        //Snap to nearest cell
+//        if (nearestCellId != null) {
+//            val cellPosition = cellManager.getCellPositionInRoot(nearestCellId);
+//            updateElementPosition(elementId, cellPosition)
+//            onElementAddedInCell(elementId, cellPosition)
+//        }
 
 
     }

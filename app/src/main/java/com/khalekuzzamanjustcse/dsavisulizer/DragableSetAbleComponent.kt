@@ -5,11 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -18,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,10 +33,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -47,6 +44,17 @@ private fun PPP() {
     val numberOfElements = 6
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
+    }
+    var allCellPlaced by remember { mutableStateOf(false) }
+    val density = LocalDensity.current.density
+    val snapUtils by remember(cellPosition) {
+        mutableStateOf(
+            SnapUtils(
+                cellsPosition = cellPosition,
+                density = density,
+                cellWidth = cellWidth
+            )
+        )
     }
 
 
@@ -63,27 +71,33 @@ private fun PPP() {
                 Box(modifier = Modifier
                     .size(cellWidth)
                     .border(color = Color.Black, width = 2.dp)
-                    .padding(8.dp)
                     .onGloballyPositioned {
                         val tempCell = cellPosition.toMutableMap()
                         tempCell[i] = (it.positionInParent())
                         cellPosition = tempCell
+                        allCellPlaced = cellPosition.size == numberOfElements
                     })
 
             }
 
         }
 
-        var currentOffset by remember {
-            mutableStateOf(Offset.Zero)
-        }
-        CellE(
-            label = "$1",
-            currentOffset = currentOffset
-        ) {
-            //returing offset
-           // Offset(200f, 0f)
-            it
+        if (allCellPlaced) {
+            for (i in 1..numberOfElements - 2) {
+                CellE(
+                    label = "$i",
+                    currentOffset = cellPosition[i] ?: Offset.Zero
+                ) {
+                    var finalPosition = it
+                    val nearestCellId: Int =
+                        snapUtils.findNearestCellId(elementCurrentPosition = it)
+                    val pos = cellPosition[nearestCellId] ?: it
+                    finalPosition = pos
+                    //returning the final position though lambda
+                    finalPosition
+                }
+            }
+
         }
 
     }
@@ -110,7 +124,6 @@ private fun CellE(
             }
             .onGloballyPositioned {
                 globalCoordinate = it
-                Log.i("GlobalCooridate", "${globalCoordinate!!.positionInParent()}")
             }
             .pointerInput(Unit) {
                 detectDragGestures(
@@ -125,6 +138,7 @@ private fun CellE(
                     }
                 )
             }
+
     ) {
         Text(
             text = label,

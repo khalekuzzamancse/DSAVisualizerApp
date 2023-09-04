@@ -5,21 +5,24 @@ import androidx.compose.ui.unit.Dp
 import kotlin.math.abs
 
 class SnapUtils(
-    private val cellsPositionRelativeToRoot: Map<Int, Offset>,
-    private val currentPositionRelativeToRoot: Offset,
+    private val cellsPosition: Map<Int, Offset>,
     private val density: Float,
     private val cellWidth: Dp
 ) {
-    fun findNearestCellId(): Int? {
-        cellsPositionRelativeToRoot.forEach {
+    companion object {
+        const val NOT_A_CELL = -1
+    }
+
+    fun findNearestCellId(elementCurrentPosition: Offset): Int {
+        cellsPosition.forEach {
             val snap = shouldSnap(
                 cellTopLeftRelativeToRoot = it.value,
-                elementTopLeftRelativeToRoot = currentPositionRelativeToRoot,
+                elementTopLeftRelativeToRoot = elementCurrentPosition,
             )
             if (snap)
                 return it.key
         }
-        return null
+        return NOT_A_CELL
     }
 
     private fun shouldSnap(
