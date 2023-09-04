@@ -1,10 +1,8 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -17,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,15 +34,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
-private fun PPP() {
+fun DraggableElementPreview() {
+    DraggableElement()
+}
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+ fun DraggableElement() {
     val cellWidth = 100.dp
     val numberOfElements = 6
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
+
     var allCellPlaced by remember { mutableStateOf(false) }
     val density = LocalDensity.current.density
     val snapUtils by remember(cellPosition) {
@@ -62,8 +64,10 @@ private fun PPP() {
         val nearestCellId: Int =
             snapUtils.findNearestCellId(elementCurrentPosition = it)
         finalPosition = cellPosition[nearestCellId] ?: it
+
         finalPosition
     }
+
     val calculateCellPosition: (Int, LayoutCoordinates) -> Unit = { i, it ->
         val tempCell = cellPosition.toMutableMap()
         tempCell[i] = (it.positionInParent())
