@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer.postion2
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +32,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -41,7 +45,6 @@ Concept Used:
 *Relation among;Position In Root, Position in Parent,Position in Window
 *Transformation of origin(Coordinate geometry)
 *find the same position coordinate   with respect two different origin
-
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -55,9 +58,10 @@ private fun PPP() {
     var allCellPlaced by remember { mutableStateOf(false) }
 
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         FlowRow(
             modifier = Modifier
@@ -80,13 +84,17 @@ private fun PPP() {
 
         }
 
-
         if (allCellPlaced) {
-            for(i in 1..numberOfElements){
+            for (i in 1..numberOfElements) {
                 CellE(
                     label = "$i",
                     initialPosition = cellPosition[i] ?: Offset.Zero,
-                )
+                ) {
+                    Log.i(
+                        "PositionNew",
+                        "$it->Cell $i :${cellPosition[i]}"
+                    )
+                }
             }
 
         }
@@ -102,27 +110,27 @@ private fun CellE(
     label: String,
     initialPosition: Offset = Offset.Zero,
     initialOffset: Offset = Offset(0f, 0f),
-    size: Dp = 100.dp
+    size: Dp = 100.dp,
+    onDragEnd: (Offset) -> Unit,
 ) {
     var offset by remember { mutableStateOf(initialOffset) }
     var initialPositionNotSet by remember { mutableStateOf(true) }
-    val density = LocalDensity.current.density
     val padding = 8.dp
-    val paddingPx = (padding.value * density)
-    val paddingOffset = Offset(paddingPx, paddingPx)
 
+    var globalCoordinate by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val initialPositionSetup: (LayoutCoordinates) -> Unit = {
         if (initialPositionNotSet) {
-            offset = initialPosition - it.positionInParent()+paddingOffset
+            offset = initialPosition - it.positionInParent()
             initialPositionNotSet = false
         }
 
     }
 
+
+
     Box(
         modifier = modifier
-            .padding(padding)
-            .size(size - padding - padding)
+            .size(size)
             .offset {
                 IntOffset(
                     offset.x.roundToInt(),
@@ -131,19 +139,32 @@ private fun CellE(
             }
             .onGloballyPositioned {
                 initialPositionSetup(it)
+                globalCoordinate = it
+
             }
             .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    offset = offset.plus(dragAmount)
-                    change.consume()
-                }
+                detectDragGestures(
+                    onDragStart = {
+
+                    },
+                    onDragEnd = {
+                        globalCoordinate?.let { onDragEnd(it.positionInParent()) }
+                    },
+                    onDrag = { change, dragAmount ->
+                        offset = offset.plus(dragAmount)
+                        change.consume()
+                    }
+                )
             }
-            .background(color = Color.Blue)
     ) {
         Text(
             text = label,
             style = TextStyle(color = Color.White, fontSize = 16.sp),
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .padding(padding)
+                .background(Color.Red)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
         )
     }
 }
