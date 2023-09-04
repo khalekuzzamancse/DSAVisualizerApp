@@ -48,7 +48,7 @@ Concept Used:
 @Composable
 private fun PPP() {
     val cellWidth = 100.dp
-    val numberOfElements = 25
+    val numberOfElements = 6
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
