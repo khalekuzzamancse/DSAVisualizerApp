@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -56,14 +57,19 @@ private fun PPP() {
             )
         )
     }
-val onDragEnd:(Offset)->Offset={
-    var finalPosition = it
-    val nearestCellId: Int =
-        snapUtils.findNearestCellId(elementCurrentPosition = it)
-    finalPosition = cellPosition[nearestCellId] ?: it
-    //returning the final position though lambda
-    finalPosition
-}
+    val onDragEnd: (Offset) -> Offset = {
+        var finalPosition = it
+        val nearestCellId: Int =
+            snapUtils.findNearestCellId(elementCurrentPosition = it)
+        finalPosition = cellPosition[nearestCellId] ?: it
+        finalPosition
+    }
+    val calculateCellPosition: (Int, LayoutCoordinates) -> Unit = { i, it ->
+        val tempCell = cellPosition.toMutableMap()
+        tempCell[i] = (it.positionInParent())
+        cellPosition = tempCell
+        allCellPlaced = cellPosition.size == numberOfElements
+    }
 
     Box(
         modifier = Modifier
@@ -79,14 +85,9 @@ val onDragEnd:(Offset)->Offset={
                     .size(cellWidth)
                     .border(color = Color.Black, width = 2.dp)
                     .onGloballyPositioned {
-                        val tempCell = cellPosition.toMutableMap()
-                        tempCell[i] = (it.positionInParent())
-                        cellPosition = tempCell
-                        allCellPlaced = cellPosition.size == numberOfElements
+                        calculateCellPosition(i, it)
                     })
-
             }
-
         }
 
         if (allCellPlaced) {
