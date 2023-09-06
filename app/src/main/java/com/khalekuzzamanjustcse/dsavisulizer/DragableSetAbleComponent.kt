@@ -1,5 +1,7 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -14,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +30,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,16 +43,29 @@ import androidx.compose.ui.unit.sp
 fun DraggableElementPreview() {
     DraggableElement()
 }
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
- fun DraggableElement() {
+fun DraggableElement() {
+    val list = listOf(10, 20, 30, 40, 50, 60)
     val cellWidth = 100.dp
     val numberOfElements = 6
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
-
+    var cellManager by remember {
+        mutableStateOf(CellManager(cellSize = cellWidth))
+    }
+    var elementManager by remember {
+        mutableStateOf(ElementManager())
+    }
+    val context = LocalContext.current
     var allCellPlaced by remember { mutableStateOf(false) }
+    var updateUI by remember(elementManager.elements.size)
+    {
+        mutableStateOf(false)
+    }
+
     val density = LocalDensity.current.density
     val snapUtils by remember(cellPosition) {
         mutableStateOf(
@@ -59,19 +76,83 @@ fun DraggableElementPreview() {
             )
         )
     }
-    val onDragEnd: (Offset) -> Offset = {
+
+
+    //lambdas
+
+    val insertionOnNonEmptyCell: (Int) -> Unit = { cellId ->
+        Toast.makeText(
+            context,
+            "Cell is not Empty\nValue will be replace",
+            Toast.LENGTH_LONG
+        ).show()
+        val existingElement = cellManager.getElementAt(cellId)
+        if (existingElement != null) {
+            elementManager = elementManager.removeElement(existingElement.id)
+        }
+        cellManager = cellManager.removeCurrentElement(cellId)
+        updateUI = false
+    }
+    val onDragStart: (Element, Offset) -> Unit = { element, position ->
+        val removedCellId = cellManager.findCellIdByPosition(position)
+        val isACell = removedCellId != CellManager.NOT_A_CELL
+        if (isACell) {
+            cellManager = cellManager.removeCurrentElement(removedCellId)
+        }
+    }
+    val onDragEnd: (Element, Offset) -> Offset = { element, position ->
         val nearestCellId: Int =
-            snapUtils.findNearestCellId(elementCurrentPosition = it)
-        val finalPosition = cellPosition[nearestCellId] ?: it
+            snapUtils.findNearestCellId(elementCurrentPosition = position)
+        val finalPosition = cellPosition[nearestCellId] ?: position
+        val isACell=nearestCellId != SnapUtils.NOT_A_CELL
+        if (isACell) {
+            if (cellManager.isNotCellEmpty(nearestCellId))
+                insertionOnNonEmptyCell(nearestCellId)
+            cellManager =
+                cellManager.updateCurrentElementOf(cellId = nearestCellId, element = element)
+
+        }
+
+        elementManager = elementManager.updatePosition(element.id, finalPosition)
         finalPosition
     }
+
 
     val calculateCellPosition: (Int, LayoutCoordinates) -> Unit = { i, it ->
         val tempCell = cellPosition.toMutableMap()
         tempCell[i] = (it.positionInParent())
         cellPosition = tempCell
         allCellPlaced = cellPosition.size == numberOfElements
+        updateUI = allCellPlaced
+
     }
+
+    val initializeManagers: () -> Unit = {
+        list.forEachIndexed { index, value ->
+            val cellId = index + 1
+            val position = cellPosition[cellId] ?: Offset.Zero
+            val elementId = index + 1
+            val element = Element(
+                position = position,
+                value = value,
+                id = elementId
+            )
+            elementManager = elementManager.addElement(element)
+            cellManager = cellManager
+                .addCell(
+                    cellId = cellId,
+                    currentElement = element,
+                    position = position
+                )
+        }
+
+    }
+
+    LaunchedEffect(allCellPlaced) {
+        initializeManagers()
+        updateUI = true
+    }
+
 
     Box(
         modifier = Modifier
@@ -91,16 +172,19 @@ fun DraggableElementPreview() {
                     })
             }
         }
-
-        if (allCellPlaced) {
-            for (i in 1..numberOfElements) {
+        if (updateUI) {
+            elementManager.elements.forEach {
+                val element = it.value
                 CellE(
-                    label = "$i",
-                    currentOffset = cellPosition[i] ?: Offset.Zero,
-                    onDragEnd = onDragEnd
+                    label = "${element.value}",
+                    currentOffset = element.position,
+                    onDragStart = { position ->
+                        onDragStart(element, position)
+                    },
+                    onDragEnd = { position -> onDragEnd(element, position) }
                 )
-            }
 
+            }
         }
 
     }
@@ -113,6 +197,7 @@ private fun CellE(
     label: String,
     currentOffset: Offset = Offset(0f, 0f),
     size: Dp = 100.dp,
+    onDragStart: (Offset) -> Unit,
     onDragEnd: (Offset) -> Offset,
 ) {
     var offset by remember { mutableStateOf(currentOffset) }
@@ -130,6 +215,9 @@ private fun CellE(
             }
             .pointerInput(Unit) {
                 detectDragGestures(
+                    onDragStart = {
+                        globalCoordinate?.let { it1 -> onDragStart(it1.positionInParent()) }
+                    },
                     onDragEnd = {
                         globalCoordinate?.let {
                             offset = onDragEnd(it.positionInParent())

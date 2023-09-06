@@ -7,14 +7,17 @@ data class CellManager(
     val cells: MutableMap<Int, Cell> = mutableMapOf(),
     val cellSize: Dp,
 ) {
+    companion object{
+        const val  NOT_A_CELL=-1;
+    }
 
     fun addCell(
         cellId: Int,
-        positionInRoot: Offset = Offset.Zero,
+        position: Offset,
         currentElement: Element? = null
     ): CellManager {
         val cell = Cell(
-            positionInRoot = positionInRoot,
+            position = position,
             cellSize = cellSize,
             currentElement = currentElement
         )
@@ -23,13 +26,13 @@ data class CellManager(
         return this.copy(cells = updatedMap)
     }
 
-    fun getCellPositionInRoot(cellId: Int): Offset {
-        return cells[cellId]?.positionInRoot ?: Offset.Infinite
+    fun getCellPosition(cellId: Int): Offset {
+        return cells[cellId]?.position ?: Offset.Infinite
     }
 
-    fun getElementAtCell(cellId: Int): Element? = cells[cellId]?.currentElement
+    fun getElementAt(cellId: Int): Element? = cells[cellId]?.currentElement
 
-    fun updateCurrentElement(cellId: Int, element: Element): CellManager {
+    fun updateCurrentElementOf(cellId: Int, element: Element): CellManager {
         val updatedMap = cells
         val oldCell = updatedMap[cellId]
         if (oldCell != null) {
@@ -38,28 +41,24 @@ data class CellManager(
         return this.copy(cells = updatedMap)
     }
 
-    fun updateCellPositionInRoot(cellId: Int, position: Offset): CellManager {
-        val updatedMap = cells
-        val oldCell = updatedMap[cellId]
-        if (oldCell != null) {
-            updatedMap[cellId] = oldCell.updatePositionInRoot(position)
-        }
-        return this.copy(cells = updatedMap)
-    }
 
-    fun findCellIdByPositionInRoot(position: Offset): Int {
+
+    fun findCellIdByPosition(position: Offset): Int {
         cells.forEach { cell ->
-            if (cell.value.positionInRoot == position)
+            if (cell.value.position == position)
                 return cell.key
         }
-        return -1
+        return NOT_A_CELL
     }
+
+    fun getValues() =
+        cells.map { if (it.value.currentElement == null) null else it.value.currentElement!!.value }
 
     fun removeCurrentElement(cellId: Int): CellManager {
         val updatedMap = cells
         val oldCell = updatedMap[cellId]
         if (oldCell != null) {
-            updatedMap[cellId] = oldCell.removCurrentElement()
+            updatedMap[cellId] = oldCell.removeCurrentElement()
         }
         return this.copy(cells = updatedMap)
     }
@@ -71,17 +70,14 @@ data class CellManager(
 }
 
 data class Cell(
-    val positionInRoot: Offset = Offset.Zero,
+    val position: Offset = Offset.Zero,
     val cellSize: Dp,
     val currentElement: Element? = null,
-    val targetElement: Element? = null,
 ) {
     fun isEmpty() = currentElement == null
     fun isNotEmpty() = !isEmpty()
-    fun doesContainTargetElement() = (currentElement != null && targetElement == currentElement)
-    fun removCurrentElement() = this.copy(currentElement = null)
+    fun removeCurrentElement() = this.copy(currentElement = null)
     fun updateCurrentElement(element: Element) = this.copy(currentElement = element)
-    fun updateTargetElement(element: Element) = this.copy(targetElement = element)
-    fun updatePositionInRoot(position: Offset) = this.copy(positionInRoot = position)
+    fun updatePosition(position: Offset) = this.copy(position = position)
 
 }

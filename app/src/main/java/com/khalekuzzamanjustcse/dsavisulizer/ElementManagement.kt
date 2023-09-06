@@ -11,38 +11,25 @@ data class ElementManager(
         return this.copy(elements = updatedMap)
     }
 
-    fun removeElement(element: Element?): ElementManager {
+    fun removeElement(elementId: Int): ElementManager {
         val updatedMap = elements
-        updatedMap.entries.removeAll { it.value == element }
+        updatedMap.entries.removeAll { it.value.id==elementId }
         return this.copy(elements = updatedMap)
     }
 
-    fun updatePositionInParent(elementId: Int, position: Offset): ElementManager {
+
+
+    fun updatePosition(elementId: Int, position: Offset): ElementManager {
         val updatedMap = elements
         val oldElement = updatedMap[elementId]
         if (oldElement != null) {
-            updatedMap[elementId] = oldElement.updatePositionInParent(position)
+            updatedMap[elementId] = oldElement.updatePosition(position)
         }
         return this.copy(elements = updatedMap)
     }
 
-    fun updatePositionInRoot(elementId: Int, position: Offset): ElementManager {
-        val updatedMap = elements
-        val oldElement = updatedMap[elementId]
-        if (oldElement != null) {
-            updatedMap[elementId] = oldElement.updatePositionInRoot(position)
-        }
-        return this.copy(elements = updatedMap)
-    }
 
-    fun updatePreviousPositionInRoot(elementId: Int, position: Offset): ElementManager {
-        val updatedMap = elements
-        val oldElement = updatedMap[elementId]
-        if (oldElement != null) {
-            updatedMap[elementId] = oldElement.updatePreviousPositionInRoot(position)
-        }
-        return this.copy(elements = updatedMap)
-    }
+
     fun getElement(id: Int): Element? {
         return elements[id]
     }
@@ -51,15 +38,9 @@ data class ElementManager(
 }
 
 data class Element(
-    val positionInRoot: Offset = Offset.Zero,
-    val previousPositionInRoot: Offset = Offset.Zero,
-    val positionInParent: Offset = Offset.Zero,
+    val position: Offset = Offset.Zero,
     val value: Int,
     val id: Int,
 ) {
-
-    fun updatePositionInRoot(position: Offset) = this.copy(positionInRoot = position)
-    fun updatePositionInParent(position: Offset) = this.copy(positionInParent = position)
-    fun updatePreviousPositionInRoot(position: Offset) =
-        this.copy(previousPositionInRoot = position)
+    fun updatePosition(position: Offset) = this.copy(position = position)
 }
