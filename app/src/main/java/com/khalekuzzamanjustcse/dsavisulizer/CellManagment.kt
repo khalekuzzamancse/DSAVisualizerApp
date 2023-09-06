@@ -27,7 +27,7 @@ data class CellManager(
     }
 
     fun getCellPosition(cellId: Int): Offset {
-        return cells[cellId]?.position ?: Offset.Infinite
+        return cells[cellId]?.position ?: Offset.Zero
     }
 
     fun getElementAt(cellId: Int): Element? = cells[cellId]?.currentElement
