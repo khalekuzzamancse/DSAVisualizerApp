@@ -6,9 +6,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -106,7 +109,7 @@ fun DraggableElement() {
         val nearestCellId: Int =
             snapUtils.findNearestCellId(elementCurrentPosition = position)
         val finalPosition = cellPosition[nearestCellId] ?: position
-        val isACell=nearestCellId != SnapUtils.NOT_A_CELL
+        val isACell = nearestCellId != SnapUtils.NOT_A_CELL
         if (isACell) {
             if (cellManager.isNotCellEmpty(nearestCellId))
                 insertionOnNonEmptyCell(nearestCellId)
@@ -124,7 +127,7 @@ fun DraggableElement() {
         val tempCell = cellPosition.toMutableMap()
         tempCell[i] = (it.positionInParent())
         cellPosition = tempCell
-        allCellPlaced = cellPosition.size == numberOfElements
+        allCellPlaced = cellPosition.size >= numberOfElements
         updateUI = allCellPlaced
 
     }
@@ -162,18 +165,28 @@ fun DraggableElement() {
             .verticalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
-        FlowRow(
-            modifier = Modifier
-        ) {
-            for (i in 1..numberOfElements) {
-                Box(modifier = Modifier
-                    .size(cellWidth)
-                    .border(color = Color.Black, width = 2.dp)
-                    .onGloballyPositioned {
-                        calculateCellPosition(i, it)
-                    })
+
+        Column(modifier = Modifier.fillMaxSize()) {
+            FlowRow(modifier = Modifier) {
+                for (i in 1..numberOfElements) {
+                    Box(modifier = Modifier
+                        .size(cellWidth)
+                        .border(color = Color.Black, width = 2.dp)
+                        .onGloballyPositioned {
+                            calculateCellPosition(i, it)
+                        })
+                }
             }
+            //temp variable
+            Spacer(modifier = Modifier.height(100.dp))
+            Box(modifier = Modifier
+                .size(cellWidth)
+                .border(color = Color.Black, width = 2.dp)
+                .onGloballyPositioned {
+                    calculateCellPosition(numberOfElements + 1, it)
+                })
         }
+
         if (updateUI) {
             elementManager.elements.forEach {
                 val element = it.value
