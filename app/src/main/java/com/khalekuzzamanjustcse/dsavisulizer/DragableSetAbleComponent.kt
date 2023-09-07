@@ -1,29 +1,20 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -33,21 +24,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -56,42 +42,35 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun DraggableElementPreview() {
-    DraggableElement()
+    val list = listOf(40, 60, 30, 20, 10, 50)
+    val elements = list.map { Element(value = it) }
+    DraggableElement(elements)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DraggableElement() {
+fun DraggableElement(elementList: List<Element>) {
     val list = listOf(40, 60, 30, 20, 10, 50)
     val cellWidth = 100.dp
-    val numberOfElements = 6
     val density = LocalDensity.current.density
     cellWidth.value * density
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
-    var minIndexVariable by remember {
-        mutableStateOf(0)
+    val elements by remember {
+        mutableStateOf(elementList)
     }
-    var cellManager by remember {
-        mutableStateOf(CellManager(cellSize = cellWidth))
+    val arrayCells by remember {
+        mutableStateOf(list.map { ArrayCell(cellSize = cellWidth) })
     }
-    var elementManager by remember {
-        mutableStateOf(ElementManager())
+    val updatePositionOf: (Int, Offset) -> Unit = { index, newPosition ->
+        elements[index].position.value = newPosition
     }
-    val context = LocalContext.current
-    var allCellPlaced by remember { mutableStateOf(false) }
-    var updateUI by remember(elementManager.elements.size)
-    {
+
+    var cellPlaced by remember {
         mutableStateOf(false)
     }
-
-    var pointerCurrentPosition by remember {
-        mutableStateOf(-Offset(0f, 90f))
-    }
-
-
-    val snapUtils by remember(cellPosition) {
+    var snapUtils by remember(cellPosition) {
         mutableStateOf(
             SnapUtils(
                 cellsPosition = cellPosition,
@@ -101,115 +80,49 @@ fun DraggableElement() {
         )
     }
 
-    var updateUIKey by remember {
-        mutableStateOf(0)
-    }
-
-
-    val runPointer: @Composable () -> Unit = {
-        Sort(
-            list = list,
-            onMinimumIndexChange = {
-                minIndexVariable = it
-            },
-            onMinimumFindFinished = { i, j ->
-                if (i != j) {
-
-//                    val temp = arr[i]
-//                    arr[i] = arr[minIndex]
-//                    arr[minIndex] = temp
-                    val a = cellManager.getElementAt(i)
-                    val b = cellManager.getElementAt(j)
-                    if (a != null && b != null) {
-                        cellManager = cellManager.updateCurrentElementOf(i, b)
-                        elementManager =
-                            elementManager.updatePosition(b.id, cellPosition[i] ?: Offset.Zero)
-                        cellManager = cellManager.updateCurrentElementOf(j, a)
-                        elementManager =
-                            elementManager.updatePosition(a.id, cellPosition[j] ?: Offset.Zero)
-                        Log.i("MINIMUM:Finished", "${
-                            cellManager.cells.mapValues { it.value.currentElement?.value ?: -1 }
-                        }")
-                        updateUIKey++
-                    }
-
-                }
-            },
-            onPointerPosition = {
-                pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
-            })
-    }
-
-    val insertionOnNonEmptyCell: (Int) -> Unit = { cellId ->
-        Toast.makeText(
-            context,
-            "Cell is not Empty\nValue will be replace",
-            Toast.LENGTH_LONG
-        ).show()
-        val existingElement = cellManager.getElementAt(cellId)
-        if (existingElement != null) {
-            elementManager = elementManager.removeElement(existingElement.id)
-        }
-        cellManager = cellManager.removeCurrentElement(cellId)
-        updateUI = false
-    }
-    val onDragStart: (Element, Offset) -> Unit = { _, position ->
-        val removedCellId = cellManager.findCellIdByPosition(position)
-        val isACell = removedCellId != CellManager.NOT_A_CELL
-        if (isACell) {
-            cellManager = cellManager.removeCurrentElement(removedCellId)
-        }
-    }
-    val onDragEnd: (Element, Offset) -> Offset = { element, position ->
-        val nearestCellId: Int =
-            snapUtils.findNearestCellId(elementCurrentPosition = position)
-        val finalPosition = cellPosition[nearestCellId] ?: position
-        val isACell = nearestCellId != SnapUtils.NOT_A_CELL
-        if (isACell) {
-            if (cellManager.isNotCellEmpty(nearestCellId))
-                insertionOnNonEmptyCell(nearestCellId)
-            cellManager =
-                cellManager.updateCurrentElementOf(cellId = nearestCellId, element = element)
-
-        }
-
-        elementManager = elementManager.updatePosition(element.id, finalPosition)
-
-        finalPosition
-    }
-
-
     val calculateCellPosition: (Int, LayoutCoordinates) -> Unit = { i, it ->
+        val position = it.positionInParent()
         val tempCell = cellPosition.toMutableMap()
-        tempCell[i] = (it.positionInParent())
+        tempCell[i] = position
         cellPosition = tempCell
-        allCellPlaced = cellPosition.size >= numberOfElements
-        updateUI = allCellPlaced
+        //
+        arrayCells[i].position.value = position
 
+        //
+        cellPlaced = cellPosition.size >= list.size
     }
-
-    val initializeManagers: () -> Unit = {
-        list.forEachIndexed { index, value ->
-            val position = cellPosition[index] ?: Offset.Zero
-            val element = Element(
-                position = position,
-                value = value,
-                id = index
-            )
-            elementManager = elementManager.addElement(element)
-            cellManager = cellManager
-                .addCell(
-                    cellId = index,
-                    currentElement = element,
-                    position = position
-                )
+    val getCellCurrentElement: (Int) -> Element? = { cellIndex ->
+        val elementIndex = arrayCells[cellIndex].currentElementReference.value
+        if (elementIndex != null) elements[elementIndex] else null
+    }
+    val updateCurrentElement: (cellIndex: Int, elementIndex: Int) -> Unit =
+        { cellIndex, elementIndex ->
+            arrayCells[cellIndex].currentElementReference.value = elementIndex
         }
+    val removeCurrentElement: (cellIndex: Int) -> Unit = { cellIndex ->
+        arrayCells[cellIndex].currentElementReference.value = null
+    }
+    val findCellOfElement: (elementIndex: Int) -> Int = { elementIndex ->
+        var ans = -1
+        arrayCells.forEachIndexed { index, it ->
+            if (it.currentElementReference.value == elementIndex) ans = index
+        }
+        ans
 
     }
-
-    LaunchedEffect(allCellPlaced) {
-        initializeManagers()
-        updateUI = true
+    LaunchedEffect(cellPlaced) {
+        elements.forEachIndexed { index, element ->
+            updatePositionOf(index, cellPosition[index] ?: Offset.Zero)
+            arrayCells[index].currentElementReference.value = index
+        }
+        snapUtils = SnapUtils(
+            cellsPosition = cellPosition,
+            density = density,
+            cellWidth = cellWidth
+        )
+        Log.i("ALLLCELLPLACED", "${
+            arrayCells.map { it.currentElementReference.value }
+        }")
     }
 
 
@@ -218,69 +131,63 @@ fun DraggableElement() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(8.dp)
-            .padding(top = 50.dp)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             FlowRow(modifier = Modifier) {
-                for (i in 0 until numberOfElements) {
+                for (cellID in list.indices) {
                     Box(modifier = Modifier
                         .size(cellWidth)
                         .border(color = Color.Black, width = 2.dp)
-                        .onGloballyPositioned {
-                            calculateCellPosition(i, it)
+                        .onGloballyPositioned { cellPosition ->
+                            calculateCellPosition(cellID, cellPosition)
                         })
                 }
             }
-            Spacer(modifier = Modifier.height(50.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                //temp variable
-                //CurrentCellPointingValue(value = currentPointingValue)
-                Spacer(modifier = Modifier.width(50.dp))
-                Variable(name = "minIndex", value = minIndexVariable.toString())
-            }
 
         }
+        elements.forEachIndexed { index, element ->
+            DraggableElement(
+                label = "${element.value}",
+                currentOffset = elements[index].position.value,
+                onDragStart = {
+                    val cellIndex = findCellOfElement(index)
+                    if (cellIndex != -1)
+                        removeCurrentElement(cellIndex)
+                },
+                onDragEnd = {
+                    val nearestCellId =
+                        snapUtils.findNearestCellId(elementCurrentPosition = element.position.value)
+                    val finalPosition = cellPosition[nearestCellId] ?: element.position.value
+                    element.position.value = finalPosition
+                    val isACell = nearestCellId != SnapUtils.NOT_A_CELL
+                    if (isACell)
+                        updateCurrentElement(nearestCellId, index)
+                    Log.i("DRAG:End,added", "${
+                        arrayCells.map {
+                            if (it.currentElementReference.value != null)
+                                getCellCurrentElement(it.currentElementReference.value!!)?.value
+                            else -1
+                        }
+                    }")
 
-
-        if (updateUI) {
-            elementManager.elements.forEach {
-                val element = it.value
-                CellE(
-                    label = "${element.value}",
-                    currentOffset = element.position,
-                    onDragStart = { position ->
-                        onDragStart(element, position)
-                    },
-                    onDragEnd = { position -> onDragEnd(element, position) }
-                )
-
+                }
+            ) { dragAmount ->
+                element.position.value += dragAmount
             }
         }
-        DisposableEffect(updateUIKey) {
-            Log.i("updateUIKey", "$updateUIKey")
-            updateUI = false
-            onDispose {
-            }
-        }
-
-
-        CellPointer(currentOffset = pointerCurrentPosition)
-        runPointer()
 
 
     }
 
+
 }
 
+
 @Composable
-fun Sort(
+fun SelectionSort(
     list: List<Int>,
     onMinimumIndexChange: (Int) -> Unit,
     onMinimumFindFinished: (i: Int, j: Int) -> Unit,
@@ -310,10 +217,9 @@ fun Sort(
                         onMinimumIndexChange(minIndexVariable)
                     }
                 }
-
                 onMinimumFindFinished(i, minIndexVariable)
                 swap(i, minIndexVariable)
-                delay(2000)
+                delay(9000)
             }
 
         }
@@ -322,91 +228,6 @@ fun Sort(
         }
     }
 
-}
-
-@Composable
-private fun Variable(
-    name: String,
-    size: Dp = 100.dp,
-    value: String,
-) {
-    Column(
-        modifier = Modifier
-            .wrapContentSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(size)
-                .border(color = Color.Black, width = 2.dp)
-        ) {
-            Text(
-                text = value,
-                style = TextStyle(color = Color.Black, fontSize = 16.sp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(Alignment.Center)
-            )
-        }
-        Text(
-            text = name,
-            style = TextStyle(color = Color.Black, fontSize = 12.sp),
-        )
-
-    }
-}
-
-@Composable
-private fun CellE(
-    modifier: Modifier = Modifier,
-    label: String,
-    currentOffset: Offset = Offset(0f, 0f),
-    size: Dp = 100.dp,
-    onDragStart: (Offset) -> Unit,
-    onDragEnd: (Offset) -> Offset,
-) {
-    var offset by remember { mutableStateOf(currentOffset) }
-    val padding = 8.dp
-    var globalCoordinate by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    Box(
-        modifier = modifier
-            .size(size)
-            .graphicsLayer {
-                translationX = offset.x
-                translationY = offset.y
-            }
-            .onGloballyPositioned {
-                globalCoordinate = it
-            }
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragStart = {
-                        globalCoordinate?.let { it1 -> onDragStart(it1.positionInParent()) }
-                    },
-                    onDragEnd = {
-                        globalCoordinate?.let {
-                            offset = onDragEnd(it.positionInParent())
-                        }
-                    },
-                    onDrag = { change, dragAmount ->
-                        offset = offset.plus(dragAmount)
-                        change.consume()
-                    }
-                )
-            }
-
-    ) {
-        Text(
-            text = label,
-            style = TextStyle(color = Color.White, fontSize = 16.sp),
-            modifier = Modifier
-                .padding(padding)
-                .clip(CircleShape)
-                .background(Color.Red)
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
-    }
 }
 
 @Composable
@@ -435,25 +256,26 @@ private fun CellPointer(
         )
     }
 }
+/*
 
-@Composable
-private fun CurrentCellPointingValue(
-    modifier: Modifier = Modifier,
-    size: Dp = 100.dp,
-    value: Int,
-) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .border(color = Color.Black, width = 2.dp)
-    ) {
-        Text(
-            text = "$value",
-            style = TextStyle(color = Color.White, fontSize = 16.sp),
-            modifier = Modifier
-                .background(Color.Blue)
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
+
+  val runPointer: @Composable () -> Unit = {
+        val scope = rememberCoroutineScope()
+        SelectionSort(
+            list = list,
+            onMinimumIndexChange = {
+
+            },
+            onMinimumFindFinished = { i, j ->
+
+            },
+            onPointerPosition = {
+                pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
+            })
     }
-}
+       var pointerCurrentPosition by remember {
+        mutableStateOf(-Offset(0f, 90f))
+    }
+
+
+ */
