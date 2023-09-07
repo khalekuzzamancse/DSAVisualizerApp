@@ -85,6 +85,7 @@ fun DraggableElement() {
     {
         mutableStateOf(false)
     }
+
     var pointerCurrentPosition by remember {
         mutableStateOf(-Offset(0f, 90f))
     }
@@ -100,6 +101,10 @@ fun DraggableElement() {
         )
     }
 
+    var updateUIKey by remember {
+        mutableStateOf(0)
+    }
+
 
     val runPointer: @Composable () -> Unit = {
         Sort(
@@ -107,12 +112,27 @@ fun DraggableElement() {
             onMinimumIndexChange = {
                 minIndexVariable = it
             },
-            onMinimumFindFinished = {i,j->
+            onMinimumFindFinished = { i, j ->
                 if (i != j) {
-                    Log.i("MINIMUM:Finished","$i,$j")
+
 //                    val temp = arr[i]
 //                    arr[i] = arr[minIndex]
 //                    arr[minIndex] = temp
+                    val a = cellManager.getElementAt(i)
+                    val b = cellManager.getElementAt(j)
+                    if (a != null && b != null) {
+                        cellManager = cellManager.updateCurrentElementOf(i, b)
+                        elementManager =
+                            elementManager.updatePosition(b.id, cellPosition[i] ?: Offset.Zero)
+                        cellManager = cellManager.updateCurrentElementOf(j, a)
+                        elementManager =
+                            elementManager.updatePosition(a.id, cellPosition[j] ?: Offset.Zero)
+                        Log.i("MINIMUM:Finished", "${
+                            cellManager.cells.mapValues { it.value.currentElement?.value ?: -1 }
+                        }")
+                        updateUIKey++
+                    }
+
                 }
             },
             onPointerPosition = {
@@ -229,7 +249,6 @@ fun DraggableElement() {
         }
 
 
-
         if (updateUI) {
             elementManager.elements.forEach {
                 val element = it.value
@@ -244,6 +263,14 @@ fun DraggableElement() {
 
             }
         }
+        DisposableEffect(updateUIKey) {
+            Log.i("updateUIKey", "$updateUIKey")
+            updateUI = false
+            onDispose {
+            }
+        }
+
+
         CellPointer(currentOffset = pointerCurrentPosition)
         runPointer()
 
@@ -256,24 +283,36 @@ fun DraggableElement() {
 fun Sort(
     list: List<Int>,
     onMinimumIndexChange: (Int) -> Unit,
-    onMinimumFindFinished: (i:Int,j:Int) ->Unit,
+    onMinimumFindFinished: (i: Int, j: Int) -> Unit,
     onPointerPosition: (Int) -> Unit,
 ) {
+    var sortedList by remember {
+        mutableStateOf(list)
+    }
+    val swap: (Int, Int) -> Unit = { i, minIndexVariable ->
+        val tempList = sortedList.toMutableList()
+        val temp = tempList[i]
+        tempList[i] = tempList[minIndexVariable]
+        tempList[minIndexVariable] = temp
+        sortedList = tempList
+    }
     DisposableEffect(Unit) {
         val scope = CoroutineScope(Dispatchers.Default)
         val job = scope.launch {
-            for (i in list.indices) {
+            for (i in sortedList.indices) {
                 var minIndexVariable = i
                 onMinimumIndexChange(i)
-                for (j in i until list.size) {
+                for (j in i until sortedList.size) {
                     delay(1000)
                     onPointerPosition(j)
-                    if (list[j] < list[minIndexVariable]) {
+                    if (sortedList[j] < sortedList[minIndexVariable]) {
                         minIndexVariable = j
                         onMinimumIndexChange(minIndexVariable)
                     }
                 }
-                onMinimumFindFinished(i,minIndexVariable)
+
+                onMinimumFindFinished(i, minIndexVariable)
+                swap(i, minIndexVariable)
                 delay(2000)
             }
 
