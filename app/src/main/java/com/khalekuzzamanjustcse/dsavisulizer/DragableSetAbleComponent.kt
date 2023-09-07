@@ -30,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,12 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Timer
-import java.util.TimerTask
-import kotlin.concurrent.fixedRateTimer
 
 @Preview
 @Composable
@@ -71,7 +66,7 @@ fun DraggableElement() {
     val cellWidth = 100.dp
     val numberOfElements = 6
     val density = LocalDensity.current.density
-    val cellWidthPx = cellWidth.value * density
+    cellWidth.value * density
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
     }
@@ -107,50 +102,23 @@ fun DraggableElement() {
 
 
     val runPointer: @Composable () -> Unit = {
-        DisposableEffect(Unit) {
-            val scope = CoroutineScope(Dispatchers.Default)
-            val job = scope.launch {
-                for (i in list.indices) {
-                     minIndexVariable = i
-                    for (j in i until list.size) {
-                        delay(1000)
-                        pointerCurrentPosition = cellPosition[j]!! - Offset(0f, 90f)
-                        if (list[j] < list[minIndexVariable]) {
-                            minIndexVariable = j
-                        }
-                    }
+        Sort(
+            list = list,
+            onMinimumIndexChange = {
+                minIndexVariable = it
+            },
+            onMinimumFindFinished = {i,j->
+                if (i != j) {
+                    Log.i("MINIMUM:Finished","$i,$j")
+//                    val temp = arr[i]
+//                    arr[i] = arr[minIndex]
+//                    arr[minIndex] = temp
                 }
-            }
-            onDispose {
-                job.cancel()
-            }
-        }
-
+            },
+            onPointerPosition = {
+                pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
+            })
     }
-
-
-    val selectionSort: (MutableList<Int>) -> Unit = { arr ->
-        val n = arr.size
-        for (i in 0 until n - 1) {
-            var minIndex = i
-            minIndexVariable = minIndex
-            for (j in i + 1 until n) {
-                if (arr[j] < arr[minIndex]) {
-                    minIndex = j
-                }
-            }
-            if (minIndex != i) {
-                val temp = arr[i]
-                arr[i] = arr[minIndex]
-                arr[minIndex] = temp
-            }
-        }
-        Log.i("AFTERSORT", arr.toString())
-    }
-//    LaunchedEffect(key1 = Unit) {
-//        selectionSort(list.toMutableList())
-//    }
-
 
     val insertionOnNonEmptyCell: (Int) -> Unit = { cellId ->
         Toast.makeText(
@@ -165,7 +133,7 @@ fun DraggableElement() {
         cellManager = cellManager.removeCurrentElement(cellId)
         updateUI = false
     }
-    val onDragStart: (Element, Offset) -> Unit = { element, position ->
+    val onDragStart: (Element, Offset) -> Unit = { _, position ->
         val removedCellId = cellManager.findCellIdByPosition(position)
         val isACell = removedCellId != CellManager.NOT_A_CELL
         if (isACell) {
@@ -202,18 +170,16 @@ fun DraggableElement() {
 
     val initializeManagers: () -> Unit = {
         list.forEachIndexed { index, value ->
-            val cellId = index
-            val position = cellPosition[cellId] ?: Offset.Zero
-            val elementId = index
+            val position = cellPosition[index] ?: Offset.Zero
             val element = Element(
                 position = position,
                 value = value,
-                id = elementId
+                id = index
             )
             elementManager = elementManager.addElement(element)
             cellManager = cellManager
                 .addCell(
-                    cellId = cellId,
+                    cellId = index,
                     currentElement = element,
                     position = position
                 )
@@ -287,32 +253,35 @@ fun DraggableElement() {
 }
 
 @Composable
-fun FindMinimum(
+fun Sort(
     list: List<Int>,
-    startFrom: Int,
     onMinimumIndexChange: (Int) -> Unit,
-    onFinished: () -> Unit,
+    onMinimumFindFinished: (i:Int,j:Int) ->Unit,
     onPointerPosition: (Int) -> Unit,
 ) {
-
-    LaunchedEffect(Unit) {
-        var minimum = list[startFrom]
-        onMinimumIndexChange(startFrom)
-        launch {
-            for (i in startFrom until list.size) {
-                if (list[i] < minimum) {
-                    minimum = list[i]
-                    onMinimumIndexChange(i)
+    DisposableEffect(Unit) {
+        val scope = CoroutineScope(Dispatchers.Default)
+        val job = scope.launch {
+            for (i in list.indices) {
+                var minIndexVariable = i
+                onMinimumIndexChange(i)
+                for (j in i until list.size) {
+                    delay(1000)
+                    onPointerPosition(j)
+                    if (list[j] < list[minIndexVariable]) {
+                        minIndexVariable = j
+                        onMinimumIndexChange(minIndexVariable)
+                    }
                 }
-                onPointerPosition(i)
-                if (i == list.size - 1) {
-                    onFinished()
-                }
-                delay(1000)
+                onMinimumFindFinished(i,minIndexVariable)
+                delay(2000)
             }
+
+        }
+        onDispose {
+            job.cancel()
         }
     }
-
 
 }
 
