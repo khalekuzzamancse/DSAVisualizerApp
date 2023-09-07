@@ -25,10 +25,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +49,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,7 +91,7 @@ fun DraggableElement() {
         mutableStateOf(false)
     }
     var pointerCurrentPosition by remember {
-        mutableStateOf(Offset(0f, -150f))
+        mutableStateOf(-Offset(0f, 90f))
     }
 
 
@@ -102,33 +106,24 @@ fun DraggableElement() {
     }
 
 
-    //lambdas
-    var currentPointingValue by remember {
-        mutableStateOf(-1)
-    }
-//    val runPointer: @Composable () -> Unit = {
-//        LaunchedEffect(Unit) {
-//            launch {
-//                for (i in 1..numberOfElements) {
-//                    pointerCurrentPosition = cellPosition[i]!! - Offset(0f, 90f)
-//                    currentPointingValue = cellManager.getElementAt(i)?.value ?: -1
-//                    delay(1000)
-//                }
-//            }
-//        }
-//
-//    }
-
     val runPointer: @Composable () -> Unit = {
-        FindMinimum(list = list, startFrom = 0,
-            onMinimumIndexChange = {
-                Log.i("FindMinimum", "$it->${list[it]}")
-                minIndexVariable = it
-            },
-            onFinished = {
+        DisposableEffect(Unit) {
+            val scope = CoroutineScope(Dispatchers.Default)
+            val job = scope.launch {
+                for (i in list.indices) {
+                     minIndexVariable = i
+                    for (j in i until list.size) {
+                        delay(1000)
+                        pointerCurrentPosition = cellPosition[j]!! - Offset(0f, 90f)
+                        if (list[j] < list[minIndexVariable]) {
+                            minIndexVariable = j
+                        }
+                    }
+                }
             }
-        ) {
-            pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
+            onDispose {
+                job.cancel()
+            }
         }
 
     }
@@ -299,6 +294,7 @@ fun FindMinimum(
     onFinished: () -> Unit,
     onPointerPosition: (Int) -> Unit,
 ) {
+
     LaunchedEffect(Unit) {
         var minimum = list[startFrom]
         onMinimumIndexChange(startFrom)
