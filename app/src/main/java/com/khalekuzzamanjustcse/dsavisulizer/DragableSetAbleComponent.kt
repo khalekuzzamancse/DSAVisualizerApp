@@ -1,13 +1,10 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -24,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -33,7 +29,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,13 +42,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,13 +63,16 @@ fun DraggableElementPreview() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DraggableElement() {
-    val list = listOf(10, 20, 30, 40, 50, 60)
+    val list = listOf(40, 60, 30, 20, 10, 50)
     val cellWidth = 100.dp
     val numberOfElements = 6
     val density = LocalDensity.current.density
     val cellWidthPx = cellWidth.value * density
     var cellPosition by remember {
         mutableStateOf(mapOf<Int, Offset>())
+    }
+    var minIndexVariable by remember {
+        mutableStateOf(0)
     }
     var cellManager by remember {
         mutableStateOf(CellManager(cellSize = cellWidth))
@@ -110,19 +106,55 @@ fun DraggableElement() {
     var currentPointingValue by remember {
         mutableStateOf(-1)
     }
+//    val runPointer: @Composable () -> Unit = {
+//        LaunchedEffect(Unit) {
+//            launch {
+//                for (i in 1..numberOfElements) {
+//                    pointerCurrentPosition = cellPosition[i]!! - Offset(0f, 90f)
+//                    currentPointingValue = cellManager.getElementAt(i)?.value ?: -1
+//                    delay(1000)
+//                }
+//            }
+//        }
+//
+//    }
+
     val runPointer: @Composable () -> Unit = {
-        LaunchedEffect(Unit) {
-            launch {
-                for (i in 1..numberOfElements) {
-                    Log.i("HelloWord", "$i")
-                    pointerCurrentPosition = cellPosition[i]!!-Offset(0f,90f)
-                    currentPointingValue= cellManager.getElementAt(i)?.value ?:-1
-                    delay(1000 )
-                }
+        FindMinimum(list = list, startFrom = 0,
+            onMinimumIndexChange = {
+                Log.i("FindMinimum", "$it->${list[it]}")
+                minIndexVariable = it
+            },
+            onFinished = {
             }
+        ) {
+            pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
         }
 
     }
+
+
+    val selectionSort: (MutableList<Int>) -> Unit = { arr ->
+        val n = arr.size
+        for (i in 0 until n - 1) {
+            var minIndex = i
+            minIndexVariable = minIndex
+            for (j in i + 1 until n) {
+                if (arr[j] < arr[minIndex]) {
+                    minIndex = j
+                }
+            }
+            if (minIndex != i) {
+                val temp = arr[i]
+                arr[i] = arr[minIndex]
+                arr[minIndex] = temp
+            }
+        }
+        Log.i("AFTERSORT", arr.toString())
+    }
+//    LaunchedEffect(key1 = Unit) {
+//        selectionSort(list.toMutableList())
+//    }
 
 
     val insertionOnNonEmptyCell: (Int) -> Unit = { cellId ->
@@ -175,9 +207,9 @@ fun DraggableElement() {
 
     val initializeManagers: () -> Unit = {
         list.forEachIndexed { index, value ->
-            val cellId = index + 1
+            val cellId = index
             val position = cellPosition[cellId] ?: Offset.Zero
-            val elementId = index + 1
+            val elementId = index
             val element = Element(
                 position = position,
                 value = value,
@@ -208,10 +240,12 @@ fun DraggableElement() {
             .padding(top = 50.dp)
     ) {
 
-        Column ( modifier = Modifier
-            .fillMaxSize()){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
             FlowRow(modifier = Modifier) {
-                for (i in 1..numberOfElements) {
+                for (i in 0 until numberOfElements) {
                     Box(modifier = Modifier
                         .size(cellWidth)
                         .border(color = Color.Black, width = 2.dp)
@@ -220,16 +254,17 @@ fun DraggableElement() {
                         })
                 }
             }
-            //temp variable
             Spacer(modifier = Modifier.height(50.dp))
-                CurrentCellPointingValue(value = currentPointingValue)
-                Spacer(modifier = Modifier.height(50.dp))
-                Box(modifier = Modifier
-                    .size(cellWidth)
-                    .border(color = Color.Black, width = 2.dp)
-                    .onGloballyPositioned {
-                        calculateCellPosition(numberOfElements + 1, it)
-                    })
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                //temp variable
+                //CurrentCellPointingValue(value = currentPointingValue)
+                Spacer(modifier = Modifier.width(50.dp))
+                Variable(name = "minIndex", value = minIndexVariable.toString())
+            }
+
         }
 
 
@@ -254,6 +289,67 @@ fun DraggableElement() {
 
     }
 
+}
+
+@Composable
+fun FindMinimum(
+    list: List<Int>,
+    startFrom: Int,
+    onMinimumIndexChange: (Int) -> Unit,
+    onFinished: () -> Unit,
+    onPointerPosition: (Int) -> Unit,
+) {
+    LaunchedEffect(Unit) {
+        var minimum = list[startFrom]
+        onMinimumIndexChange(startFrom)
+        launch {
+            for (i in startFrom until list.size) {
+                if (list[i] < minimum) {
+                    minimum = list[i]
+                    onMinimumIndexChange(i)
+                }
+                onPointerPosition(i)
+                if (i == list.size - 1) {
+                    onFinished()
+                }
+                delay(1000)
+            }
+        }
+    }
+
+
+}
+
+@Composable
+private fun Variable(
+    name: String,
+    size: Dp = 100.dp,
+    value: String,
+) {
+    Column(
+        modifier = Modifier
+            .wrapContentSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(size)
+                .border(color = Color.Black, width = 2.dp)
+        ) {
+            Text(
+                text = value,
+                style = TextStyle(color = Color.Black, fontSize = 16.sp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center)
+            )
+        }
+        Text(
+            text = name,
+            style = TextStyle(color = Color.Black, fontSize = 12.sp),
+        )
+
+    }
 }
 
 @Composable
