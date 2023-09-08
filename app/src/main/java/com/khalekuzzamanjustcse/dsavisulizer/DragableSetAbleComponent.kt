@@ -44,14 +44,12 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun DraggableElementPreview() {
-    val list = listOf(40, 60, 30, 20, 10, 50)
-    val elements = list.map { Element(value = it) }
-    DraggableElement(elements)
+    DraggableElement()
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DraggableElement(elementList: List<Element>) {
+fun DraggableElement() {
     val list = listOf(40, 60, 30, 20, 10, 50)
     val cellWidth = 100.dp
     val density = LocalDensity.current.density
@@ -60,7 +58,7 @@ fun DraggableElement(elementList: List<Element>) {
         mutableStateOf(mapOf<Int, Offset>())
     }
     val elements by remember {
-        mutableStateOf(elementList)
+        mutableStateOf(list.map { Element(value = it) })
     }
     val arrayCells by remember {
         mutableStateOf(list.map { ArrayCell(cellSize = cellWidth) })
@@ -255,8 +253,9 @@ fun SelectionSort(
                 }
                 onMinimumFindFinished(i, minIndexVariable)
                 swap(i, minIndexVariable)
-                delay(3000)
                 onSortedPartitionUpdate(i)
+                delay(3000)
+
             }
 
         }
