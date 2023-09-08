@@ -112,6 +112,17 @@ fun DraggableElement(elementList: List<Element>) {
         ans
 
     }
+    val swapCellElement: (Int, Int) -> Unit = { i, j ->
+        val iThCellElementRef = arrayCells[i].currentElementReference.value
+        val jThCellElementRef = arrayCells[j].currentElementReference.value
+        //
+        getCellCurrentElement(i).position.value = arrayCells[j].position.value
+        getCellCurrentElement(j).position.value = arrayCells[i].position.value
+        //
+        updateCurrentElement(i, jThCellElementRef ?: -1)
+        updateCurrentElement(j, iThCellElementRef ?: -1)
+
+    }
     LaunchedEffect(cellPlaced) {
         elements.forEachIndexed { index, element ->
             updatePositionOf(index, cellPosition[index] ?: Offset.Zero)
@@ -178,22 +189,15 @@ fun DraggableElement(elementList: List<Element>) {
         }
         CellPointer(currentOffset = pointerCurrentPosition)
         val runPointer: @Composable () -> Unit = {
-            val scope = rememberCoroutineScope()
             SelectionSort(
                 list = list,
                 onMinimumIndexChange = {
-
                 },
                 onMinimumFindFinished = { i, j ->
-
-                    getCellCurrentElement(i).position.value = arrayCells[j].position.value
-                    getCellCurrentElement(j).position.value =arrayCells[i].position.value
-                    Log.i("CurrentValue:", "${
-                        arrayCells.mapIndexed{index,value->getCellCurrentElement(index).value}}")
+                    swapCellElement(i, j)
                 },
                 onPointerPosition = {
                     pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
-
                 })
         }
         runPointer()
@@ -238,7 +242,7 @@ fun SelectionSort(
                 }
                 onMinimumFindFinished(i, minIndexVariable)
                 swap(i, minIndexVariable)
-                delay(1000)
+                delay(3000)
             }
 
         }
