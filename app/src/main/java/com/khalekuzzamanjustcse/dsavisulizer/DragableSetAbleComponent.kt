@@ -111,11 +111,16 @@ fun DraggableElement() {
         ans
 
     }
+    val coroutineScope= rememberCoroutineScope()
     val swapCellElement: (Int, Int) -> Unit = { i, j ->
+
         val iThCellElementRef = arrayCells[i].currentElementReference.value
         val jThCellElementRef = arrayCells[j].currentElementReference.value
         //
         getCellCurrentElement(i).position.value = arrayCells[j].position.value
+        coroutineScope.launch {
+            delay(500)
+        }
         getCellCurrentElement(j).position.value = arrayCells[i].position.value
         //
         updateCurrentElement(i, jThCellElementRef ?: -1)
