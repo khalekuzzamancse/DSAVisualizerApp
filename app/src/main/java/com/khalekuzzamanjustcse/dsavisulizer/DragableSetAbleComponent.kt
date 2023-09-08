@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
+import PseudocodeText
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -65,6 +66,7 @@ fun Demo() {
 fun DraggableElementPreview() {
     Column(
         modifier = Modifier
+            .verticalScroll(rememberScrollState())
             .padding(8.dp)
             .fillMaxSize()
     ) {
@@ -78,8 +80,7 @@ fun DraggableElementPreview() {
 
         ElevatedCard(
             shape = RectangleShape,
-            modifier =
-            Modifier.padding(4.dp).
+            modifier = Modifier.padding(4.dp).
             border(width =1.dp, Color.Black)
 
         ) {
@@ -105,6 +106,8 @@ fun DraggableElementPreview() {
         if(start){
             DraggableElement(list)
         }
+        Spacer(modifier = Modifier.height(20.dp))
+        PseudocodeText(modifier = Modifier.padding(4.dp))
 
     }
 
@@ -225,7 +228,6 @@ fun DraggableElement(list: List<Int>) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
         Column(
