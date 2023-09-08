@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,6 +81,7 @@ fun DraggableElement(elementList: List<Element>) {
         )
     }
 
+
     val calculateCellPosition: (Int, LayoutCoordinates) -> Unit = { i, it ->
         val position = it.positionInParent()
         val tempCell = cellPosition.toMutableMap()
@@ -91,9 +93,9 @@ fun DraggableElement(elementList: List<Element>) {
         //
         cellPlaced = cellPosition.size >= list.size
     }
-    val getCellCurrentElement: (Int) -> Element? = { cellIndex ->
+    val getCellCurrentElement: (Int) -> Element = { cellIndex ->
         val elementIndex = arrayCells[cellIndex].currentElementReference.value
-        if (elementIndex != null) elements[elementIndex] else null
+        if (elementIndex != null) elements[elementIndex] else Element(-1)
     }
     val updateCurrentElement: (cellIndex: Int, elementIndex: Int) -> Unit =
         { cellIndex, elementIndex ->
@@ -120,9 +122,7 @@ fun DraggableElement(elementList: List<Element>) {
             density = density,
             cellWidth = cellWidth
         )
-        Log.i("ALLLCELLPLACED", "${
-            arrayCells.map { it.currentElementReference.value }
-        }")
+
     }
 
 
@@ -148,6 +148,8 @@ fun DraggableElement(elementList: List<Element>) {
             }
 
         }
+
+
         elements.forEachIndexed { index, element ->
             DraggableElement(
                 label = "${element.value}",
@@ -165,19 +167,34 @@ fun DraggableElement(elementList: List<Element>) {
                     val isACell = nearestCellId != SnapUtils.NOT_A_CELL
                     if (isACell)
                         updateCurrentElement(nearestCellId, index)
-                    Log.i("DRAG:End,added", "${
-                        arrayCells.map {
-                            if (it.currentElementReference.value != null)
-                                getCellCurrentElement(it.currentElementReference.value!!)?.value
-                            else -1
-                        }
-                    }")
 
                 }
             ) { dragAmount ->
                 element.position.value += dragAmount
             }
         }
+        var pointerCurrentPosition by remember {
+            mutableStateOf(-Offset(0f, 90f))
+        }
+        CellPointer(currentOffset = pointerCurrentPosition)
+        val runPointer: @Composable () -> Unit = {
+            val scope = rememberCoroutineScope()
+            SelectionSort(
+                list = list,
+                onMinimumIndexChange = {
+
+                },
+                onMinimumFindFinished = { i, j ->
+                    Log.i("CurrentValue:", "$i,$j")
+                    getCellCurrentElement(i).position.value = arrayCells[j].position.value
+                    getCellCurrentElement(j).position.value =arrayCells[i].position.value
+                },
+                onPointerPosition = {
+                    pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
+
+                })
+        }
+        runPointer()
 
 
     }
@@ -219,7 +236,7 @@ fun SelectionSort(
                 }
                 onMinimumFindFinished(i, minIndexVariable)
                 swap(i, minIndexVariable)
-                delay(9000)
+                delay(1000)
             }
 
         }
@@ -259,23 +276,6 @@ private fun CellPointer(
 /*
 
 
-  val runPointer: @Composable () -> Unit = {
-        val scope = rememberCoroutineScope()
-        SelectionSort(
-            list = list,
-            onMinimumIndexChange = {
-
-            },
-            onMinimumFindFinished = { i, j ->
-
-            },
-            onPointerPosition = {
-                pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
-            })
-    }
-       var pointerCurrentPosition by remember {
-        mutableStateOf(-Offset(0f, 90f))
-    }
 
 
  */
