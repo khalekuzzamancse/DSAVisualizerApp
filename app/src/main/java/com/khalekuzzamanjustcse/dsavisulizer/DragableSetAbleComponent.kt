@@ -66,6 +66,10 @@ fun DraggableElement() {
     val updatePositionOf: (Int, Offset) -> Unit = { index, newPosition ->
         elements[index].position.value = newPosition
     }
+    val tempVariableCell by remember {
+        mutableStateOf(ArrayCell(cellSize = cellWidth))
+    }
+
 
     var cellPlaced by remember {
         mutableStateOf(false)
@@ -111,22 +115,37 @@ fun DraggableElement() {
         ans
 
     }
-    val coroutineScope= rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val swapCellElement: (Int, Int) -> Unit = { i, j ->
+            val iThCellElementRef = arrayCells[i].currentElementReference.value
+            val jThCellElementRef = arrayCells[j].currentElementReference.value
+            getCellCurrentElement(i).position.value = arrayCells[j].position.value
+            getCellCurrentElement(j).position.value = arrayCells[i].position.value
+            updateCurrentElement(i, jThCellElementRef ?: -1)
+            updateCurrentElement(j, iThCellElementRef ?: -1)
 
-        val iThCellElementRef = arrayCells[i].currentElementReference.value
-        val jThCellElementRef = arrayCells[j].currentElementReference.value
-        //
-        getCellCurrentElement(i).position.value = arrayCells[j].position.value
-        coroutineScope.launch {
-            delay(500)
-        }
-        getCellCurrentElement(j).position.value = arrayCells[i].position.value
-        //
-        updateCurrentElement(i, jThCellElementRef ?: -1)
-        updateCurrentElement(j, iThCellElementRef ?: -1)
+//
+        //new code with temporary variables ,fixed the bug later insha-allah
+//        coroutineScope.launch {
+//            val iThCellElementRef = arrayCells[i].currentElementReference.value
+//            val jThCellElementRef = arrayCells[j].currentElementReference.value
+//
+//            val iThCellElement = getCellCurrentElement(iThCellElementRef ?: -1)
+//            val jThCellElement = getCellCurrentElement(jThCellElementRef ?: -1)
+//
+//            iThCellElement.position.value = tempVariableCell.position.value
+//            updateCurrentElement(j, iThCellElementRef ?: -1)
+//            delay(500)
+//            jThCellElement.position.value = arrayCells[i].position.value
+//            delay(500)
+//            iThCellElement.position.value = arrayCells[j].position.value
+//            updateCurrentElement(i, jThCellElementRef ?: -1)
+//
+//        }
 
     }
+
+
     LaunchedEffect(cellPlaced) {
         elements.forEachIndexed { index, element ->
             updatePositionOf(index, cellPosition[index] ?: Offset.Zero)
@@ -162,6 +181,13 @@ fun DraggableElement() {
                         })
                 }
             }
+
+            Box(modifier = Modifier
+                .size(cellWidth)
+                .border(color = Color.Black, width = 2.dp)
+                .onGloballyPositioned { cellPosition ->
+                    tempVariableCell.position.value = cellPosition.positionInParent()
+                })
 
         }
 
