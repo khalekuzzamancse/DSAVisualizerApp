@@ -185,9 +185,11 @@ fun DraggableElement(elementList: List<Element>) {
 
                 },
                 onMinimumFindFinished = { i, j ->
-                    Log.i("CurrentValue:", "$i,$j")
+
                     getCellCurrentElement(i).position.value = arrayCells[j].position.value
                     getCellCurrentElement(j).position.value =arrayCells[i].position.value
+                    Log.i("CurrentValue:", "${
+                        arrayCells.mapIndexed{index,value->getCellCurrentElement(index).value}}")
                 },
                 onPointerPosition = {
                     pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
