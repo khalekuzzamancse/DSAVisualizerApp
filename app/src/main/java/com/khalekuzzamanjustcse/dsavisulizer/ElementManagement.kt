@@ -6,7 +6,3 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 
-data class Element(
-    val value: Int,
-    val position: MutableState<Offset> = mutableStateOf(Offset.Zero)
-)

@@ -1,6 +1,7 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -148,12 +149,13 @@ fun DraggableElement(elementList: List<Element>) {
                 .fillMaxSize()
         ) {
             FlowRow(modifier = Modifier) {
-                for (cellID in list.indices) {
+                arrayCells.forEachIndexed { index, cell ->
                     Box(modifier = Modifier
                         .size(cellWidth)
                         .border(color = Color.Black, width = 2.dp)
+                        .background(cell.color.value)
                         .onGloballyPositioned { cellPosition ->
-                            calculateCellPosition(cellID, cellPosition)
+                            calculateCellPosition(index, cellPosition)
                         })
                 }
             }
@@ -189,12 +191,22 @@ fun DraggableElement(elementList: List<Element>) {
         }
         CellPointer(currentOffset = pointerCurrentPosition)
         val runPointer: @Composable () -> Unit = {
+            var previousMinIndex by remember { mutableStateOf(0) }
             SelectionSort(
                 list = list,
-                onMinimumIndexChange = {
+                onMinimumIndexChange = { index ->
+                    arrayCells[index].color.value = Color.Blue
+                    arrayCells[previousMinIndex].color.value = Color.Unspecified
+                    previousMinIndex = index
+
                 },
                 onMinimumFindFinished = { i, j ->
-                    swapCellElement(i, j)
+                    if (i != j)
+                        swapCellElement(i, j)
+                },
+                onSortedPartitionUpdate = { i ->
+                    for (index in 0..i)
+                        arrayCells[index].color.value = Color.Yellow
                 },
                 onPointerPosition = {
                     pointerCurrentPosition = cellPosition[it]!! - Offset(0f, 90f)
@@ -214,6 +226,7 @@ fun SelectionSort(
     list: List<Int>,
     onMinimumIndexChange: (Int) -> Unit,
     onMinimumFindFinished: (i: Int, j: Int) -> Unit,
+    onSortedPartitionUpdate: (Int) -> Unit,
     onPointerPosition: (Int) -> Unit,
 ) {
     var sortedList by remember {
@@ -232,7 +245,7 @@ fun SelectionSort(
             for (i in sortedList.indices) {
                 var minIndexVariable = i
                 onMinimumIndexChange(i)
-                for (j in i until sortedList.size) {
+                for (j in i + 1 until sortedList.size) {
                     delay(1000)
                     onPointerPosition(j)
                     if (sortedList[j] < sortedList[minIndexVariable]) {
@@ -243,6 +256,7 @@ fun SelectionSort(
                 onMinimumFindFinished(i, minIndexVariable)
                 swap(i, minIndexVariable)
                 delay(3000)
+                onSortedPartitionUpdate(i)
             }
 
         }
@@ -279,9 +293,3 @@ private fun CellPointer(
         )
     }
 }
-/*
-
-
-
-
- */
