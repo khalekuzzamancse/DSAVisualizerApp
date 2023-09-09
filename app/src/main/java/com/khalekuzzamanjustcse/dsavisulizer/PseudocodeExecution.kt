@@ -68,6 +68,7 @@ private fun HighLightLine() {
     ElevatedCard(
         shape = RectangleShape,
         modifier = Modifier
+            .fillMaxSize()
             .border(width = 1.dp, Color.Black)
             .padding(16.dp)
 
