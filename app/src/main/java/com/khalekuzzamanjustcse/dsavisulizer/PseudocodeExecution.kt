@@ -1,6 +1,7 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import PseudocodeLine
+import android.os.strictmode.UntaggedSocketViolation
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -35,7 +36,13 @@ import kotlinx.coroutines.delay
 
 @Preview
 @Composable
-private fun HighLightLine() {
+fun CodePreview() {
+    HighLightLine()
+}
+
+
+@Composable
+fun HighLightLine() {
     val lines by remember {
         mutableStateOf(
             listOf(
@@ -63,7 +70,9 @@ private fun HighLightLine() {
     var temp by remember {
         mutableStateOf(-1)
     }
-
+    var previousExecutedLine by remember {
+        mutableStateOf(0)
+    }
 
     ElevatedCard(
         shape = RectangleShape,
@@ -105,19 +114,21 @@ private fun HighLightLine() {
 
     }
 
-    CodecExecution { it, sortedList, minInd, tmp ->
-        if (it == 3 || it == 5)
-            lines[7].textColor.value = Color.Unspecified
-        if (it > 1)
-            lines[it - 2].textColor.value = Color.Unspecified
+    CodecExecution(
+        onExecutionChanged = { it, sortedList, minInd, tmp ->
+            lines[previousExecutedLine].textColor.value = Color.Unspecified
+            lines[it - 1].textColor.value = Color.Red
+            list = sortedList
+            minIndex = minInd
+            temp = tmp
+            previousExecutedLine = it - 1
+        }
+    ) {
+        lines.forEach{
+            it.textColor.value=Color.Unspecified
+        }
 
-        lines[it - 1].textColor.value = Color.Red
-        list = sortedList
-        minIndex = minInd
-        temp = tmp
-
-
-    }
+   }
 }
 
 @Composable
@@ -157,37 +168,64 @@ private fun VariableShow(
         )
 
 
-
     }
 
 
 }
 
+data class SelectionSortState(
+    val list: List<Int>,
+    val i: Int = SelectionSortState.GARBAGE_VALUE,
+    val j: Int = SelectionSortState.GARBAGE_VALUE,
+    val minIndex: Int = SelectionSortState.GARBAGE_VALUE,
+    val temp: Int = SelectionSortState.GARBAGE_VALUE,
+) {
+    companion object {
+        const val GARBAGE_VALUE = -111111111
+    }
+}
+
 
 @Composable
-private fun CodecExecution(onExecutionChanged: (currentLine: Int, list: List<Int>, minInd: Int, temp: Int) -> Unit) {
+private fun CodecExecution(
+    onExecutionChanged: (currentLine: Int, list: List<Int>, minInd: Int, temp: Int) -> Unit,
+    onFinished: () -> Unit,
+) {
     val sortedList = remember { mutableListOf(40, 30, 10, 20) }
     val executionTime = 2000L
     LaunchedEffect(Unit) {
+        var data = SelectionSortState(list = sortedList)
+
         var minIndex: Int = -1
         var temp: Int = -1
         val n = sortedList.size
+
         onExecutionChanged(2, sortedList, minIndex, temp)// 2:  n = length(arr)
         delay(executionTime)
+
         onExecutionChanged(3, sortedList, minIndex, temp) //3:  for i from 0 to n-1
         for (i in 0 until n - 1) {
+
+            onExecutionChanged(3, sortedList, minIndex, temp)//
             delay(executionTime)
+
             minIndex = i // 4: minIndex = i
+
             onExecutionChanged(4, sortedList, minIndex, temp)
             delay(executionTime)
+
+
             onExecutionChanged(5, sortedList, minIndex, temp) // 5: for j from i+1 to n:
             for (j in i + 1 until n) {
+                onExecutionChanged(5, sortedList, minIndex, temp)
                 delay(executionTime)
+
                 onExecutionChanged(6, sortedList, minIndex, temp)  //6: if arr[j] < arr[minIndex]:
                 if (sortedList[j] < sortedList[minIndex]) {
                     minIndex = j
                     delay(executionTime)
                     onExecutionChanged(7, sortedList, minIndex, temp) //7: minIndex = j
+
                 }
             }
 
@@ -199,6 +237,7 @@ private fun CodecExecution(onExecutionChanged: (currentLine: Int, list: List<Int
             delay(executionTime)
             onExecutionChanged(8, sortedList, minIndex, temp) //8: swap(arr[i], arr[minIndex])
         }
+        onFinished()
         Log.i("HighLightLine", ": $sortedList")
     }
 }
