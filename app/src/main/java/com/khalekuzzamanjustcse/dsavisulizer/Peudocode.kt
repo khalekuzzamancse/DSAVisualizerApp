@@ -94,5 +94,6 @@ fun PseudocodeText(
 data class PseudocodeLine(
     val lineNumber: Int,
     var text: String,
-    val textColor: MutableState<Color> = mutableStateOf(Color.Unspecified)
+    val textColor: MutableState<Color> = mutableStateOf(Color.Unspecified),
+    val marginFactor:Int=1
 )

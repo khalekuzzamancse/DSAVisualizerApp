@@ -1,7 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import PseudocodeLine
-import android.os.strictmode.UntaggedSocketViolation
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,23 +43,32 @@ fun CodePreview() {
 
 @Composable
 fun HighLightLine() {
+    val sequence = sort()
+//    Log.i("Seqeucccene","${
+//        sequence.map { it.lineNumber }
+//    }")
+
     val lines by remember {
         mutableStateOf(
             listOf(
                 PseudocodeLine(1, "selectionSort(arr):"),
                 PseudocodeLine(2, "n = length of arr"),
                 PseudocodeLine(3, "for i from 0 to n - 1"),
-                PseudocodeLine(4, "minIndex = i"),
+                PseudocodeLine(lineNumber = 4, text = "minIndex = i", marginFactor = 2),
                 PseudocodeLine(5, "for j from i + 1 to n - 1"),
-                PseudocodeLine(6, "if arr[j] < arr[minIndex]"),
-                PseudocodeLine(7, "minIndex = j"),
+                PseudocodeLine(
+                    lineNumber = 6,
+                    text = "if arr[j] < arr[minIndex]",
+                    marginFactor = 2
+                ),
+                PseudocodeLine(lineNumber = 7, text = "minIndex = j", marginFactor = 3),
                 PseudocodeLine(8, "swap(arr[i], arr[minIndex])"),
             )
         )
     }
 
-    var executionAt by remember {
-        mutableStateOf(1)
+    var sequenceAt by remember {
+        mutableStateOf(0)
     }
     var list by remember {
         mutableStateOf(emptyList<Int>())
@@ -74,6 +83,7 @@ fun HighLightLine() {
         mutableStateOf(0)
     }
 
+
     ElevatedCard(
         shape = RectangleShape,
         modifier = Modifier
@@ -82,6 +92,18 @@ fun HighLightLine() {
             .padding(16.dp)
 
     ) {
+
+        Button(onClick = {
+
+            val current = sequence[sequenceAt].lineNumber-1
+            val previous=if(sequenceAt==0)sequence[sequenceAt].lineNumber-1  else  sequence[sequenceAt-1].lineNumber-1
+            lines[previous].textColor.value = Color.Unspecified
+            lines[current].textColor.value = Color.Red
+            if (sequenceAt < sequence.size - 1)
+                sequenceAt++
+        }) {
+            Text(text = "Next")
+        }
         val maxLineNumber = lines.lastOrNull()?.lineNumber ?: 1
         val numberOfDigits = maxLineNumber.toString().length
 
@@ -102,7 +124,8 @@ fun HighLightLine() {
                     text = "${line.lineNumber.toString().padStart(numberOfDigits, '0')}: ",
                     modifier = Modifier.width(24.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                val margin = line.marginFactor * 8
+                Spacer(modifier = Modifier.width(margin.dp))
                 Text(
                     text = line.text,
                     fontSize = 16.sp,
@@ -114,21 +137,22 @@ fun HighLightLine() {
 
     }
 
-    CodecExecution(
-        onExecutionChanged = { it, sortedList, minInd, tmp ->
-            lines[previousExecutedLine].textColor.value = Color.Unspecified
-            lines[it - 1].textColor.value = Color.Red
-            list = sortedList
-            minIndex = minInd
-            temp = tmp
-            previousExecutedLine = it - 1
-        }
-    ) {
-        lines.forEach{
-            it.textColor.value=Color.Unspecified
-        }
 
-   }
+//    CodecExecution(
+//        onExecutionChanged = { it, sortedList, minInd, tmp ->
+//            lines[previousExecutedLine].textColor.value = Color.Unspecified
+//            lines[it - 1].textColor.value = Color.Red
+//            list = sortedList
+//            minIndex = minInd
+//            temp = tmp
+//            previousExecutedLine = it - 1
+//        }
+//    ) {
+//        lines.forEach {
+//            it.textColor.value = Color.Unspecified
+//        }
+//
+//    }
 }
 
 @Composable
@@ -174,6 +198,7 @@ private fun VariableShow(
 }
 
 data class SelectionSortState(
+    val lineNumber: Int,
     val list: List<Int>,
     val i: Int = SelectionSortState.GARBAGE_VALUE,
     val j: Int = SelectionSortState.GARBAGE_VALUE,
@@ -194,7 +219,6 @@ private fun CodecExecution(
     val sortedList = remember { mutableListOf(40, 30, 10, 20) }
     val executionTime = 2000L
     LaunchedEffect(Unit) {
-        var data = SelectionSortState(list = sortedList)
 
         var minIndex: Int = -1
         var temp: Int = -1
@@ -240,4 +264,51 @@ private fun CodecExecution(
         onFinished()
         Log.i("HighLightLine", ": $sortedList")
     }
+}
+
+fun sort(): List<SelectionSortState> {
+    val sortedList = mutableListOf(40, 30, 10, 20)
+    val sequences = mutableListOf<SelectionSortState>()
+    var minIndex = -1
+    var temp = -1
+    var i = 0
+    var j = 1
+
+    val onExecutionChanged: (Int) -> Unit = { lineNumber ->
+        sequences.add(
+            SelectionSortState(
+                lineNumber = lineNumber, list = sortedList,
+                i = i, j = j, temp = temp
+            )
+        )
+    }
+
+    val n = sortedList.size
+    onExecutionChanged(2)// 2:  n = length(arr)
+    onExecutionChanged(3) //3:  for i from 0 to n-1
+    while (i < n - 1) {
+        minIndex = i // 4: minIndex = i
+        onExecutionChanged(4)
+        j = i + 1
+        onExecutionChanged(5) // 5: for j from i+1 to n:
+        while (j < n) {
+            onExecutionChanged(6)  //6: if arr[j] < arr[minIndex]:
+            if (sortedList[j] < sortedList[minIndex]) {
+                minIndex = j
+                onExecutionChanged(7) //7: minIndex = j
+            }
+            j++
+            onExecutionChanged(5)
+        }
+        if (minIndex != i) {
+            temp = sortedList[i]
+            sortedList[i] = sortedList[minIndex]
+            sortedList[minIndex] = temp
+        }
+
+        onExecutionChanged(8) //8: swap(arr[i], arr[minIndex])
+        i++
+        onExecutionChanged(3)//3:  for i from 0 to n-1
+    }
+    return sequences
 }
