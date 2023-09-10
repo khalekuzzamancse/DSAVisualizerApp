@@ -11,7 +11,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             DSAVisulizerTheme {
                 //DraggableElementPreview()
-                HighLightLine()
+               // HighLightLine()
+                CodeExecution()
             }
         }
     }
