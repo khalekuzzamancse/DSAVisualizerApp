@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,14 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class ListItem(
-    var value: Int,
+    val value: MutableState<Int>,
     val backgroundColor: MutableState<Color> = mutableStateOf(UNSORTED_ELEMENT_COLOR),
     val valueColor: MutableState<Color> = mutableStateOf(Color.Red),
 ) {
     companion object {
-      private  val MINIMUM_ELEMENT_COLOR = Color.Green
-      private  val SORTED_ELEMENT_COLOR = Color.Yellow
-      private  val UNSORTED_ELEMENT_COLOR = Color.Unspecified
+        private val MINIMUM_ELEMENT_COLOR = Color.Green
+        private val SORTED_ELEMENT_COLOR = Color.Yellow
+        private val UNSORTED_ELEMENT_COLOR = Color.Unspecified
     }
 
     fun markAsMinimum() {
@@ -51,16 +52,19 @@ data class ListItem(
     fun removeAsMinimum() {
         backgroundColor.value = UNSORTED_ELEMENT_COLOR
     }
+
     fun removeAsSorted() {
         backgroundColor.value = UNSORTED_ELEMENT_COLOR
     }
+
+    fun boolIsMarkedAsMinimum() = backgroundColor.value == MINIMUM_ELEMENT_COLOR
 
 }
 
 @Preview
 @Composable
 private fun ListViewPreview() {
-    
+
     var minimumIndex by remember {
         mutableStateOf(3)
     }
@@ -68,7 +72,7 @@ private fun ListViewPreview() {
         mutableStateOf(0)
     }
     var swapIndex by remember {
-        mutableStateOf(Pair(0,0))
+        mutableStateOf(Pair(-1, -1))
     }
 
     Column {
@@ -76,7 +80,8 @@ private fun ListViewPreview() {
             data = listOf(40, 30, 10, 20),
             minimumIndex = minimumIndex,
             sortedIndex = sortedIndex,
-            swapIndex = swapIndex
+            swapIndex = swapIndex,
+
         )
         Button(onClick = {
             minimumIndex--
@@ -94,45 +99,53 @@ private fun ListViewPreview() {
 fun ListComposable(
     data: List<Int>,
     size: Dp = 64.dp,
-    swapIndex:Pair<Int,Int>,
+    swapIndex: Pair<Int, Int>,
+    executionFinished: Boolean = false,
     minimumIndex: Int,
-    sortedIndex:Int,
+    sortedIndex: Int,
 ) {
 
     var list by remember {
         mutableStateOf(
             data.map {
-                ListItem(value = it)
+                ListItem(value = mutableStateOf(it))
             }
         )
     }
-
-    val isValidIndex:(Int)->Boolean={
-        it>=0&&it<list.size
+    LaunchedEffect(data){
+        for( index in list.indices){
+            list[index].value.value=data[index]
+        }
     }
-    
-    var previousMinimumIndex by remember {
-        mutableStateOf(-1)
+    if(executionFinished){
+        Log.i("SSSSSSS","YEDS")
+        list.forEach{
+            it.markAsSorted()
+        }
+
+    }
+
+    val isValidIndex: (Int) -> Boolean = {
+        it >= 0 && it < list.size
+    }
+    val resetMinIndex=minimumIndex==-1
+    if(resetMinIndex){
+        for (start in list.indices) {
+            if (list[start].boolIsMarkedAsMinimum())
+                list[start].removeAsMinimum()
+        }
     }
 
     if (minimumIndex >= 0 && minimumIndex < list.size) {
-        if (previousMinimumIndex > 0 && previousMinimumIndex < list.size)
-            list[previousMinimumIndex].removeAsMinimum()
+        for (start in 0 until minimumIndex) {
+            if (list[start].boolIsMarkedAsMinimum())
+                list[start].removeAsMinimum()
+        }
         list[minimumIndex].markAsMinimum()
-        previousMinimumIndex = minimumIndex
     }
-    if(sortedIndex>=0&&sortedIndex<list.size){
+    if (sortedIndex >= 0 && sortedIndex < list.size) {
         list[sortedIndex].markAsSorted()
     }
-
-    if(isValidIndex(swapIndex.first)&&isValidIndex(swapIndex.second)){
-        val tempList = list.toMutableList()
-        val temp = tempList[swapIndex.first].value
-        tempList[swapIndex.first].value = tempList[swapIndex.second].value
-        tempList[swapIndex.second].value = temp
-        list = tempList
-    }
-
 
     val padding = 8.dp
     FlowRow {
@@ -143,7 +156,7 @@ fun ListComposable(
                     .background(it.backgroundColor.value)
             ) {
                 Text(
-                    text = "${it.value}",
+                    text = "${it.value.value}",
                     style = TextStyle(color = Color.White, fontSize = 16.sp),
                     modifier = Modifier
                         .padding(padding)

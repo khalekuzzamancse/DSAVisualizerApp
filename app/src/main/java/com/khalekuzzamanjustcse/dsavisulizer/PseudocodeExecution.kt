@@ -52,8 +52,15 @@ fun CodeExecution() {
         mutableStateOf(-1)
     }
     var swapIndex by remember {
-        mutableStateOf(Pair(0,0))
+        mutableStateOf(Pair(-1, -1))
     }
+    var executionFinished by remember {
+        mutableStateOf(false)
+    }
+    var list by remember {
+        mutableStateOf(listOf(40, 30, 10, 20))
+    }
+
 
     Column(
         modifier = Modifier
@@ -61,23 +68,32 @@ fun CodeExecution() {
             .fillMaxSize()
     ) {
         ListComposable(
-            data = listOf(40, 30, 10, 20),
+            data = list,
             minimumIndex = minimumIndex,
             sortedIndex = sortedIndex,
-            swapIndex = swapIndex
+            swapIndex = swapIndex,
+            executionFinished = executionFinished
         )
 
         HighLightLine(
             onSortedPortionUpdated = {
-                sortedIndex=it
+                sortedIndex = it
             },
-            onSwapped = {i,j->
-                swapIndex= Pair(i,j)
+            onSwapped = { i, j ->
+                swapIndex = Pair(i, j)
+                minimumIndex = -1
             },
             onMinimumIndexUpdated = {
-                minimumIndex=it
+                minimumIndex = it
+            },
+            onListUpdated = {
+                list=it
+            },
+            onExecutionFinished = {
+                executionFinished=true
             }
-        )
+
+            )
     }
 
 }
@@ -88,12 +104,19 @@ fun CodeExecution() {
 fun HighLightLine(
     onMinimumIndexUpdated: (Int) -> Unit = {},
     onSortedPortionUpdated: (Int) -> Unit = {},
-    onSwapped:(Int,Int)->Unit = {i,j->},
+    onListUpdated: (List<Int>) -> Unit,
+    onExecutionFinished: ()->Unit,
+    onSwapped: (Int, Int) -> Unit = { i, j -> },
 ) {
     val sequence by remember {
-        mutableStateOf(sort())
+        mutableStateOf(getSelectionSortExecutionSequence())
     }
-    Log.i("Seqeucccene", "$sequence")
+
+    var currentState by remember {
+        mutableStateOf(SelectionSortState(executedLineNo = 1))
+    }
+
+
 
     val lines by remember {
         mutableStateOf(
@@ -117,22 +140,19 @@ fun HighLightLine(
     var sequenceAt by remember {
         mutableStateOf(0)
     }
-    var list by remember {
-        mutableStateOf(emptyList<Int>())
+
+
+    onListUpdated(currentState.currentList)
+    if (currentState.shouldSwap) {
+        onSortedPortionUpdated(currentState.i)
+        onSwapped(currentState.i, currentState.minIndex)
     }
-    var minIndex by remember {
-        mutableStateOf(-1)
-    }
-    var temp by remember {
-        mutableStateOf(-1)
-    }
-    var i by remember {
-        mutableStateOf(-1)
+    if (currentState.executedLineNo == 4 || currentState.executedLineNo == 7) {
+        onMinimumIndexUpdated(currentState.minIndex)
     }
 
-    var j by remember {
-        mutableStateOf(-1)
-    }
+
+
 
     ElevatedCard(
         shape = RectangleShape,
@@ -145,36 +165,28 @@ fun HighLightLine(
 
         Button(onClick = {
             val states = sequence[sequenceAt]
-            val currentLine = sequence[sequenceAt].lineNumber - 1
+            currentState = states
+            val currentLine = sequence[sequenceAt].executedLineNo - 1
             val previousLine =
-                if (sequenceAt == 0) sequence[sequenceAt].lineNumber - 1 else sequence[sequenceAt - 1].lineNumber - 1
+                if (sequenceAt == 0) sequence[sequenceAt].executedLineNo - 1 else sequence[sequenceAt - 1].executedLineNo - 1
             lines[previousLine].textColor.value = Color.Unspecified
             lines[currentLine].textColor.value = Color.Red
-
-            list = states.list
-            temp = states.temp
-            minIndex = states.minIndex
-            i = states.i
-            j = states.j
-            Log.i("Seqeucccene", "$states")
-            if (states.lineNumber == 8) {
-                onSortedPortionUpdated(states.i)
-                onSwapped(states.i,states.minIndex)
-
-            }
-            if (states.lineNumber == 4||states.lineNumber == 7) {
-                onMinimumIndexUpdated(states.minIndex)
-            }
-
             if (sequenceAt < sequence.size - 1)
                 sequenceAt++
+            else{
+                onExecutionFinished()
+                val line = sequence.last().executedLineNo-1
+                lines[line].textColor.value=Color.Unspecified
+            }
+
+
         }) {
             Text(text = "Next")
         }
         val maxLineNumber = lines.lastOrNull()?.lineNumber ?: 1
         val numberOfDigits = maxLineNumber.toString().length
 
-        VariableShow(variableName = "List", value = list.joinToString(" "))
+        VariableShow(variableName = "List", value = currentState.currentList.joinToString(" "))
 
         FlowRow {
 
@@ -182,19 +194,19 @@ fun HighLightLine(
 
             VariableShow(
                 variableName = "minIndex",
-                value = if (minIndex == -1) " " else "$minIndex"
+                value = if (currentState.minIndex == SelectionSortState.GARBAGE) " " else "${currentState.minIndex}"
             )
             VariableShow(
                 variableName = "temp",
-                value = if (temp == -1) " " else "$temp"
+                value = if (currentState.temp == SelectionSortState.GARBAGE) " " else "${currentState.temp}"
             )
             VariableShow(
                 variableName = "i",
-                value = if (i == -1) " " else "$i"
+                value = if (currentState.i == SelectionSortState.GARBAGE) " " else "${currentState.i}"
             )
             VariableShow(
                 variableName = "j",
-                value = if (j == -1) " " else "$j"
+                value = if (currentState.j == SelectionSortState.GARBAGE) " " else "${currentState.j}"
             )
 
         }
@@ -260,171 +272,4 @@ private fun VariableShow(
     }
 
 
-}
-
-data class SelectionSortState(
-    val lineNumber: Int,
-    val list: List<Int>,
-    val i: Int = GARBAGE_VALUE,
-    val j: Int = GARBAGE_VALUE,
-    val minIndex: Int = GARBAGE_VALUE,
-    val temp: Int = GARBAGE_VALUE,
-) {
-    companion object {
-        const val GARBAGE_VALUE = -1
-    }
-}
-
-
-@Composable
-private fun CodecExecution(
-    onExecutionChanged: (currentLine: Int, list: List<Int>, minInd: Int, temp: Int) -> Unit,
-    onFinished: () -> Unit,
-) {
-    val sortedList = remember { mutableListOf(40, 30, 10, 20) }
-    val executionTime = 2000L
-    LaunchedEffect(Unit) {
-
-        var minIndex: Int = -1
-        var temp: Int = -1
-        val n = sortedList.size
-
-        onExecutionChanged(2, sortedList, minIndex, temp)// 2:  n = length(arr)
-        delay(executionTime)
-
-        onExecutionChanged(3, sortedList, minIndex, temp) //3:  for i from 0 to n-1
-        for (i in 0 until n - 1) {
-
-            onExecutionChanged(3, sortedList, minIndex, temp)//
-            delay(executionTime)
-
-            minIndex = i // 4: minIndex = i
-
-            onExecutionChanged(4, sortedList, minIndex, temp)
-            delay(executionTime)
-
-
-            onExecutionChanged(5, sortedList, minIndex, temp) // 5: for j from i+1 to n:
-            for (j in i + 1 until n) {
-                onExecutionChanged(5, sortedList, minIndex, temp)
-                delay(executionTime)
-
-                onExecutionChanged(6, sortedList, minIndex, temp)  //6: if arr[j] < arr[minIndex]:
-                if (sortedList[j] < sortedList[minIndex]) {
-                    minIndex = j
-                    delay(executionTime)
-                    onExecutionChanged(7, sortedList, minIndex, temp) //7: minIndex = j
-
-                }
-            }
-
-            if (minIndex != i) {
-                temp = sortedList[i]
-                sortedList[i] = sortedList[minIndex]
-                sortedList[minIndex] = temp
-            }
-            delay(executionTime)
-            onExecutionChanged(8, sortedList, minIndex, temp) //8: swap(arr[i], arr[minIndex])
-        }
-        onFinished()
-        Log.i("HighLightLine", ": $sortedList")
-    }
-}
-
-fun sort(): List<SelectionSortState> {
-    var sortedList = listOf(40, 30, 10, 20)
-    val sequences = mutableListOf<SelectionSortState>()
-    val n = sortedList.size
-    sequences.add(
-        SelectionSortState(
-            list = sortedList,
-            lineNumber = 2,
-            i = -1
-        )
-    )// 2:  n = length(arr)
-    sequences.add(
-        SelectionSortState(
-            list = sortedList,
-            lineNumber = 3,
-            i = 0
-        )
-    ) //3:  for i from 0 to n-1
-    for (i in 0 until n - 1) {
-        var minIndex = i // 4: minIndex = i
-        sequences.add(
-            SelectionSortState(
-                list = sortedList,
-                lineNumber = 4,
-                minIndex = minIndex,
-                i = i
-            )
-        )
-
-        sequences.add(
-            SelectionSortState(
-                list = sortedList,
-                lineNumber = 5,
-                minIndex = minIndex,
-                i = i,
-                j = i + 1
-            )
-        ) // 5: for j from i+1 to n:
-        for (j in i + 1 until n) {
-            sequences.add(
-                SelectionSortState(
-                    list = sortedList,
-                    lineNumber = 6,
-                    minIndex = minIndex,
-                    i = i,
-                    j = j
-                )
-            )   //6: if arr[j] < arr[minIndex]:
-            if (sortedList[j] < sortedList[minIndex]) {
-                minIndex = j
-                sequences.add(
-                    SelectionSortState(
-                        list = sortedList,
-                        lineNumber = 7,
-                        minIndex = minIndex,
-                        i = i,
-                        j = j
-                    )
-                ) //7: minIndex = j
-            }
-
-            sequences.add(
-                SelectionSortState(
-                    list = sortedList,
-                    lineNumber = 5,
-                    minIndex = minIndex,
-                    i = i,
-                    j = j + 1
-                )
-            ) // 5: for j from i+1 to n:
-        }
-        if (minIndex != i) {
-            val tempList = sortedList.toMutableList()
-            val temp = sortedList[i]
-            tempList[i] = tempList[minIndex]
-            tempList[minIndex] = temp
-            sortedList = tempList
-        }
-
-        sequences.add(
-            SelectionSortState(
-                list = sortedList,
-                lineNumber = 8,
-                minIndex = minIndex,
-                i = i
-            )
-        ) //8: swap(arr[i], arr[minIndex])
-        sequences.add(
-            SelectionSortState(
-                list = sortedList,
-                lineNumber = 3,
-                i = i + 1
-            )
-        )//3:  for i from 0 to n-1
-    }
-    return sequences
 }
