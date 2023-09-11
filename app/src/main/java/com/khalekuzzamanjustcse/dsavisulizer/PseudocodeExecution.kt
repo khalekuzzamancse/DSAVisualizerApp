@@ -199,19 +199,13 @@ fun HighLightLine(
         val maxLineNumber = lines.lastOrNull()?.lineNumber ?: 1
         val numberOfDigits = maxLineNumber.toString().length
 
-        VariableShow(
-            modifier =Modifier.fillMaxWidth(),
-            variableName = "List",
-            value = currentState.currentList.joinToString(" "),
-
-        )
-
         FlowRow {
 
             Spacer(modifier = Modifier.width(8.dp))
 
             VariableShow(
                 variableName = "minIndex",
+                cellSize = 50.dp,
                 value = if (currentState.minIndex == SelectionSortState.GARBAGE) " " else "${currentState.minIndex}"
             )
             VariableShow(
