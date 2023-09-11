@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -77,12 +78,12 @@ private fun ListViewPreview() {
 
     Column {
         ListComposable(
-            data = listOf(40, 30, 10, 20),
+            data = ArrayCellValue(listOf(40, 30, 10, 20)),
             minimumIndex = minimumIndex,
             sortedIndex = sortedIndex,
             swapIndex = swapIndex,
 
-        )
+            )
         Button(onClick = {
             minimumIndex--
             sortedIndex++
@@ -94,10 +95,16 @@ private fun ListViewPreview() {
 
 }
 
+
+
+data class ArrayCellValue(
+    val list: List<Int>
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ListComposable(
-    data: List<Int>,
+    data: ArrayCellValue,
     size: Dp = 64.dp,
     swapIndex: Pair<Int, Int>,
     executionFinished: Boolean = false,
@@ -105,31 +112,40 @@ fun ListComposable(
     sortedIndex: Int,
 ) {
 
-    var list by remember {
+
+    val list by remember {
         mutableStateOf(
-            data.map {
+            data.list.map {
                 ListItem(value = mutableStateOf(it))
             }
         )
     }
-    LaunchedEffect(data){
-        for( index in list.indices){
-            list[index].value.value=data[index]
-        }
+    val isValidIndex: (Int) -> Boolean = {
+        it >= 0 && it < list.size
     }
-    if(executionFinished){
-        Log.i("SSSSSSS","YEDS")
-        list.forEach{
+
+
+    if (executionFinished) {
+        list.forEach {
             it.markAsSorted()
         }
 
     }
-
-    val isValidIndex: (Int) -> Boolean = {
-        it >= 0 && it < list.size
+    //Swapping Value
+    LaunchedEffect(swapIndex ){
+        if (isValidIndex(swapIndex.first) && isValidIndex(swapIndex.second)) {
+            Log.i("SWAPINDEX", "$swapIndex")
+            val temp = list[swapIndex.first].value.value
+            list[swapIndex.first].value.value = list[swapIndex.second].value.value
+            list[swapIndex.second].value.value=temp
+        }
     }
-    val resetMinIndex=minimumIndex==-1
-    if(resetMinIndex){
+
+
+
+
+    val resetMinIndex = minimumIndex == -1
+    if (resetMinIndex) {
         for (start in list.indices) {
             if (list[start].boolIsMarkedAsMinimum())
                 list[start].removeAsMinimum()
@@ -146,6 +162,7 @@ fun ListComposable(
     if (sortedIndex >= 0 && sortedIndex < list.size) {
         list[sortedIndex].markAsSorted()
     }
+
 
     val padding = 8.dp
     FlowRow {

@@ -11,8 +11,10 @@ package com.khalekuzzamanjustcse.dsavisulizer
 8.     swap(arr[i], arr[minIndex])
 
  */
-fun getSelectionSortExecutionSequence(): List<SelectionSortState> {
-    var sortedList = listOf(40, 30, 10, 20)
+fun getSelectionSortExecutionSequence(
+    arrayCellValue:ArrayCellValue,
+): List<SelectionSortState> {
+    var sortedList =arrayCellValue.list
     val sequences = mutableListOf<SelectionSortState>()
     sequences.add(
         SelectionSortState(

@@ -16,11 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +35,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 
 
 @Preview
@@ -57,43 +57,55 @@ fun CodeExecution() {
     var executionFinished by remember {
         mutableStateOf(false)
     }
-    var list by remember {
-        mutableStateOf(listOf(40, 30, 10, 20))
-    }
+  var arrayCellValue by remember {
+      mutableStateOf( ArrayCellValue(emptyList()))
+  }
+
+
 
 
     Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
-        ListComposable(
-            data = list,
-            minimumIndex = minimumIndex,
-            sortedIndex = sortedIndex,
-            swapIndex = swapIndex,
-            executionFinished = executionFinished
-        )
-
-        HighLightLine(
-            onSortedPortionUpdated = {
-                sortedIndex = it
-            },
-            onSwapped = { i, j ->
-                swapIndex = Pair(i, j)
-                minimumIndex = -1
-            },
-            onMinimumIndexUpdated = {
-                minimumIndex = it
-            },
-            onListUpdated = {
-                list=it
-            },
-            onExecutionFinished = {
-                executionFinished=true
-            }
+        ArrayInputComposable(){
+            Log.i("LISTCHANGED","$it")
+            arrayCellValue= ArrayCellValue(it)
+        }
+        if(arrayCellValue.list.isNotEmpty()){
+            ListComposable(
+                data = arrayCellValue,
+                minimumIndex = minimumIndex,
+                sortedIndex = sortedIndex,
+                swapIndex = swapIndex,
+                executionFinished = executionFinished
+            )
+            HighLightLine(
+                arrayCellValue = arrayCellValue,
+                onSortedPortionUpdated = {
+                    sortedIndex = it
+                },
+                onSwapped = { i, j ->
+                    swapIndex = Pair(i, j)
+                    minimumIndex = -1
+                },
+                onMinimumIndexUpdated = {
+                    minimumIndex = it
+                },
+                onListUpdated = {
+                    // list=it
+                },
+                onExecutionFinished = {
+                    executionFinished=true
+                }
 
             )
+        }
+
+
+
     }
 
 }
@@ -102,14 +114,15 @@ fun CodeExecution() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HighLightLine(
-    onMinimumIndexUpdated: (Int) -> Unit = {},
-    onSortedPortionUpdated: (Int) -> Unit = {},
+    arrayCellValue: ArrayCellValue,
+    onMinimumIndexUpdated: (Int) -> Unit,
+    onSortedPortionUpdated: (Int) -> Unit,
     onListUpdated: (List<Int>) -> Unit,
     onExecutionFinished: ()->Unit,
-    onSwapped: (Int, Int) -> Unit = { i, j -> },
+    onSwapped: (Int, Int) -> Unit,
 ) {
     val sequence by remember {
-        mutableStateOf(getSelectionSortExecutionSequence())
+        mutableStateOf(getSelectionSortExecutionSequence(arrayCellValue))
     }
 
     var currentState by remember {
@@ -186,7 +199,12 @@ fun HighLightLine(
         val maxLineNumber = lines.lastOrNull()?.lineNumber ?: 1
         val numberOfDigits = maxLineNumber.toString().length
 
-        VariableShow(variableName = "List", value = currentState.currentList.joinToString(" "))
+        VariableShow(
+            modifier =Modifier.fillMaxWidth(),
+            variableName = "List",
+            value = currentState.currentList.joinToString(" "),
+
+        )
 
         FlowRow {
 
@@ -198,14 +216,17 @@ fun HighLightLine(
             )
             VariableShow(
                 variableName = "temp",
+                cellSize = 50.dp,
                 value = if (currentState.temp == SelectionSortState.GARBAGE) " " else "${currentState.temp}"
             )
             VariableShow(
                 variableName = "i",
+                cellSize = 50.dp,
                 value = if (currentState.i == SelectionSortState.GARBAGE) " " else "${currentState.i}"
             )
             VariableShow(
                 variableName = "j",
+                cellSize = 50.dp,
                 value = if (currentState.j == SelectionSortState.GARBAGE) " " else "${currentState.j}"
             )
 
@@ -234,13 +255,14 @@ fun HighLightLine(
 
 @Composable
 private fun VariableShow(
+    modifier: Modifier=Modifier,
     variableName: String,
     value: String,
     fontSize: TextUnit = 16.sp,
-    cellSize: Dp = 100.dp
+    cellSize: Dp =Dp.Unspecified
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
             .size(cellSize)
 
