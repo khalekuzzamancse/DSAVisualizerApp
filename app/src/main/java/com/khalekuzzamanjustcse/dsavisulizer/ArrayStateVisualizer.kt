@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -98,6 +100,8 @@ fun ArrayStateVisualizer(
     array: ArrayCellValue,
     size: Dp = 64.dp,
     swapElements: Pair<Int, Int>,
+    movePointerAt:Int = -1,
+    movePointerJ:Int=-1,
     markCellAsBlue: Int,
     markCellAsSort: Int,
     allCellSorted: Boolean = false,
@@ -205,6 +209,16 @@ fun ArrayStateVisualizer(
                 size = size
             )
         }
+        //positioning the cell pointer at (0,0) so that easier to to move
+        CellPointer(
+            label = "i",
+            icon = Icons.Default.ArrowForward,
+            currentOffset = cellsPosition[movePointerAt]?.minus(Offset(50f,-65f)) ?: Offset(-100f,-1000f))
+        CellPointer(
+            label = "j",
+            icon = Icons.Default.ArrowForward,
+            currentOffset = cellsPosition[movePointerJ]?.minus(Offset(50f,-65f)) ?:
+            Offset(-100f,-1000f))
 
     }
 

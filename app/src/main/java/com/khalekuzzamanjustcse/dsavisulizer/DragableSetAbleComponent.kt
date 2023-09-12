@@ -283,7 +283,7 @@ fun DraggableElement(list: List<Int>) {
         var pointerCurrentPosition by remember {
             mutableStateOf(-Offset(0f, 90f))
         }
-        CellPointer(currentOffset = pointerCurrentPosition)
+        CellPointer(label="i",currentOffset = pointerCurrentPosition)
         val runPointer: @Composable () -> Unit = {
             var previousMinIndex by remember { mutableStateOf(0) }
             SelectionSort(
@@ -362,29 +362,3 @@ fun SelectionSort(
 
 }
 
-@Composable
-private fun CellPointer(
-    modifier: Modifier = Modifier,
-    currentOffset: Offset = Offset(0f, 0f),
-    size: Dp = 100.dp,
-) {
-    val padding = 8.dp
-    Box(
-        modifier = modifier
-            .size(size)
-            .graphicsLayer {
-                translationX = currentOffset.x
-                translationY = currentOffset.y
-            }
-
-    ) {
-        Icon(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center),
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = null
-        )
-    }
-}

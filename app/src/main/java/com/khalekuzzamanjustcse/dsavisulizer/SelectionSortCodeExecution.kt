@@ -96,6 +96,8 @@ fun SelectionSortCodeExecution(
                 array = arrayCellValue,
                 markCellAsBlue = currentState.minIndex,
                 markCellAsSort = currentState.sortedTill,
+                movePointerAt = currentState.i,
+                movePointerJ=currentState.j,
                 allCellSorted = executionFinished,
                 swapElements = if (currentState.shouldSwap) Pair(
                     currentState.i,
