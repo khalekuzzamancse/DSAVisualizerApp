@@ -105,6 +105,7 @@ fun getSelectionSortExecutionSequence(
                 i = i,
                 minIndex = minIndex,
                 shouldSwap = true,
+                sortedTill = i
             )
         ) //8: swap(arr[i], arr[minIndex])
         sequences.add(
@@ -126,6 +127,7 @@ data class SelectionSortState(
     val minIndex: Int = GARBAGE,
     val temp: Int = GARBAGE,
     val shouldSwap: Boolean = false,
+    val sortedTill:Int=GARBAGE
 ) {
     companion object {
         const val GARBAGE = -1

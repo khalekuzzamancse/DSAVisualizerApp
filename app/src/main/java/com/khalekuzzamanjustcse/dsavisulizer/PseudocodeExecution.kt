@@ -1,7 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
 import PseudocodeLine
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,22 +44,13 @@ fun CodeExecutionPreview() {
 
 @Composable
 fun CodeExecution() {
-    var minimumIndex by remember {
-        mutableStateOf(-1)
-    }
-    var sortedIndex by remember {
-        mutableStateOf(-1)
-    }
-    var swapIndex by remember {
-        mutableStateOf(Pair(-1, -1))
-    }
-    var executionFinished by remember {
-        mutableStateOf(false)
-    }
-  var arrayCellValue by remember {
-      mutableStateOf( ArrayCellValue(emptyList()))
-  }
 
+    var arrayCellValue by remember {
+        mutableStateOf(ArrayCellValue(emptyList()))
+    }
+    var state by remember {
+        mutableStateOf(SelectionSortState(executedLineNo = 1))
+    }
 
 
 
@@ -70,40 +60,25 @@ fun CodeExecution() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        ArrayInputComposable(){
-            Log.i("LISTCHANGED","$it")
-            arrayCellValue= ArrayCellValue(it)
+        ArrayInputComposable {
+            arrayCellValue = ArrayCellValue(it)
         }
-        if(arrayCellValue.list.isNotEmpty()){
+        Spacer(modifier = Modifier.height(16.dp))
+        if (arrayCellValue.list.isNotEmpty()) {
+
+
             ListComposable(
                 data = arrayCellValue,
-                minimumIndex = minimumIndex,
-                sortedIndex = sortedIndex,
-                swapIndex = swapIndex,
-                executionFinished = executionFinished
+                minimumIndex = state.minIndex,
+                sortedIndex = state.sortedTill,
+                swapIndex = if (state.shouldSwap) Pair(state.i, state.minIndex) else Pair(-1, -1),
             )
+
             HighLightLine(
                 arrayCellValue = arrayCellValue,
-                onSortedPortionUpdated = {
-                    sortedIndex = it
-                },
-                onSwapped = { i, j ->
-                    swapIndex = Pair(i, j)
-                    minimumIndex = -1
-                },
-                onMinimumIndexUpdated = {
-                    minimumIndex = it
-                },
-                onListUpdated = {
-                    // list=it
-                },
-                onExecutionFinished = {
-                    executionFinished=true
-                }
-
+                onStateChanged = { state = it }
             )
         }
-
 
 
     }
@@ -115,11 +90,7 @@ fun CodeExecution() {
 @Composable
 fun HighLightLine(
     arrayCellValue: ArrayCellValue,
-    onMinimumIndexUpdated: (Int) -> Unit,
-    onSortedPortionUpdated: (Int) -> Unit,
-    onListUpdated: (List<Int>) -> Unit,
-    onExecutionFinished: ()->Unit,
-    onSwapped: (Int, Int) -> Unit,
+    onStateChanged: (SelectionSortState) -> Unit = {},
 ) {
     val sequence by remember {
         mutableStateOf(getSelectionSortExecutionSequence(arrayCellValue))
@@ -128,7 +99,6 @@ fun HighLightLine(
     var currentState by remember {
         mutableStateOf(SelectionSortState(executedLineNo = 1))
     }
-
 
 
     val lines by remember {
@@ -154,19 +124,6 @@ fun HighLightLine(
         mutableStateOf(0)
     }
 
-
-    onListUpdated(currentState.currentList)
-    if (currentState.shouldSwap) {
-        onSortedPortionUpdated(currentState.i)
-        onSwapped(currentState.i, currentState.minIndex)
-    }
-    if (currentState.executedLineNo == 4 || currentState.executedLineNo == 7) {
-        onMinimumIndexUpdated(currentState.minIndex)
-    }
-
-
-
-
     ElevatedCard(
         shape = RectangleShape,
         modifier = Modifier
@@ -179,6 +136,7 @@ fun HighLightLine(
         Button(onClick = {
             val states = sequence[sequenceAt]
             currentState = states
+            onStateChanged(currentState)
             val currentLine = sequence[sequenceAt].executedLineNo - 1
             val previousLine =
                 if (sequenceAt == 0) sequence[sequenceAt].executedLineNo - 1 else sequence[sequenceAt - 1].executedLineNo - 1
@@ -186,10 +144,9 @@ fun HighLightLine(
             lines[currentLine].textColor.value = Color.Red
             if (sequenceAt < sequence.size - 1)
                 sequenceAt++
-            else{
-                onExecutionFinished()
-                val line = sequence.last().executedLineNo-1
-                lines[line].textColor.value=Color.Unspecified
+            else {
+                val line = sequence.last().executedLineNo - 1
+                lines[line].textColor.value = Color.Unspecified
             }
 
 
@@ -249,11 +206,11 @@ fun HighLightLine(
 
 @Composable
 private fun VariableShow(
-    modifier: Modifier=Modifier,
+    modifier: Modifier = Modifier,
     variableName: String,
     value: String,
     fontSize: TextUnit = 16.sp,
-    cellSize: Dp =Dp.Unspecified
+    cellSize: Dp = Dp.Unspecified
 ) {
     Column(
         modifier = modifier

@@ -141,9 +141,6 @@ fun ListComposable(
         }
     }
 
-
-
-
     val resetMinIndex = minimumIndex == -1
     if (resetMinIndex) {
         for (start in list.indices) {

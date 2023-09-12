@@ -32,6 +32,7 @@ fun ArrayInputComposable(
         mutableStateOf("60 50 40 30 20 10")
     }
     var start by remember { mutableStateOf(false) }
+    var inputDisable by remember { mutableStateOf(false) }
     var list by remember {
         mutableStateOf(emptyList<Int>())
     }
@@ -46,7 +47,8 @@ fun ArrayInputComposable(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             value = text,
-            onValueChange = { text = it }
+            onValueChange = { text = it },
+            readOnly = inputDisable
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -55,6 +57,7 @@ fun ArrayInputComposable(
             list = elements.mapNotNull { it.toIntOrNull() }
             start=!start
             onInputChanged(list)
+            inputDisable=true
         }) {
             Text("Done")
         }
