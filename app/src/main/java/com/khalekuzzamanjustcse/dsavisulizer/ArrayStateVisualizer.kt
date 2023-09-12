@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,17 +17,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
-data class ListItem(
+data class ArrayCellItem(
     val value: MutableState<Int>,
     val backgroundColor: MutableState<Color> = mutableStateOf(UNSORTED_ELEMENT_COLOR),
     val valueColor: MutableState<Color> = mutableStateOf(Color.Red),
@@ -111,10 +107,33 @@ fun ArrayStateVisualizer(
     val list by remember {
         mutableStateOf(
             array.list.map {
-                ListItem(value = mutableStateOf(it))
+                ArrayCellItem(value = mutableStateOf(it))
             }
         )
     }
+
+    var cellsPosition by remember {
+        mutableStateOf(List(list.size) { index -> index to Offset.Zero }.toMap())
+    }
+    var elementPosition by remember {
+        mutableStateOf(List(list.size) { index -> index to Offset.Zero }.toMap())
+    }
+    val swapElementPosition:(Int,Int)->Unit={i,j->
+        val newPositions=elementPosition.toMutableMap()
+        val temp=newPositions[i]?:Offset.Zero
+        newPositions[i]=newPositions[j]?:Offset.Zero
+        newPositions[j]=temp
+        elementPosition=newPositions
+    }
+
+    LaunchedEffect(cellsPosition){
+        elementPosition=cellsPosition.mapValues { it.value }
+    }
+
+
+
+
+
     val isValidIndex: (Int) -> Boolean = {
         it >= 0 && it < list.size
     }
@@ -125,14 +144,17 @@ fun ArrayStateVisualizer(
             it.markAsSorted()
         }
 
+
     }
     //Swapping Value
     LaunchedEffect(swapElements) {
         if (isValidIndex(swapElements.first) && isValidIndex(swapElements.second)) {
-            val temp = list[swapElements.first].value.value
-            list[swapElements.first].value.value = list[swapElements.second].value.value
-            list[swapElements.second].value.value = temp
+//            val temp = list[swapElements.first].value.value
+//            list[swapElements.first].value.value = list[swapElements.second].value.value
+//            list[swapElements.second].value.value = temp
+            swapElementPosition(swapElements.first,swapElements.second)
         }
+
     }
 
     val resetMinIndex = markCellAsBlue == -1
@@ -155,30 +177,35 @@ fun ArrayStateVisualizer(
     }
 
 
-    val padding = 8.dp
-    FlowRow(
-        modifier = Modifier.border(width = 2.dp, color = Color.Black)
-    ) {
-        list.forEach {
-            Box(
-                modifier = Modifier
-                    .size(size)
-                    .border(width = 1.dp, color = Color.Black)
-                    .background(it.backgroundColor.value)
-            ) {
-                Text(
-                    text = "${it.value.value}",
-                    style = TextStyle(color = Color.White, fontSize = 16.sp),
+    Box(modifier = Modifier.fillMaxSize()) {
+        FlowRow(
+            modifier = Modifier.border(width = 2.dp, color = Color.Black)
+        ) {
+            list.forEachIndexed { index, it ->
+                Box(
                     modifier = Modifier
-                        .padding(padding)
-                        .clip(CircleShape)
-                        .background(it.valueColor.value)
-                        .fillMaxSize()
-                        .wrapContentSize(Alignment.Center)
+                        .size(size)
+                        .border(width = 1.dp, color = Color.Black)
+                        .background(it.backgroundColor.value)
+                        .onGloballyPositioned { position ->
+                            val newPosition = cellsPosition.toMutableMap()
+                            newPosition[index] = position.positionInParent()
+                            cellsPosition = newPosition
+                        }
                 )
+
             }
 
         }
+        //Placing all element at (0,0) so that moving then become  easy
+        list.forEachIndexed { index, it ->
+            SwappableElement(
+                currentOffset = elementPosition[index]?: Offset.Zero,
+                label = "${it.value.value}",
+                size = size
+            )
+        }
 
     }
+
 }
