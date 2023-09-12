@@ -12,7 +12,7 @@ class MainActivity : ComponentActivity() {
             DSAVisulizerTheme {
                 //DraggableElementPreview()
                // HighLightLine()
-                CodeExecution()
+                SelectionSortCodeExecution()
             }
         }
     }

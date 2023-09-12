@@ -1,7 +1,7 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
-import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -54,9 +53,6 @@ data class ListItem(
         backgroundColor.value = UNSORTED_ELEMENT_COLOR
     }
 
-    fun removeAsSorted() {
-        backgroundColor.value = UNSORTED_ELEMENT_COLOR
-    }
 
     fun boolIsMarkedAsMinimum() = backgroundColor.value == MINIMUM_ELEMENT_COLOR
 
@@ -72,16 +68,16 @@ private fun ListViewPreview() {
     var sortedIndex by remember {
         mutableStateOf(0)
     }
-    var swapIndex by remember {
+    val swapIndex by remember {
         mutableStateOf(Pair(-1, -1))
     }
 
     Column {
-        ListComposable(
-            data = ArrayCellValue(listOf(40, 30, 10, 20)),
-            minimumIndex = minimumIndex,
-            sortedIndex = sortedIndex,
-            swapIndex = swapIndex,
+        ArrayStateVisualizer(
+            array = ArrayCellValue(listOf(40, 30, 10, 20)),
+            markCellAsBlue = minimumIndex,
+            markCellAsSort = sortedIndex,
+            swapElements = swapIndex,
 
             )
         Button(onClick = {
@@ -96,26 +92,25 @@ private fun ListViewPreview() {
 }
 
 
-
 data class ArrayCellValue(
     val list: List<Int>
 )
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ListComposable(
-    data: ArrayCellValue,
+fun ArrayStateVisualizer(
+    array: ArrayCellValue,
     size: Dp = 64.dp,
-    swapIndex: Pair<Int, Int>,
-    executionFinished: Boolean = false,
-    minimumIndex: Int,
-    sortedIndex: Int,
+    swapElements: Pair<Int, Int>,
+    markCellAsBlue: Int,
+    markCellAsSort: Int,
+    allCellSorted: Boolean = false,
 ) {
 
 
     val list by remember {
         mutableStateOf(
-            data.list.map {
+            array.list.map {
                 ListItem(value = mutableStateOf(it))
             }
         )
@@ -125,23 +120,22 @@ fun ListComposable(
     }
 
 
-    if (executionFinished) {
+    if (allCellSorted) {
         list.forEach {
             it.markAsSorted()
         }
 
     }
     //Swapping Value
-    LaunchedEffect(swapIndex ){
-        if (isValidIndex(swapIndex.first) && isValidIndex(swapIndex.second)) {
-            Log.i("SWAPINDEX", "$swapIndex")
-            val temp = list[swapIndex.first].value.value
-            list[swapIndex.first].value.value = list[swapIndex.second].value.value
-            list[swapIndex.second].value.value=temp
+    LaunchedEffect(swapElements) {
+        if (isValidIndex(swapElements.first) && isValidIndex(swapElements.second)) {
+            val temp = list[swapElements.first].value.value
+            list[swapElements.first].value.value = list[swapElements.second].value.value
+            list[swapElements.second].value.value = temp
         }
     }
 
-    val resetMinIndex = minimumIndex == -1
+    val resetMinIndex = markCellAsBlue == -1
     if (resetMinIndex) {
         for (start in list.indices) {
             if (list[start].boolIsMarkedAsMinimum())
@@ -149,24 +143,27 @@ fun ListComposable(
         }
     }
 
-    if (minimumIndex >= 0 && minimumIndex < list.size) {
-        for (start in 0 until minimumIndex) {
+    if (markCellAsBlue >= 0 && markCellAsBlue < list.size) {
+        for (start in 0 until markCellAsBlue) {
             if (list[start].boolIsMarkedAsMinimum())
                 list[start].removeAsMinimum()
         }
-        list[minimumIndex].markAsMinimum()
+        list[markCellAsBlue].markAsMinimum()
     }
-    if (sortedIndex >= 0 && sortedIndex < list.size) {
-        list[sortedIndex].markAsSorted()
+    if (markCellAsSort >= 0 && markCellAsSort < list.size) {
+        list[markCellAsSort].markAsSorted()
     }
 
 
     val padding = 8.dp
-    FlowRow {
+    FlowRow(
+        modifier = Modifier.border(width = 2.dp, color = Color.Black)
+    ) {
         list.forEach {
             Box(
                 modifier = Modifier
                     .size(size)
+                    .border(width = 1.dp, color = Color.Black)
                     .background(it.backgroundColor.value)
             ) {
                 Text(
