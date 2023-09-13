@@ -19,23 +19,32 @@ data class VisualArrayCellElement(
 
 
 }
+
 data class VisualArrayCell(
     var position: Offset = Offset.Zero,
     val size: Dp = 64.dp,
     val backgroundColor: MutableState<Color> = mutableStateOf(Color.Unspecified),
-)
+) {
+
+    //takes i so that multiple pointer does not have overlap with each other
+    fun getPointerPosition(deviceDensity: Float): Offset {
+        val cellSizePX = size.value * deviceDensity
+        return position +Offset(-cellSizePX/2, cellSizePX)
+    }
+}
 
 data class CellsAndElements(
     val cells: List<VisualArrayCell>,
     val elements: List<VisualArrayCellElement>
 ) {
-    companion object{
+    companion object {
         fun createInstance(list: List<Int>): CellsAndElements {
             val cells = list.map { _ -> VisualArrayCell() }
             val elements = list.map { VisualArrayCellElement(value = it) }
             return CellsAndElements(cells = cells, elements = elements)
         }
     }
+
     private fun isValidIndex(index: Int) = index >= 0 && index < cells.size
 
     fun swapCellElements(i: Int, j: Int) {
@@ -52,9 +61,18 @@ data class CellsAndElements(
         }
 
     }
+
     fun changeCellColor(start: Int, end: Int, color: Color) {
         for (i in start..end)
             if (isValidIndex(i))
                 cells[i].backgroundColor.value = color
     }
+
+    fun getIthPointerPosition(cellNo: Int, deviceDensity: Float): Offset {
+        return if (isValidIndex(cellNo))
+            cells[cellNo].getPointerPosition(deviceDensity)
+        else
+            Offset.Infinite
+    }
+
 }
