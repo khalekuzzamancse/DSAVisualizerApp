@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer
 
+import android.util.Range
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -104,11 +105,11 @@ fun ArrayStateVisualizer(
     movePointerJ:Int=-1,
     markCellAsBlue: Int,
     markCellAsSort: Int,
+    changeCellColor:Pair<Range<Int>,Color> = Pair(Range(-1,-1),Color.Unspecified),
     allCellSorted: Boolean = false,
 ) {
 
-
-    val list by remember {
+    val cellStateList by remember {
         mutableStateOf(
             array.list.map {
                 ArrayCellItem(value = mutableStateOf(it))
@@ -117,10 +118,10 @@ fun ArrayStateVisualizer(
     }
 
     var cellsPosition by remember {
-        mutableStateOf(List(list.size) { index -> index to Offset.Zero }.toMap())
+        mutableStateOf(List(cellStateList.size) { index -> index to Offset.Zero }.toMap())
     }
     var elementPosition by remember {
-        mutableStateOf(List(list.size) { index -> index to Offset.Zero }.toMap())
+        mutableStateOf(List(cellStateList.size) { index -> index to Offset.Zero }.toMap())
     }
     val swapElementPosition:(Int,Int)->Unit={i,j->
         val newPositions=elementPosition.toMutableMap()
@@ -135,16 +136,19 @@ fun ArrayStateVisualizer(
     }
 
 
-
-
-
     val isValidIndex: (Int) -> Boolean = {
-        it >= 0 && it < list.size
+        it >= 0 && it < cellStateList.size
     }
 
 
+//    //changing cell color
+//    if(isValidIndex(changeCellColor.first.lower)&&isValidIndex(changeCellColor.first.upper)){
+//        cellStateList.
+//    }
+
+
     if (allCellSorted) {
-        list.forEach {
+        cellStateList.forEach {
             it.markAsSorted()
         }
 
@@ -163,21 +167,21 @@ fun ArrayStateVisualizer(
 
     val resetMinIndex = markCellAsBlue == -1
     if (resetMinIndex) {
-        for (start in list.indices) {
-            if (list[start].boolIsMarkedAsMinimum())
-                list[start].removeAsMinimum()
+        for (start in cellStateList.indices) {
+            if (cellStateList[start].boolIsMarkedAsMinimum())
+                cellStateList[start].removeAsMinimum()
         }
     }
 
-    if (markCellAsBlue >= 0 && markCellAsBlue < list.size) {
+    if (markCellAsBlue >= 0 && markCellAsBlue < cellStateList.size) {
         for (start in 0 until markCellAsBlue) {
-            if (list[start].boolIsMarkedAsMinimum())
-                list[start].removeAsMinimum()
+            if (cellStateList[start].boolIsMarkedAsMinimum())
+                cellStateList[start].removeAsMinimum()
         }
-        list[markCellAsBlue].markAsMinimum()
+        cellStateList[markCellAsBlue].markAsMinimum()
     }
-    if (markCellAsSort >= 0 && markCellAsSort < list.size) {
-        list[markCellAsSort].markAsSorted()
+    if (markCellAsSort >= 0 && markCellAsSort < cellStateList.size) {
+        cellStateList[markCellAsSort].markAsSorted()
     }
 
 
@@ -185,7 +189,7 @@ fun ArrayStateVisualizer(
         FlowRow(
             modifier = Modifier.border(width = 2.dp, color = Color.Black)
         ) {
-            list.forEachIndexed { index, it ->
+            cellStateList.forEachIndexed { index, it ->
                 Box(
                     modifier = Modifier
                         .size(size)
@@ -202,7 +206,7 @@ fun ArrayStateVisualizer(
 
         }
         //Placing all element at (0,0) so that moving then become  easy
-        list.forEachIndexed { index, it ->
+        cellStateList.forEachIndexed { index, it ->
             SwappableElement(
                 currentOffset = elementPosition[index]?: Offset.Zero,
                 label = "${it.value.value}",
