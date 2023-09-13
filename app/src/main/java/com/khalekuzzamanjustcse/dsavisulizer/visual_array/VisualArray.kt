@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.dsavisulizer.visual_array
 
+import android.util.Log
 import android.util.Range
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,7 +33,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.dsavisulizer.SwappableElement
 
-
+data class MovePointer(
+    val pointerName: PointerName,
+    val arrayCellIndex: Int,
+)
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
@@ -110,16 +114,13 @@ fun VisualArrayPreview() {
             swap = swap,
             changeColor = color,
             cellPointers = pointers,
-            movePointer = movePointer
+            movePointer = listOf(movePointer)
         )
     }
 
 }
 
-data class MovePointer(
-    val pointerName: PointerName,
-    val arrayCellIndex: Int,
-)
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -128,7 +129,7 @@ fun VisualArray(
     swap: Pair<Int, Int> = Pair(-1, -1),
     changeColor: Pair<Range<Int>, Color> = Pair(Range(-1, -1), Color.Unspecified),
     cellPointers: Pointers = Pointers.emptyPointers(),
-    movePointer: MovePointer = MovePointer(PointerName.NULL, -1)
+    movePointer:List< MovePointer> = listOf(MovePointer(PointerName.NULL, -1))
 ) {
 
     val states by remember {
@@ -138,11 +139,17 @@ fun VisualArray(
 
     LaunchedEffect(states) {
         for (index in 0 until states.cells.size) {
-            states.elements[index].position.value = states.cells[index].position
-            states.elements[index].currentCell = index
-            ///
+            // states.elements[index].position.value = states.cells[index].position
+            //states.elements[index].currentCell = index
+            states.updateElementPosition(index, states.getCellPosition(index))
+            states.updateElementCurrentCell(index, index)
         }
+        Log.i("CellStatus","${states.cells.map {
+            it.getPointerPosition(density)
+        }}")
     }
+
+
     LaunchedEffect(swap) {
         states.swapCellElements(swap.first, swap.second)
     }
@@ -150,14 +157,11 @@ fun VisualArray(
         states.changeCellColor(changeColor.first.lower, changeColor.first.upper, changeColor.second)
     }
     LaunchedEffect(movePointer) {
-        val shouldMove =
-            movePointer.arrayCellIndex >= 0 &&
-                    movePointer.arrayCellIndex < states.cells.size
-        if (shouldMove) {
+        movePointer.forEach {
             cellPointers.updatePosition(
-                name = movePointer.pointerName,
-                position = states.getIthPointerPosition(
-                    cellNo = movePointer.arrayCellIndex,
+                name = it.pointerName,
+                position = states.getPointerPosition(
+                    cellNo = it.arrayCellIndex,
                     deviceDensity = density
                 )
             )

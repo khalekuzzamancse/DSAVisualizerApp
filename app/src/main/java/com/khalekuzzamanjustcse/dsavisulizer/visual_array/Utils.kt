@@ -13,6 +13,7 @@ data class VisualArrayCellElement(
     val color: MutableState<Color> = mutableStateOf(Color.Red),
     var currentCell: Int = OUT_OF_BOUND
 ) {
+
     companion object {
         const val OUT_OF_BOUND = -10
     }
@@ -29,7 +30,7 @@ data class VisualArrayCell(
     //takes i so that multiple pointer does not have overlap with each other
     fun getPointerPosition(deviceDensity: Float): Offset {
         val cellSizePX = size.value * deviceDensity
-        return position +Offset(-cellSizePX/2, cellSizePX)
+        return position + Offset(cellSizePX / 2, cellSizePX)
     }
 }
 
@@ -68,11 +69,28 @@ data class CellsAndElements(
                 cells[i].backgroundColor.value = color
     }
 
-    fun getIthPointerPosition(cellNo: Int, deviceDensity: Float): Offset {
+    fun updateElementPosition(index: Int, position: Offset) {
+        if (isValidIndex(index))
+            elements[index].position.value = position
+    }
+
+    fun getCellPosition(index: Int): Offset {
+        if (isValidIndex(index))
+            return cells[index].position
+        return Offset.Infinite
+
+    }
+
+    fun getPointerPosition(cellNo: Int, deviceDensity: Float): Offset {
         return if (isValidIndex(cellNo))
             cells[cellNo].getPointerPosition(deviceDensity)
         else
             Offset.Infinite
+    }
+
+    fun updateElementCurrentCell(index: Int, cellNo: Int) {
+        if (isValidIndex(index))
+            elements[index].currentCell = cellNo
     }
 
 }
