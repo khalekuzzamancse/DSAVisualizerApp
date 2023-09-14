@@ -120,10 +120,10 @@ fun VisualArray(
 }
 
 @Composable
-private fun ArrayCell(
+ fun ArrayCell(
     modifier: Modifier = Modifier,
     cellSize: Dp,
-    backgroundColor: Color,
+    backgroundColor: Color= Color.Unspecified,
     onPositionChanged: (Offset) -> Unit,
 ) {
     Box(
