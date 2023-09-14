@@ -1,4 +1,5 @@
-package com.khalekuzzamanjustcse.dsavisulizer
+package com.khalekuzzamanjustcse.dsavisulizer.selection_sort
+
 
 /*
 1. selectionSort(arr):
@@ -12,9 +13,9 @@ package com.khalekuzzamanjustcse.dsavisulizer
 
  */
 fun getSelectionSortExecutionSequence(
-    arrayCellValue:ArrayCellValue,
+    arrayCellValue: List<Int>,
 ): List<SelectionSortState> {
-    var sortedList =arrayCellValue.list
+    var sortedList =arrayCellValue
     val sequences = mutableListOf<SelectionSortState>()
     sequences.add(
         SelectionSortState(
@@ -127,7 +128,7 @@ data class SelectionSortState(
     val minIndex: Int = GARBAGE,
     val temp: Int = GARBAGE,
     val shouldSwap: Boolean = false,
-    val sortedTill:Int=GARBAGE
+    val sortedTill:Int= GARBAGE
 ) {
     companion object {
         const val GARBAGE = -1

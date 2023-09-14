@@ -1,6 +1,5 @@
-package com.khalekuzzamanjustcse.dsavisulizer
+package com.khalekuzzamanjustcse.dsavisulizer.selection_sort
 
-import android.util.Range
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,33 +23,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.dsavisulizer.R
+import com.khalekuzzamanjustcse.dsavisulizer.Variable
+import com.khalekuzzamanjustcse.dsavisulizer.VariablesStates
+import com.khalekuzzamanjustcse.dsavisulizer.peudocode.PseudocodeExecutor
+import com.khalekuzzamanjustcse.dsavisulizer.peudocode.selectionSortPseudocode
+import com.khalekuzzamanjustcse.dsavisulizer.visual_array.ArrayInput
+import com.khalekuzzamanjustcse.dsavisulizer.visual_array.CellColor
+import com.khalekuzzamanjustcse.dsavisulizer.visual_array.CellPointer
 import com.khalekuzzamanjustcse.dsavisulizer.visual_array.MovePointer
-import com.khalekuzzamanjustcse.dsavisulizer.visual_array.PointerName
 import com.khalekuzzamanjustcse.dsavisulizer.visual_array.Pointers
 import com.khalekuzzamanjustcse.dsavisulizer.visual_array.SelectionSortPointerName
 import com.khalekuzzamanjustcse.dsavisulizer.visual_array.VisualArray
-
-fun calculateChangeColor(state: SelectionSortState): List<Pair<Range<Int>, Color>> {
-    val commands = mutableListOf<Pair<Range<Int>, Color>>()
-    val minIndex = state.minIndex
-    val sortedIndex = state.sortedTill
-    val i = state.i
-    val j = state.j
-    val lastIndex = state.currentList.size - 1
-    //removePreviousAllColor
-
-    // marking the new minimumIndex
-    if (minIndex != -1) {
-        //fixes the bugs
-        //  commands.add(Pair(Range(0,lastIndex ), Color.Unspecified))
-        commands.add(Pair(Range(minIndex, minIndex), Color.Blue))
-    }
-
-    if (sortedIndex != -1) {
-        commands.add(Pair(Range(0, sortedIndex), Color.Yellow))
-    }
-    return commands
-}
 
 
 @Preview
@@ -64,14 +48,12 @@ fun SelectionSortCodeExecution(
 
 ) {
 
-    var arrayCellValue by remember {
-        mutableStateOf(ArrayCellValue(emptyList()))
-    }
+
     var currentState by remember {
         mutableStateOf(SelectionSortState(executedLineNo = -1))
     }
     var sequence by remember {
-        mutableStateOf(getSelectionSortExecutionSequence(arrayCellValue))
+        mutableStateOf(getSelectionSortExecutionSequence(emptyList()))
     }
 
     var sequenceAt by remember {
@@ -79,6 +61,9 @@ fun SelectionSortCodeExecution(
     }
     var executionFinished by remember {
         mutableStateOf(false)
+    }
+    var cellColors by remember {
+        mutableStateOf(listOf(CellColor(-1, Color.Unspecified)))
     }
 
 
@@ -91,26 +76,23 @@ fun SelectionSortCodeExecution(
     }
 
 
-    var changeColor by remember {
-        mutableStateOf(Pair(Range(-1, -1), Color.Unspecified))
-    }
     val pointers by remember {
         mutableStateOf(
             Pointers(
                 listOf(
-                    com.khalekuzzamanjustcse.dsavisulizer.visual_array.CellPointer(
+                  CellPointer(
                         position = mutableStateOf(Offset(0f, 0f)),
                         label = "i",
                         icon = Icons.Default.ArrowForward,
                         name = SelectionSortPointerName.I
                     ),
-                    com.khalekuzzamanjustcse.dsavisulizer.visual_array.CellPointer(
+                 CellPointer(
                         position = mutableStateOf(Offset(0f, 0f)),
                         label = "j",
                         icon = Icons.Default.PlayArrow,
                         name = SelectionSortPointerName.J
                     ),
-                    com.khalekuzzamanjustcse.dsavisulizer.visual_array.CellPointer(
+                    CellPointer(
                         position = mutableStateOf(Offset(0f, 0f)),
                         label = "min",
                         icon = Icons.Default.PlayArrow,
@@ -132,17 +114,44 @@ fun SelectionSortCodeExecution(
         variables = updatedVariables
     }
 
+    val updatedCellColor: (SelectionSortState) -> Unit = {
+        val minIndex = it.minIndex
+        val sortedColor = Color.Yellow
+        val minIndexColor = Color.Green
+
+        val list = mutableListOf<CellColor>()
+        if (minIndex != -1) {
+            for (index in cellColors.indices) {
+                if (cellColors[index].color == minIndexColor)
+                    list.add(cellColors[index].copy(color = Color.Unspecified))
+            }
+            //change min index color
+            list.add(CellColor(minIndex, minIndexColor))
+        }
+        if(it.shouldSwap){
+            for (index in cellColors.indices) {
+                if (cellColors[index].color == minIndexColor)
+                    list.add(cellColors[index].copy(color = Color.Unspecified))
+            }
+        }
+        if (it.sortedTill!=-1) {
+            list.add(CellColor(it.sortedTill, sortedColor))
+        }
+        //when executing finish
+        if(it.i==it.currentList.size-1){
+            list.add(CellColor(it.i,sortedColor))
+        }
+        cellColors=list
+
+    }
+
 
     val onNextButtonClick: () -> Unit = {
         val states = sequence[sequenceAt]
         currentState = states
-
-        calculateChangeColor(currentState).forEach { command ->
-            changeColor = command
-        }
-
-
         updateVariable()
+        updatedCellColor(states)
+
         if (sequenceAt < sequence.size - 1)
             sequenceAt++
         else
@@ -153,6 +162,8 @@ fun SelectionSortCodeExecution(
     var inputArray by remember {
         mutableStateOf(emptyList<Int>())
     }
+
+
     //
     Column(
         modifier = Modifier
@@ -162,43 +173,25 @@ fun SelectionSortCodeExecution(
     ) {
         ArrayInput {
             inputArray = it
-            arrayCellValue = ArrayCellValue(it)
-            sequence = getSelectionSortExecutionSequence(arrayCellValue)
+            sequence = getSelectionSortExecutionSequence(inputArray)
         }
 
         VariablesStates(variables = variables)
         Spacer(modifier = Modifier.height(16.dp))
-        if (arrayCellValue.list.isNotEmpty()) {
-//            ArrayStateVisualizer(
-//                array = arrayCellValue,
-//                markCellAsBlue = currentState.minIndex,
-//                markCellAsSort = currentState.sortedTill,
-//                movePointerAt = currentState.i,
-//                movePointerJ = currentState.j,
-//                allCellSorted = executionFinished,
-//                swapElements = if (currentState.shouldSwap) Pair(
-//                    currentState.i,
-//                    currentState.minIndex
-//                ) else Pair(-1, -1),
-//            )
-
-
+        if (inputArray.isNotEmpty()) {
             VisualArray(
                 list = inputArray,
                 swap = if (currentState.shouldSwap) Pair(
                     currentState.i,
                     currentState.minIndex
                 ) else Pair(-1, -1),
-//                changeColor = Pair(
-//                    Range(currentState.minIndex, currentState.minIndex),
-//                    Color.Yellow
-//                )
                 cellPointers = pointers,
                 movePointer = listOf(
-                    MovePointer(SelectionSortPointerName.I, currentState.i ),
-                    MovePointer(SelectionSortPointerName.J, currentState.j ),
-                    MovePointer(SelectionSortPointerName.MinIndex, currentState.minIndex ),
-                )
+                    MovePointer(SelectionSortPointerName.I, currentState.i),
+                    MovePointer(SelectionSortPointerName.J, currentState.j),
+                    MovePointer(SelectionSortPointerName.MinIndex, currentState.minIndex),
+                ),
+                changeCellColor = cellColors
             )
 
 

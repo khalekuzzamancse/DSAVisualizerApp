@@ -63,10 +63,9 @@ data class CellsAndElements(
 
     }
 
-    fun changeCellColor(start: Int, end: Int, color: Color) {
-        for (i in start..end)
-            if (isValidIndex(i))
-                cells[i].backgroundColor.value = color
+    fun changeCellColor(index:Int, color: Color) {
+            if (isValidIndex(index))
+                cells[index].backgroundColor.value = color
     }
 
     fun updateElementPosition(index: Int, position: Offset) {

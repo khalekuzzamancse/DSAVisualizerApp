@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.dsavisulizer
+package com.khalekuzzamanjustcse.dsavisulizer.visual_array
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
