@@ -79,6 +79,12 @@ data class PositionHolder(
         }
     }
 
+    fun vanishElement(elementNo: Int) {
+        if (isValidElement(elementNo))
+            updateElementCurrentOffset(elementNo, Offset.Infinite)
+
+    }
+
     fun updateCellPosition(index: Int, position: Offset) {
         if (index in 0 until numberOfCells)
             cellsPosition[index].value = position
@@ -96,15 +102,15 @@ data class PageLoad(
 fun VisualMemoryPreview() {
 
     var loadPage by remember {
-        mutableStateOf(PageLoad(-1,-1))
+        mutableStateOf(PageLoad(-1, -1))
     }
     val pageRequests = listOf(7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 1, 3, 2, 0)
-    val memoryCapacity=3
+    val memoryCapacity = 3
     Column {
         Button(onClick = {
-                val requestNo = Random.nextInt(pageRequests.size - 1)
-                val cellNo = Random.nextInt(memoryCapacity-1)
-                loadPage= PageLoad(cellNo,requestNo)
+            val requestNo = Random.nextInt(pageRequests.size - 1)
+            val cellNo = Random.nextInt(memoryCapacity - 1)
+            loadPage = PageLoad(cellNo, requestNo)
         }) {
             Text(text = "Load")
         }
@@ -112,7 +118,8 @@ fun VisualMemoryPreview() {
         VisualMemory(
             memoryCapacity = memoryCapacity,
             pageRequests = pageRequests,
-            loadPage=loadPage
+            loadPage = loadPage,
+            vanishElement = 2
         )
     }
 }
@@ -123,6 +130,7 @@ fun VisualMemory(
     memoryCellSize: Dp = 64.dp,
     memoryCapacity: Int,
     pageRequests: List<Int>,
+    vanishElement: Int = -1,
     loadPage: PageLoad = PageLoad(-1, -1),
 ) {
 
@@ -139,6 +147,9 @@ fun VisualMemory(
     LaunchedEffect(loadPage) {
         positions.moveToCell(loadPage.memoryCellNo, loadPage.pageRequestNo)
 
+    }
+    LaunchedEffect(vanishElement){
+        positions.vanishElement(vanishElement)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
