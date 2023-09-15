@@ -67,7 +67,7 @@ class PageReplacementAlgorithms(
 
     private fun getFIFOStates(): List<PageReplacementState> {
         val empty = PageReplacementState.EMPTY
-        val memory = mutableListOf(empty, empty, empty)
+        val memory = MutableList(memoryCapacity) { empty }
         var i = 0
         var pageFaults = 0
         val states = mutableListOf<PageReplacementState>()

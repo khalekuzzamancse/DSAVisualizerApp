@@ -71,7 +71,7 @@ fun SwappableElement(
     ) {
         Text(
             text = label,
-            style = TextStyle(color = Color.White, fontSize = 16.sp),
+            style = TextStyle(color = Color.White),
             modifier = Modifier
                 .padding(padding)
                 .clip(CircleShape)
