@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.khalekuzzamanjustcse.tree_visualization.SwappableElement
+import com.khalekuzzamanjustcse.tree_visualization.MoveableTreeNode
 
 /*
 
@@ -151,7 +151,7 @@ private fun LayoutNode(
 ) {
     if (node == null)
         return
-    SwappableElement(
+    MoveableTreeNode(
         size = size,
         label = "${node.value}",
         currentOffset = node.coordinates.value
