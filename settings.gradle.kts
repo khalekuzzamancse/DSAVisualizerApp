@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DSA Visulizer"
 include(":app")
- 
+include(":tree_visualization")
