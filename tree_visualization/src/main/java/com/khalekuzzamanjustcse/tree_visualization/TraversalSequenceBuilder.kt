@@ -12,10 +12,10 @@ enum class BinaryTreeChildType {
     LEFT, RIGHT
 }
 
-data class TreeTraversalUsingStack(
+data class TreeTraversalState(
     val processingNode: Node?,
-    val nextNodes: List<Node?>,
-    val newlyAdded: List<Node?>,
+    val futureProcessingNodes: List<Node?>,
+    val newlyAddedNodes: List<Node?>,
     val intermediateDS: TreeTraversalIntermediateDS = TreeTraversalIntermediateDS.Stack
 )
 
@@ -30,9 +30,9 @@ fun bsfSequence(
     val queue: Queue<Node> = LinkedList()
     queue.add(root)
     yield(
-        TreeTraversalUsingStack(
-            processingNode = null, nextNodes = queue.toList(),
-            newlyAdded = listOf(root), intermediateDS = intermediateDS
+        TreeTraversalState(
+            processingNode = null, futureProcessingNodes = queue.toList(),
+            newlyAddedNodes = listOf(root), intermediateDS = intermediateDS
         )
 
     ) //result
@@ -52,9 +52,9 @@ fun bsfSequence(
         }
 
         yield(
-            TreeTraversalUsingStack(
-                processingNode = node, nextNodes = queue.toList(),
-                newlyAdded = children, intermediateDS = intermediateDS
+            TreeTraversalState(
+                processingNode = node, futureProcessingNodes = queue.toList(),
+                newlyAddedNodes = children, intermediateDS = intermediateDS
             )
         ) //result
     }
@@ -69,7 +69,7 @@ fun dfsSequence(
         yield(true) // Result
     val stack = mutableListOf<Node?>()
     root?.let { stack.add(it) }
-    yield(TreeTraversalUsingStack(processingNode = null, nextNodes = stack, listOf(root))) // Result
+    yield(TreeTraversalState(processingNode = null, futureProcessingNodes = stack, listOf(root))) // Result
     while (stack.isNotEmpty()) {
         val node = stack.removeAt(stack.size - 1)
         val selected = onChildSelect()
@@ -84,7 +84,7 @@ fun dfsSequence(
                 stack.add(child)
             }
         }
-        yield(TreeTraversalUsingStack(node, stack, children)) // Result
+        yield(TreeTraversalState(node, stack, children)) // Result
     }
 }
 
@@ -99,7 +99,7 @@ fun inorderTraversal(root: Node?) = sequence {
             currentNode = currentNode.children.firstOrNull()
         }
         currentNode = stack.removeAt(stack.size - 1)
-        yield(TreeTraversalUsingStack(currentNode, stack.toList(), emptyList()))
+        yield(TreeTraversalState(currentNode, stack.toList(), emptyList()))
         if (currentNode != null) {
             currentNode = currentNode.children.lastOrNull()
         }
@@ -119,7 +119,7 @@ fun postorderTraversal(root: Node?) = sequence {
         while (currentNode == null && stack.isNotEmpty()) {
             val peekNode = stack.last()
             if (peekNode?.children?.lastOrNull() == null || peekNode.children.lastOrNull() == lastVisitedNode) {
-                yield(TreeTraversalUsingStack(peekNode, stack.toList(), emptyList()))
+                yield(TreeTraversalState(peekNode, stack.toList(), emptyList()))
                 lastVisitedNode = stack.removeAt(stack.size - 1)
             } else {
                 currentNode = peekNode.children.lastOrNull()
@@ -133,7 +133,7 @@ fun preorderTraversal(root: Node?) = sequence {
     var currentNode = root
     while (currentNode != null || stack.isNotEmpty()) {
         while (currentNode != null) {
-            yield(TreeTraversalUsingStack(currentNode, stack.toList(), emptyList()))
+            yield(TreeTraversalState(currentNode, stack.toList(), emptyList()))
             stack.add(currentNode)
             currentNode = currentNode.children.firstOrNull()
         }

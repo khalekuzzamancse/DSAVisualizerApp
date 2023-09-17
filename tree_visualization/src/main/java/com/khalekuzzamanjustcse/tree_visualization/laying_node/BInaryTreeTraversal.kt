@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.tree_visualization.MovableTreeNode
 import com.khalekuzzamanjustcse.tree_visualization.MyDropdownMenu
-import com.khalekuzzamanjustcse.tree_visualization.TreeTraversalUsingStack
+import com.khalekuzzamanjustcse.tree_visualization.TreeTraversalState
 import com.khalekuzzamanjustcse.tree_visualization.bsfSequence
 import com.khalekuzzamanjustcse.tree_visualization.dfsSequence
 import com.khalekuzzamanjustcse.tree_visualization.inorderTraversal
@@ -226,7 +226,7 @@ fun TreeVisualizerPreview() {
             )
             MyButton("Next") {
                 if (traversalIterator.hasNext()) {
-                    val currentState = traversalIterator.next() as TreeTraversalUsingStack
+                    val currentState = traversalIterator.next() as TreeTraversalState
                     val node = currentState.processingNode
                     if (node != null)
                         node.color.value = Color.Blue
