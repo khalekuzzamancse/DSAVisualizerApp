@@ -3,11 +3,8 @@ package com.khalekuzzamanjustcse.dsavisulizer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.khalekuzzamanjustcse.dsavisulizer.graph_representation.LayoutTreeKnuthPreview
-import com.khalekuzzamanjustcse.dsavisulizer.graph_representation.wetherell_shannon_layout.LayoutShanonLayoutPreview
-import com.khalekuzzamanjustcse.dsavisulizer.page_replacement_algorithms.fifo.PageReplacement
-import com.khalekuzzamanjustcse.dsavisulizer.selection_sort.SelectionSortCodeExecution
 import com.khalekuzzamanjustcse.dsavisulizer.ui.theme.DSAVisulizerTheme
+import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeVisualizerPreview
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +16,8 @@ class MainActivity : ComponentActivity() {
                // SelectionSortCodeExecution()
                // PageReplacement()
                // LayoutTreeKnuthPreview()
-                LayoutShanonLayoutPreview()
+             //   LayoutShanonLayoutPreview()
+                TreeVisualizerPreview()
             }
         }
     }

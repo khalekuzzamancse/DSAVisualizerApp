@@ -1,6 +1,8 @@
 package com.khalekuzzamanjustcse.tree_visualization
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +42,7 @@ private fun SwappableElementPreview() {
         }) {
             Text(text = "Move")
         }
-        MoveableTreeNode(
+        MovableTreeNode(
             currentOffset=offset,
             label = "10")
 
@@ -49,12 +51,17 @@ private fun SwappableElementPreview() {
 }
 
 @Composable
-fun MoveableTreeNode(
+fun MovableTreeNode(
     label:String,
     size: Dp = 100.dp,
     currentOffset: Offset= Offset.Zero,
+    color: Color= Color.Red
 ) {
     val offsetAnimation by animateOffsetAsState(currentOffset, label = "")
+    val backgroundColor by animateColorAsState(
+        targetValue = color,
+        animationSpec = tween(durationMillis = 500), label = ""
+    )
     val padding = 8.dp
     Box(
         modifier = Modifier
@@ -69,7 +76,8 @@ fun MoveableTreeNode(
             modifier = Modifier
                 .padding(padding)
                 .clip(CircleShape)
-                .background(Color.Red)
+//                .background(color)
+                .background(backgroundColor)
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
         )
