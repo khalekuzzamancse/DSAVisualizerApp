@@ -1,8 +1,15 @@
 package com.khalekuzzamanjustcse.tree_visualization
 
+import android.util.Log
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.Node
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.util.LinkedList
 import java.util.Queue
+
+data class ChildPickerData(
+    val parent: Node,
+    val child: List<Node>
+)
 
 enum class TreeTraversalIntermediateDS {
     Stack, Queue
@@ -24,7 +31,6 @@ fun bsfSequence(
     onChildSelect: () -> BinaryTreeChildType = { BinaryTreeChildType.LEFT }
 ) = sequence {
     val intermediateDS = TreeTraversalIntermediateDS.Queue
-
     if (root == null)
         yield(true) //result
     val queue: Queue<Node> = LinkedList()
@@ -34,13 +40,21 @@ fun bsfSequence(
             processingNode = null, futureProcessingNodes = queue.toList(),
             newlyAddedNodes = listOf(root), intermediateDS = intermediateDS
         )
-
     ) //result
     while (queue.isNotEmpty()) {
         val node = queue.poll()
+        //show the popup dialog which child to traverse 1st
+        //so open  a dialog box so pause the execution until the next
+        if (node != null&&node.children.size > 1) {
+            //if node has multiple children
+                yield(
+                    ChildPickerData(parent = node, child = node.children)
+                )
+        }
+        //resume the execution by calling iterator.next() in when pop up window dismiss
+        //the result of chosen child will be received by the callback
         val selected = onChildSelect()
         val children = node?.children ?: emptyList()
-
         if (selected == BinaryTreeChildType.LEFT)
             children.forEach { child ->
                 queue.add(child)
@@ -63,27 +77,26 @@ fun bsfSequence(
 
 fun dfsSequence(
     root: Node?,
-    onChildSelect: () -> BinaryTreeChildType = { BinaryTreeChildType.LEFT }
 ) = sequence {
     if (root == null)
         yield(true) // Result
     val stack = mutableListOf<Node?>()
     root?.let { stack.add(it) }
-    yield(TreeTraversalState(processingNode = null, futureProcessingNodes = stack, listOf(root))) // Result
+    yield(
+        TreeTraversalState(
+            processingNode = null,
+            futureProcessingNodes = stack,
+            listOf(root)
+        )
+    ) // Result
     while (stack.isNotEmpty()) {
         val node = stack.removeAt(stack.size - 1)
-        val selected = onChildSelect()
+        //extra yeiding until he choose a child
         val children = node?.children ?: emptyList()
-
-        if (selected == BinaryTreeChildType.LEFT)
             children.reversed().forEach { child ->
                 stack.add(child)
             }
-        else {
-            children.forEach { child ->
-                stack.add(child)
-            }
-        }
+
         yield(TreeTraversalState(node, stack, children)) // Result
     }
 }
@@ -92,7 +105,6 @@ fun dfsSequence(
 fun inorderTraversal(root: Node?) = sequence {
     val stack = mutableListOf<Node?>()
     var currentNode = root
-
     while (currentNode != null || stack.isNotEmpty()) {
         while (currentNode != null) {
             stack.add(currentNode)

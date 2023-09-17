@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.tree_visualization
+package com.khalekuzzamanjustcse.tree_visualization.ui.common
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
