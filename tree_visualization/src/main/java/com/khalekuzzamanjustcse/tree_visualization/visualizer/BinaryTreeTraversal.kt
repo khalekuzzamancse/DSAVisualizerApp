@@ -163,7 +163,8 @@ fun TreeVisualizerPreview() {
                     newlyAdded =newlyAdded,
                     removed = popped,
                     onRemovedFinished = {popped=false},
-                    onAddedFinished = { newlyAdded=emptyList()  }
+                    onAddedFinished = { newlyAdded=emptyList()  },
+                    cellSize = 45.dp
                 )
                 TreeVisualizer(
                     modifier = Modifier

@@ -72,7 +72,8 @@ fun NextProcessingNodesPreview() {
             newlyAdded = newlyAdded,
             removed = popped,
             onRemovedFinished = { popped = false },
-            onAddedFinished = { newlyAdded = emptyList() }
+            onAddedFinished = { newlyAdded = emptyList() },
+            cellSize = 100.dp
         )
     }
 }
@@ -80,6 +81,7 @@ fun NextProcessingNodesPreview() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NextProcessingNodes(
+     cellSize:Dp,
     modifier: Modifier=Modifier,
     types: TreeTraversalIntermediateDS = TreeTraversalIntermediateDS.Queue,
     newlyAdded: List<Int>,
@@ -88,7 +90,6 @@ fun NextProcessingNodes(
     onAddedFinished: () -> Unit,
     removed: Boolean = false,
 ) {
-    val cellSize = 100.dp
     var array by remember {
         mutableStateOf(emptyList<Int>())
     }
