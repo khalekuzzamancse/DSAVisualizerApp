@@ -185,7 +185,7 @@ fun TreeVisualizerPreview() {
         mutableStateOf(false)
     }
     val root by remember {
-        mutableStateOf(getTree(90f))
+        mutableStateOf(getTree(sizePx))
     }
 
     var selectedChild by
@@ -221,7 +221,7 @@ fun TreeVisualizerPreview() {
                 onNodeProcess(state)
             } else if (state is ChildPickerData) {
                 state.parent.color.value = Color.Blue
-                dialogText = "Processing :${state.parent.value}\n it has two children "+
+                dialogText = "Processing :${state.parent.value}\n it has two children " +
                         "choose which is enqueued 1st"
                 availableChild = state.child.map { "${it.value}" }
                 openDialog = true
@@ -286,7 +286,7 @@ fun TreeVisualizerPreview() {
             MyButton("Next") {
                 jumpNextStep()
             }
-            TreeVisualizer(root)
+            TreeVisualizer(root = root, size = size)
             PopupWithRadioButtons(
                 text = dialogText,
                 isOpen = openDialog,
@@ -311,7 +311,8 @@ fun TreeVisualizerPreview() {
 @Composable
 fun TreeVisualizer(
     root: Node,
-    size: Dp = 45.dp,
+    size: Dp,
+    onLongClick: (Node) -> Unit = {}
 ) {
 
     Box(
@@ -323,13 +324,19 @@ fun TreeVisualizer(
                 drawTreeLines(root)
             }
     ) {
-        LayoutNode(node = root, size = size)
+        LayoutNode(
+            node = root,
+            size = size,
+            onLongClick = onLongClick,
+        )
     }
 
 }
 
 
-private fun DrawScope.drawTreeLines(node: Node?) {
+private fun DrawScope.drawTreeLines(
+    node: Node?,
+) {
     if (node == null)
         return
     node.children.forEach { child ->
@@ -349,6 +356,7 @@ private fun DrawScope.drawTreeLines(node: Node?) {
 private fun LayoutNode(
     node: Node?,
     size: Dp,
+    onLongClick: (Node) -> Unit,
 ) {
     if (node == null)
         return
@@ -356,10 +364,11 @@ private fun LayoutNode(
         size = size,
         label = "${node.value}",
         currentOffset = node.coordinates.value,
-        color = node.color.value
+        color = node.color.value,
+        onLongPress = {onLongClick(node)},
     )
     node.children.forEach {
-        LayoutNode(it, size)
+        LayoutNode(it, size, onLongClick)
     }
 
 }

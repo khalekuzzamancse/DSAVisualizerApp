@@ -3,7 +3,9 @@ package com.khalekuzzamanjustcse.tree_visualization.ui.common
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,26 +38,29 @@ private fun SwappableElementPreview() {
     var offset by remember {
         mutableStateOf(Offset.Zero)
     }
-    Column(modifier=Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Button(onClick = {
             offset += Offset(30f, 20f)
         }) {
             Text(text = "Move")
         }
         MovableTreeNode(
-            currentOffset=offset,
-            label = "10")
+            currentOffset = offset,
+            label = "10"
+        )
 
     }
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MovableTreeNode(
-    label:String,
+    label: String,
     size: Dp = 100.dp,
-    currentOffset: Offset= Offset.Zero,
-    color: Color= Color.Red
+    currentOffset: Offset = Offset.Zero,
+    color: Color = Color.Red,
+    onLongPress: () -> Unit = {}
 ) {
     val offsetAnimation by animateOffsetAsState(currentOffset, label = "")
     val backgroundColor by animateColorAsState(
@@ -68,6 +73,11 @@ fun MovableTreeNode(
             .size(size)
             .offset {
                 IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
+            }
+            .combinedClickable(
+                onLongClick = onLongPress
+            ) {
+
             }
     ) {
         Text(
