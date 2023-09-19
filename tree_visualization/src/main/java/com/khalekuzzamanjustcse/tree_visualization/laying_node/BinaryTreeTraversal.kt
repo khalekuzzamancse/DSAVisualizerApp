@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.tree_visualization.laying_node
 
-import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,17 +7,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.ToggleOff
 import androidx.compose.material.icons.filled.ToggleOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.khalekuzzamanjustcse.tree_visualization.BinaryTreeChildType
 import com.khalekuzzamanjustcse.tree_visualization.ChildPickerData
 import com.khalekuzzamanjustcse.tree_visualization.Tree
-import com.khalekuzzamanjustcse.tree_visualization.ui.common.MovableTreeNode
 import com.khalekuzzamanjustcse.tree_visualization.TreeTraversalState
 import com.khalekuzzamanjustcse.tree_visualization.bsfSequence
 import com.khalekuzzamanjustcse.tree_visualization.dfsSequence
@@ -46,7 +45,7 @@ import com.khalekuzzamanjustcse.tree_visualization.postorderTraversal
 import com.khalekuzzamanjustcse.tree_visualization.preorderTraversal
 import com.khalekuzzamanjustcse.tree_visualization.tree_input.TreeInput
 import com.khalekuzzamanjustcse.tree_visualization.ui.common.Menu
-import com.khalekuzzamanjustcse.tree_visualization.ui.common.MyDropdownMenu
+import com.khalekuzzamanjustcse.tree_visualization.ui.common.MovableTreeNode
 import com.khalekuzzamanjustcse.tree_visualization.ui.common.PopupWithRadioButtons
 
 
@@ -130,12 +129,11 @@ fun TreeVisualizerPreview() {
     var selectedTraversal by remember {
         mutableStateOf(TreeTraversalType.BFS)
     }
-    var treeInputDone by remember { mutableStateOf(false) }
-    var changeTraversal by remember { mutableStateOf(false) }
-
+    var treeInputModeOn by remember { mutableStateOf(true) }
+    var topAppbarTitle by remember { mutableStateOf("BFS ") }
 
     val onTraversalTypeChanged: (String) -> Unit = {
-        Log.i("SelectedTraversal", it)
+        topAppbarTitle=it
         tree.resetTreeColor()
         selectedTraversal = it
         traversalIterator = when (it) {
@@ -151,25 +149,23 @@ fun TreeVisualizerPreview() {
     Scaffold(
         topBar = {
             TraversalScreenTopAppbar(
-                onTraversalSelected =onTraversalTypeChanged ,
+                title =topAppbarTitle,
+                onNextClick = jumpNextStep,
+                onTraversalSelected = onTraversalTypeChanged,
                 onChildSelectModeChange = { childSelectionMode = !childSelectionMode },
-                childSelectionModeOn = childSelectionMode
+                childSelectionModeOn = childSelectionMode,
+                isOnInputMode = treeInputModeOn,
+                onInputComplete = { treeInputModeOn = false },
+
             )
         }
     ) { padding ->
 
         Column(modifier = Modifier.padding(padding)) {
-            if (!treeInputDone) {
-                TreeInput(tree, size) {
-                    treeInputDone = true
-                }
+            if (treeInputModeOn) {
+                TreeInput(tree, size)
             } else {
-                MyButton("Next") {
-                    changeTraversal = false
-                    jumpNextStep()
-                }
                 TreeVisualizer(root = tree.getRoot(), size = size)
-
                 PopupWithRadioButtons(
                     text = dialogText,
                     isOpen = openDialog && childSelectionMode,
@@ -183,8 +179,6 @@ fun TreeVisualizerPreview() {
                         jumpNextStep()
                     }
                 )
-
-
             }
         }
     }
@@ -260,57 +254,70 @@ private fun LayoutNode(
 
 }
 
-@Composable
-private fun MyButton(
-    label: String,
-    onClick: () -> Unit = {}
-) {
-    Button(onClick = onClick) {
-        Text(text = label)
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TraversalScreenTopAppbar(
-    childSelectionModeOn:Boolean=false,
+    title: String,
+    isOnInputMode: Boolean = true,
+    onInputComplete: () -> Unit,
+    onNextClick: () -> Unit,
+    childSelectionModeOn: Boolean = false,
     onChildSelectModeChange: () -> Unit,
     onTraversalSelected: (String) -> Unit
 ) {
 
-    CenterAlignedTopAppBar(
+    TopAppBar(
         title = {
             Text(
-                "TreeTraversal",
+                text = if (isOnInputMode) "Input Tree" else "$title Traversal",
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 14.sp
             )
         },
         navigationIcon = {
             IconButton(onClick = { /* doSomething() */ }) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
-                    contentDescription = "Localized description"
+                    contentDescription = null
                 )
             }
         },
         actions = {
+            if (isOnInputMode) {
+                IconButton(onClick = onInputComplete) {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = null
+                    )
+                }
+            } else {
+                IconButton(onClick = onNextClick) {
+                    Icon(
+                        imageVector = Icons.Default.SkipNext,
+                        contentDescription = null
+                    )
 
-            Menu(
-                menuItems = listOf(
-                    TreeTraversalType.BFS,
-                    TreeTraversalType.DFS,
-                    TreeTraversalType.INORDER,
-                    TreeTraversalType.POSTORDER,
-                    TreeTraversalType.PREORDER
-                ), onMenuItemClick = onTraversalSelected
-            )
-            IconButton(onClick = onChildSelectModeChange) {
-                Icon(imageVector =if(childSelectionModeOn)Icons.Default.ToggleOn else Icons.Default.ToggleOff ,
-                    contentDescription = null)
+                }
+                Menu(
+                    menuItems = listOf(
+                        TreeTraversalType.BFS,
+                        TreeTraversalType.DFS,
+                        TreeTraversalType.INORDER,
+                        TreeTraversalType.POSTORDER,
+                        TreeTraversalType.PREORDER
+                    ), onMenuItemClick = onTraversalSelected
+                )
+                IconButton(onClick = onChildSelectModeChange) {
+                    Icon(
+                        imageVector = if (childSelectionModeOn) Icons.Default.ToggleOn else Icons.Default.ToggleOff,
+                        contentDescription = null
+                    )
 
+                }
             }
+
 
         }
     )
