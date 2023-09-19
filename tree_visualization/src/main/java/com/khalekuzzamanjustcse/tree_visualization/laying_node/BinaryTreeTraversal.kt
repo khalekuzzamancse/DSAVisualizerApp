@@ -70,35 +70,6 @@ object TreeTraversalType {
     const val POSTORDER = "Postorder"
 }
 
-data class Node(
-    val value: Int,
-    val sizePx: Float,
-    var x: Float = 0f,
-    var y: Float = 0f,
-    val children: MutableList<Node> = mutableListOf(),
-    val coordinates: MutableState<Offset> = mutableStateOf(Offset.Zero),
-    val color: MutableState<Color> = mutableStateOf(Color.Red)
-) {
-    companion object {
-        const val NULL_NODE = -111111
-    }
-
-    fun updateCoordinate() {
-        coordinates.value = Offset(x * sizePx, y * sizePx)
-    }
-
-    fun getCenterOffset() = coordinates.value + Offset(sizePx / 2, sizePx / 2)
-    fun resetColor() {
-        color.value = Color.Red
-    }
-
-    override fun toString(): String {
-        return "$value:(${children.map { it.value }} )"
-
-    }
-
-}
-
 class CoordinateGenerator(
     private val root: Node,
     maximumDepthOfTree: Int = 20,
@@ -342,12 +313,17 @@ private fun DrawScope.drawTreeLines(
     node.children.forEach { child ->
         val parentCenter = node.getCenterOffset()
         val childCenter = child.getCenterOffset()
-        drawLine(
-            color = Color.Black,
-            start = Offset(parentCenter.x, parentCenter.y),
-            end = Offset(childCenter.x, childCenter.y),
-            strokeWidth = 2f
-        )
+        //draw line between the node that are visible only
+        val isNotNullChild=child.value != Node.NULL_NODE
+        if (isNotNullChild){
+            drawLine(
+                color = Color.Black,
+                start = Offset(parentCenter.x, parentCenter.y),
+                end = Offset(childCenter.x, childCenter.y),
+                strokeWidth = 2f
+            )
+        }
+
         drawTreeLines(child)
     }
 }
@@ -360,13 +336,17 @@ private fun LayoutNode(
 ) {
     if (node == null)
         return
-    MovableTreeNode(
-        size = size,
-        label = "${node.value}",
-        currentOffset = node.coordinates.value,
-        color = node.color.value,
-        onLongPress = {onLongClick(node)},
-    )
+    //On show the non null node in UI
+    if (node.value != Node.NULL_NODE) {
+        MovableTreeNode(
+            size = size,
+            label = "${node.value}",
+            currentOffset = node.coordinates.value,
+            color = node.color.value,
+            onLongPress = { onLongClick(node) },
+        )
+    }
+
     node.children.forEach {
         LayoutNode(it, size, onLongClick)
     }
