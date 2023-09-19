@@ -2,13 +2,14 @@ package com.khalekuzzamanjustcse.tree_visualization
 
 import android.util.Log
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.Node
+import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeNode
 import kotlinx.coroutines.DelicateCoroutinesApi
 import java.util.LinkedList
 import java.util.Queue
 
 data class ChildPickerData(
-    val parent: Node,
-    val child: List<Node>
+    val parent: TreeNode<Int>,
+    val child: List<TreeNode<Int>>
 )
 
 enum class TreeTraversalIntermediateDS {
@@ -20,20 +21,20 @@ enum class BinaryTreeChildType {
 }
 
 data class TreeTraversalState(
-    val processingNode: Node?,
-    val futureProcessingNodes: List<Node?>,
-    val newlyAddedNodes: List<Node?>,
+    val processingNode: TreeNode<Int>?,
+    val futureProcessingNodes: List<TreeNode<Int>?>,
+    val newlyAddedNodes: List<TreeNode<Int>?>,
     val intermediateDS: TreeTraversalIntermediateDS = TreeTraversalIntermediateDS.Stack
 )
 
 fun bsfSequence(
-    root: Node?,
+    root: TreeNode<Int>?,
     onChildSelect: () -> BinaryTreeChildType = { BinaryTreeChildType.LEFT }
 ) = sequence {
     val intermediateDS = TreeTraversalIntermediateDS.Queue
     if (root == null)
         yield(true) //result
-    val queue: Queue<Node> = LinkedList()
+    val queue: Queue< TreeNode<Int>> = LinkedList()
     queue.add(root)
     yield(
         TreeTraversalState(
@@ -45,11 +46,11 @@ fun bsfSequence(
         val node = queue.poll()
         //show the popup dialog which child to traverse 1st
         //so open  a dialog box so pause the execution until the next
-        if (node != null&&node.children.size > 1) {
+        if (node != null && node.children.size > 1) {
             //if node has multiple children
-                yield(
-                    ChildPickerData(parent = node, child = node.children)
-                )
+            yield(
+                ChildPickerData(parent = node, child = node.children)
+            )
         }
         //resume the execution by calling iterator.next() in when pop up window dismiss
         //the result of chosen child will be received by the callback
@@ -76,11 +77,11 @@ fun bsfSequence(
 
 
 fun dfsSequence(
-    root: Node?,
+    root:  TreeNode<Int>?,
 ) = sequence {
     if (root == null)
         yield(true) // Result
-    val stack = mutableListOf<Node?>()
+    val stack = mutableListOf< TreeNode<Int>?>()
     root?.let { stack.add(it) }
     yield(
         TreeTraversalState(
@@ -93,17 +94,17 @@ fun dfsSequence(
         val node = stack.removeAt(stack.size - 1)
         //extra yeiding until he choose a child
         val children = node?.children ?: emptyList()
-            children.reversed().forEach { child ->
-                stack.add(child)
-            }
+        children.reversed().forEach { child ->
+            stack.add(child)
+        }
 
         yield(TreeTraversalState(node, stack, children)) // Result
     }
 }
 
 
-fun inorderTraversal(root: Node?) = sequence {
-    val stack = mutableListOf<Node?>()
+fun inorderTraversal(root:  TreeNode<Int>?) = sequence {
+    val stack = mutableListOf< TreeNode<Int>?>()
     var currentNode = root
     while (currentNode != null || stack.isNotEmpty()) {
         while (currentNode != null) {
@@ -118,10 +119,10 @@ fun inorderTraversal(root: Node?) = sequence {
     }
 }
 
-fun postorderTraversal(root: Node?) = sequence {
-    val stack = mutableListOf<Node?>()
+fun postorderTraversal(root:  TreeNode<Int>?) = sequence {
+    val stack = mutableListOf< TreeNode<Int>?>()
     var currentNode = root
-    var lastVisitedNode: Node? = null
+    var lastVisitedNode:  TreeNode<Int>? = null
     while (currentNode != null) {
         while (currentNode != null) {
             stack.add(currentNode)
@@ -140,8 +141,8 @@ fun postorderTraversal(root: Node?) = sequence {
     }
 }
 
-fun preorderTraversal(root: Node?) = sequence {
-    val stack = mutableListOf<Node?>()
+fun preorderTraversal(root:  TreeNode<Int>?) = sequence {
+    val stack = mutableListOf< TreeNode<Int>?>()
     var currentNode = root
     while (currentNode != null || stack.isNotEmpty()) {
         while (currentNode != null) {

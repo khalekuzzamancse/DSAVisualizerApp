@@ -1,35 +1,26 @@
 package com.khalekuzzamanjustcse.tree_visualization.laying_node
 
-import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -43,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.tree_visualization.BinaryTreeChildType
 import com.khalekuzzamanjustcse.tree_visualization.ChildPickerData
 import com.khalekuzzamanjustcse.tree_visualization.ui.common.MovableTreeNode
-import com.khalekuzzamanjustcse.tree_visualization.ui.common.MyDropdownMenu
 import com.khalekuzzamanjustcse.tree_visualization.TreeTraversalState
 import com.khalekuzzamanjustcse.tree_visualization.bsfSequence
 import com.khalekuzzamanjustcse.tree_visualization.dfsSequence
@@ -70,48 +60,9 @@ object TreeTraversalType {
     const val POSTORDER = "Postorder"
 }
 
-class CoordinateGenerator(
-    private val root: Node,
-    maximumDepthOfTree: Int = 20,
-
-    ) {
-
-    private var next = IntArray(maximumDepthOfTree)
-
-    private fun minimumWs(tree: Node, depth: Int = 0) {
-        tree.x = next[depth].toFloat()
-        tree.y = depth.toFloat()
-        tree.updateCoordinate()
-        next[depth]++
-        for (c in tree.children) {
-            minimumWs(c, depth + 1)
-        }
-    }
-
-    private fun centerParent(root: Node?) {
-        if (root == null) return
-        for (child in root.children) {
-            centerParent(child)
-        }
-        if (root.children.size > 0) {
-            val diff = root.children.last().x - root.children.first().x
-            root.x = root.children.first().x + diff / 2f
-            root.updateCoordinate()
-        }
-
-    }
-
-    fun generateCoordinate(): Node {
-        minimumWs(root)
-        centerParent(root)
-        return root
-    }
 
 
-}
-
-
-fun resetTreeColor(node: Node?) {
+fun resetTreeColor(node:  TreeNode<Int>?) {
     if (node == null) return
     resetTreeColor(node.children.firstOrNull())
     node.resetColor()
@@ -120,8 +71,8 @@ fun resetTreeColor(node: Node?) {
     }
 }
 
-fun getTree(sizePx: Float): Node {
-    var root = Node(value = 1, sizePx = sizePx)
+fun getTree(sizePx: Float): TreeNode<Int> {
+    var root:TreeNode<Int> = Node(value = 1, sizePx = sizePx)
     //level 2
     root.children.add(Node(value = 2, sizePx = sizePx))
     root.children.add(Node(value = 3, sizePx = sizePx))
@@ -139,7 +90,7 @@ fun getTree(sizePx: Float): Node {
     root.children[1].children[0].children.add(Node(value = 13, sizePx = sizePx))
     root.children[1].children[1].children.add(Node(value = 14, sizePx = sizePx))
     root.children[1].children[1].children.add(Node(value = 15, sizePx = sizePx))
-    root = CoordinateGenerator(root).generateCoordinate()
+    root = ShanonTreeNodeCoordinateCalculator(root).generate()
     return root
 }
 
@@ -150,7 +101,6 @@ fun getTree(sizePx: Float): Node {
 fun TreeVisualizerPreview() {
     val size: Dp = 45.dp
     val sizePx = size.value * LocalDensity.current.density
-
 
     var openDialog by remember {
         mutableStateOf(false)
@@ -281,9 +231,9 @@ fun TreeVisualizerPreview() {
 
 @Composable
 fun TreeVisualizer(
-    root: Node,
+    root:  TreeNode<Int>,
     size: Dp,
-    onLongClick: (Node) -> Unit = {}
+    onLongClick: ( TreeNode<Int>) -> Unit = {}
 ) {
 
     Box(
@@ -306,13 +256,13 @@ fun TreeVisualizer(
 
 
 private fun DrawScope.drawTreeLines(
-    node: Node?,
+    node:  TreeNode<Int>?,
 ) {
     if (node == null)
         return
     node.children.forEach { child ->
-        val parentCenter = node.getCenterOffset()
-        val childCenter = child.getCenterOffset()
+        val parentCenter = node.centerOffset()
+        val childCenter = child.centerOffset()
         //draw line between the node that are visible only
         val isNotNullChild=child.value != Node.NULL_NODE
         if (isNotNullChild){
@@ -330,9 +280,9 @@ private fun DrawScope.drawTreeLines(
 
 @Composable
 private fun LayoutNode(
-    node: Node?,
+    node:  TreeNode<Int>?,
     size: Dp,
-    onLongClick: (Node) -> Unit,
+    onLongClick: ( TreeNode<Int>) -> Unit,
 ) {
     if (node == null)
         return

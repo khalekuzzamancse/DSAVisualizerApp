@@ -27,7 +27,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.khalekuzzamanjustcse.tree_visualization.laying_node.CoordinateGenerator
+import com.khalekuzzamanjustcse.tree_visualization.Tree
+import com.khalekuzzamanjustcse.tree_visualization.laying_node.ShanonTreeNodeCoordinateCalculator
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.Node
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeVisualizer
 
@@ -37,23 +38,21 @@ import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeVisualizer
 fun TreeInput() {
     val size = 64.dp
     val sizePx = size.value * LocalDensity.current.density
-
-    var root by remember {
-        mutableStateOf(Node(value = 1, sizePx = sizePx).createRoot())
+    val tree by remember {
+        mutableStateOf(Tree(Node(value = 1, sizePx = sizePx)))
     }
-
-
+    tree.createTree()
     var showInput by remember {
         mutableStateOf(false)
     }
-    root = CoordinateGenerator(root).generateCoordinate()
+
     var clickedNode by remember {
-        mutableStateOf(root)
+        mutableStateOf(tree.getRoot())
     }
 
     Column {
         TreeVisualizer(
-            root = root,
+            root = tree.getRoot(),
             size = size
         ) {
             clickedNode = it
@@ -64,8 +63,9 @@ fun TreeInput() {
             showInput = false
             it.forEach { value ->
                 clickedNode.addChild((Node(value = value, sizePx = sizePx)))
+                tree.rePosition()
             }
-            root = CoordinateGenerator(root).generateCoordinate()
+
         }
     }
 }
