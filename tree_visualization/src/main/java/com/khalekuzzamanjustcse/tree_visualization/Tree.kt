@@ -1,7 +1,5 @@
 package com.khalekuzzamanjustcse.tree_visualization
 
-import androidx.compose.ui.geometry.Offset
-import com.khalekuzzamanjustcse.tree_visualization.laying_node.Node
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.ShanonTreeNodeCoordinateCalculator
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeNode
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeNodeCoordinateCalculator

@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.khalekuzzamanjustcse.dsavisulizer"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.khalekuzzamanjustcse.dsavisulizer"
