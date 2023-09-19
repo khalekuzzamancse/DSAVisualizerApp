@@ -1,6 +1,7 @@
 package com.khalekuzzamanjustcse.tree_visualization.tree_input
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.khalekuzzamanjustcse.tree_visualization.Tree
 import com.khalekuzzamanjustcse.tree_visualization.laying_node.Node
-import com.khalekuzzamanjustcse.tree_visualization.laying_node.TreeVisualizer
+import com.khalekuzzamanjustcse.tree_visualization.visualizer.TreeVisualizer
 
 @Preview
 @Composable
@@ -54,6 +55,7 @@ fun TreeInput(
     }
     Column {
         TreeVisualizer(
+            modifier=Modifier.fillMaxSize(),
             root = tree.getRoot(),
             size = nodeSize
         ) {
