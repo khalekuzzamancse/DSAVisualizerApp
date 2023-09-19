@@ -18,23 +18,12 @@ class Tree<T>(
         return treeRoot
     }
 
-    fun rePosition(): TreeNode<T> {
-        resetAllInfo()
+    private fun rePosition(): TreeNode<T> {
         treeRoot = layoutAlgorithm.generate()
         return treeRoot
     }
 
-    private fun resetAllInfo(node: TreeNode<T>? = treeRoot) {
-        if (node == null) return
-        resetAllInfo(node.children.firstOrNull())
-        node.x = 0f
-        node.y = 0f
-        node.coordinates.value = Offset.Zero
-        node.updateCoordinate()
-        node.children.drop(1).forEach { child ->
-            resetAllInfo(child)
-        }
-    }
+
 
     fun resetTreeColor(node: TreeNode<T>? = treeRoot) {
         if (node == null) return
