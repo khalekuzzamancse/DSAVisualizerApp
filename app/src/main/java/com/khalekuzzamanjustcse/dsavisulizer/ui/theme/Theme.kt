@@ -15,56 +15,84 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val LightColors = lightColorScheme(
+    primary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_primary,
+    onPrimary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onPrimary,
+    primaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_primaryContainer,
+    onPrimaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onPrimaryContainer,
+    secondary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_secondary,
+    onSecondary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onSecondary,
+    secondaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_secondaryContainer,
+    onSecondaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onSecondaryContainer,
+    tertiary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_tertiary,
+    onTertiary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onTertiary,
+    tertiaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_tertiaryContainer,
+    onTertiaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onTertiaryContainer,
+    error = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_error,
+    errorContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_errorContainer,
+    onError = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onError,
+    onErrorContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onErrorContainer,
+    background = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_background,
+    onBackground = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onBackground,
+    surface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_surface,
+    onSurface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onSurface,
+    surfaceVariant = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_surfaceVariant,
+    onSurfaceVariant = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_onSurfaceVariant,
+    outline = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_outline,
+    inverseOnSurface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_inverseOnSurface,
+    inverseSurface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_inverseSurface,
+    inversePrimary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_inversePrimary,
+    surfaceTint = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_surfaceTint,
+    outlineVariant = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_outlineVariant,
+    scrim = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_light_scrim,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val DarkColors = darkColorScheme(
+    primary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_primary,
+    onPrimary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onPrimary,
+    primaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_primaryContainer,
+    onPrimaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onPrimaryContainer,
+    secondary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_secondary,
+    onSecondary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onSecondary,
+    secondaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_secondaryContainer,
+    onSecondaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onSecondaryContainer,
+    tertiary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_tertiary,
+    onTertiary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onTertiary,
+    tertiaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_tertiaryContainer,
+    onTertiaryContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onTertiaryContainer,
+    error = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_error,
+    errorContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_errorContainer,
+    onError = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onError,
+    onErrorContainer = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onErrorContainer,
+    background = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_background,
+    onBackground = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onBackground,
+    surface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_surface,
+    onSurface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onSurface,
+    surfaceVariant = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_surfaceVariant,
+    onSurfaceVariant = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_onSurfaceVariant,
+    outline = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_outline,
+    inverseOnSurface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_inverseOnSurface,
+    inverseSurface = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_inverseSurface,
+    inversePrimary = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_inversePrimary,
+    surfaceTint = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_surfaceTint,
+    outlineVariant = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_outlineVariant,
+    scrim = com.khalekuzzamanjustcse.tree_visualization.ui.theme.md_theme_dark_scrim,
 )
 
 @Composable
 fun DSAVisulizerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable() () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-        }
+    val colors = if (!useDarkTheme) {
+        LightColors
+    } else {
+        DarkColors
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+        colorScheme = colors,
         content = content
     )
 }
