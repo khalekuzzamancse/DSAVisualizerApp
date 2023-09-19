@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.tree_visualization.laying_node
 
+import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.tree_visualization.BinaryTreeChildType
 import com.khalekuzzamanjustcse.tree_visualization.ChildPickerData
+import com.khalekuzzamanjustcse.tree_visualization.Tree
 import com.khalekuzzamanjustcse.tree_visualization.ui.common.MovableTreeNode
 import com.khalekuzzamanjustcse.tree_visualization.TreeTraversalState
 import com.khalekuzzamanjustcse.tree_visualization.bsfSequence
@@ -40,6 +42,8 @@ import com.khalekuzzamanjustcse.tree_visualization.dfsSequence
 import com.khalekuzzamanjustcse.tree_visualization.inorderTraversal
 import com.khalekuzzamanjustcse.tree_visualization.postorderTraversal
 import com.khalekuzzamanjustcse.tree_visualization.preorderTraversal
+import com.khalekuzzamanjustcse.tree_visualization.tree_input.TreeChildInput
+import com.khalekuzzamanjustcse.tree_visualization.tree_input.TreeInput
 import com.khalekuzzamanjustcse.tree_visualization.ui.common.PopupWithRadioButtons
 
 
@@ -61,52 +65,17 @@ object TreeTraversalType {
 }
 
 
-
-fun resetTreeColor(node:  TreeNode<Int>?) {
-    if (node == null) return
-    resetTreeColor(node.children.firstOrNull())
-    node.resetColor()
-    node.children.drop(1).forEach { child ->
-        resetTreeColor(child)
-    }
-}
-
-fun getTree(sizePx: Float): TreeNode<Int> {
-    var root:TreeNode<Int> = Node(value = 1, sizePx = sizePx)
-    //level 2
-    root.children.add(Node(value = 2, sizePx = sizePx))
-    root.children.add(Node(value = 3, sizePx = sizePx))
-    //level 3
-    root.children[0].children.add(Node(value = 4, sizePx = sizePx))
-    root.children[0].children.add(Node(value = 5, sizePx = sizePx))
-    root.children[1].children.add(Node(value = 6, sizePx = sizePx))
-    root.children[1].children.add(Node(value = 7, sizePx = sizePx))
-    //level 4
-    root.children[0].children[0].children.add(Node(value = 8, sizePx = sizePx))
-    root.children[0].children[0].children.add(Node(value = 9, sizePx = sizePx))
-    root.children[0].children[1].children.add(Node(value = 10, sizePx = sizePx))
-    root.children[0].children[1].children.add(Node(value = 11, sizePx = sizePx))
-    root.children[1].children[0].children.add(Node(value = 12, sizePx = sizePx))
-    root.children[1].children[0].children.add(Node(value = 13, sizePx = sizePx))
-    root.children[1].children[1].children.add(Node(value = 14, sizePx = sizePx))
-    root.children[1].children[1].children.add(Node(value = 15, sizePx = sizePx))
-    root = ShanonTreeNodeCoordinateCalculator(root).generate()
-    return root
-}
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun TreeVisualizerPreview() {
     val size: Dp = 45.dp
     val sizePx = size.value * LocalDensity.current.density
-
     var openDialog by remember {
         mutableStateOf(false)
     }
-    val root by remember {
-        mutableStateOf(getTree(sizePx))
+    val tree by remember {
+        mutableStateOf(Tree(Node(value = 1, sizePx = sizePx)))
     }
 
     var selectedChild by
@@ -118,9 +87,12 @@ fun TreeVisualizerPreview() {
     val onChildSelect: () -> BinaryTreeChildType = {
         selectedChild
     }
+
+
+
     var traversalIterator by
     remember {
-        mutableStateOf(bsfSequence(root, onChildSelect).iterator())
+        mutableStateOf(bsfSequence(tree.getRoot(), onChildSelect).iterator())
     }
 
     val onNodeProcess: (TreeTraversalState) -> Unit = { currentState ->
@@ -134,6 +106,7 @@ fun TreeVisualizerPreview() {
     var dialogText by remember {
         mutableStateOf("")
     }
+
 
     val jumpNextStep: () -> Unit = {
         if (traversalIterator.hasNext()) {
@@ -154,18 +127,19 @@ fun TreeVisualizerPreview() {
     var selectedTraversal by remember {
         mutableStateOf(TreeTraversalType.BFS)
     }
+    var treeInputDone by remember { mutableStateOf(false) }
 
 
     val onTraversalTypeChanged: (String) -> Unit = {
-        resetTreeColor(root)
+        tree.resetTreeColor()
         selectedTraversal = it
         traversalIterator = when (it) {
-            TreeTraversalType.INORDER -> inorderTraversal(root).iterator()
-            TreeTraversalType.PREORDER -> preorderTraversal(root).iterator()
-            TreeTraversalType.POSTORDER -> postorderTraversal(root).iterator()
-            TreeTraversalType.BFS -> bsfSequence(root, onChildSelect).iterator()
-            TreeTraversalType.DFS -> dfsSequence(root).iterator()
-            else -> inorderTraversal(root).iterator()
+            TreeTraversalType.INORDER -> inorderTraversal(tree.getRoot()).iterator()
+            TreeTraversalType.PREORDER -> preorderTraversal(tree.getRoot()).iterator()
+            TreeTraversalType.POSTORDER -> postorderTraversal(tree.getRoot()).iterator()
+            TreeTraversalType.BFS -> bsfSequence(tree.getRoot(), onChildSelect).iterator()
+            TreeTraversalType.DFS -> dfsSequence(tree.getRoot()).iterator()
+            else -> inorderTraversal(tree.getRoot()).iterator()
         }
 
     }
@@ -190,9 +164,14 @@ fun TreeVisualizerPreview() {
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
 
-            //two different pop up dialogs causing problems on composition
+            Column(modifier = Modifier.padding(padding)) {
+                if (!treeInputDone) {
+                    TreeInput(tree, size) {
+                        treeInputDone = true
+                    }
+                } else {
+                    //two different pop up dialogs causing problems on composition
 //            MyDropdownMenu(
 //                label = "Traversal Type",
 //                options = listOf(
@@ -204,10 +183,11 @@ fun TreeVisualizerPreview() {
 //                ),
 //                onOptionSelected = onTraversalTypeChanged
 //            )
-            MyButton("Next") {
-                jumpNextStep()
-            }
-            TreeVisualizer(root = root, size = size)
+                    MyButton("Next") {
+                        jumpNextStep()
+                    }
+                    TreeVisualizer(root = tree.getRoot(), size =size )
+
             PopupWithRadioButtons(
                 text = dialogText,
                 isOpen = openDialog,
@@ -221,8 +201,9 @@ fun TreeVisualizerPreview() {
                     jumpNextStep()
                 }
             )
-        }
 
+                }
+        }
     }
 
 
@@ -231,15 +212,14 @@ fun TreeVisualizerPreview() {
 
 @Composable
 fun TreeVisualizer(
-    root:  TreeNode<Int>,
+    root: TreeNode<Int>,
     size: Dp,
-    onLongClick: ( TreeNode<Int>) -> Unit = {}
+    onLongClick: (TreeNode<Int>) -> Unit = {}
 ) {
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .size(1000.dp)
             .horizontalScroll(rememberScrollState())
             .drawBehind {
                 drawTreeLines(root)
@@ -256,23 +236,19 @@ fun TreeVisualizer(
 
 
 private fun DrawScope.drawTreeLines(
-    node:  TreeNode<Int>?,
+    node: TreeNode<Int>?,
 ) {
     if (node == null)
         return
     node.children.forEach { child ->
         val parentCenter = node.centerOffset()
         val childCenter = child.centerOffset()
-        //draw line between the node that are visible only
-        val isNotNullChild=child.value != Node.NULL_NODE
-        if (isNotNullChild){
-            drawLine(
-                color = Color.Black,
-                start = Offset(parentCenter.x, parentCenter.y),
-                end = Offset(childCenter.x, childCenter.y),
-                strokeWidth = 2f
-            )
-        }
+        drawLine(
+            color = Color.Black,
+            start = Offset(parentCenter.x, parentCenter.y),
+            end = Offset(childCenter.x, childCenter.y),
+            strokeWidth = 2f
+        )
 
         drawTreeLines(child)
     }
@@ -280,22 +256,20 @@ private fun DrawScope.drawTreeLines(
 
 @Composable
 private fun LayoutNode(
-    node:  TreeNode<Int>?,
+    node: TreeNode<Int>?,
     size: Dp,
-    onLongClick: ( TreeNode<Int>) -> Unit,
+    onLongClick: (TreeNode<Int>) -> Unit,
 ) {
     if (node == null)
         return
-    //On show the non null node in UI
-    if (node.value != Node.NULL_NODE) {
-        MovableTreeNode(
-            size = size,
-            label = "${node.value}",
-            currentOffset = node.coordinates.value,
-            color = node.color.value,
-            onLongPress = { onLongClick(node) },
-        )
-    }
+    MovableTreeNode(
+        size = size,
+        label = "${node.value}",
+        currentOffset = node.coordinates.value,
+        color = node.color.value,
+        onLongPress = { onLongClick(node) },
+    )
+
 
     node.children.forEach {
         LayoutNode(it, size, onLongClick)

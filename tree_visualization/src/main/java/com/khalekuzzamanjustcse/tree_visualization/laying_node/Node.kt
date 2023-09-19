@@ -58,7 +58,7 @@ data class Node(
 
 
     override fun toString(): String {
-        return "$value:(${children.map { it.value }} )"
+        return "$value:${children.map { it.value }} ,x=$x,y=$y,offset=${coordinates.value}"
 
     }
 
@@ -71,11 +71,7 @@ data class Node(
 //        }
     }
 
-    fun createRoot():  TreeNode<Int> {
-        val node = Node(value, sizePx)
-        node.initializeEmptyChildren()
-        return node
-    }
+
 
     override fun addChild(child: TreeNode<Int>) {
         //initialize new children with empty children
@@ -90,6 +86,5 @@ data class Node(
         children.add(child)
     }
 
-    private fun emptyNode() = Node(value = -1, sizePx = sizePx)
 
 }
