@@ -14,8 +14,14 @@ so to avoid this we initially initialize the children with empty children
 then when adding children we replace empty children,
 when show in the ui or traversal we will skip if any children is empty
 the drawback of it it it will take extra space because it contain unnessary null children
-
  */
+interface TreeNode {
+    val value: Int
+    val sizePx: Float
+    val children: MutableList<Node>
+}
+
+
 data class Node(
     val value: Int,
     val sizePx: Float,
@@ -45,20 +51,20 @@ data class Node(
 
     }
 
-    fun initializeEmptyChildren() {
-        if (children.size == 0) {
-            children.add(emptyNode())
-            children.add(emptyNode())
-        } else if (children.size == 1) {
-            children.add(emptyNode())
-        }
+    private fun initializeEmptyChildren() {
+//        if (children.size == 0) {
+//            children.add(emptyNode())
+//            children.add(emptyNode())
+//        } else if (children.size == 1) {
+//            children.add(emptyNode())
+//        }
     }
-    fun createRoot():Node{
-        val node =Node(value,sizePx)
+
+    fun createRoot(): Node {
+        val node = Node(value, sizePx)
         node.initializeEmptyChildren()
         return node
     }
-    fun isEmptyNode()=value== NULL_NODE
 
     fun addChild(child: Node) {
         //initialize new children with empty children
@@ -73,6 +79,7 @@ data class Node(
         children.add(child)
 
     }
+
     private fun emptyNode() = Node(value = -1, sizePx = sizePx)
 
 }
