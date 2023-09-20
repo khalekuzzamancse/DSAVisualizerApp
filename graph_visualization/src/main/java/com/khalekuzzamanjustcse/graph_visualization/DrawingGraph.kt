@@ -31,6 +31,8 @@ fun GraphPreivew() {
         mutableIntStateOf(-1)
     }
     var addEdge by remember { mutableStateOf(false) }
+    var onInputMode by remember { mutableStateOf(true) }
+
     Scaffold(
         topBar = {
             GraphBuilderScreenTopAppbar(
@@ -44,7 +46,13 @@ fun GraphPreivew() {
                 },
                 onAddEdgeClick = {
                     addEdge = true
-                })
+                },
+                isOnInputMode = onInputMode,
+                onInputComplete = {
+                    onInputMode = false
+
+                }
+            )
         }
     ) {
         Column(
@@ -72,7 +80,7 @@ fun GraphPreivew() {
 fun GraphBuilder(
     addNode: Int = -1,
     onNodeAdded: () -> Unit,
-    addEdgeRecentlyTwoLongClickedNode: Boolean = false,
+    addEdgeRecentlyTwoLongClickedNode: Boolean ,
     onEdgeAdded: () -> Unit = {},
 ) {
     val nodeSize = 64.dp
@@ -109,6 +117,7 @@ fun GraphBuilder(
 
     Box(
         modifier = Modifier
+            .padding(8.dp)
             .fillMaxSize()
             .drawBehind {
                 edges.forEach { (u, v) ->
@@ -128,7 +137,9 @@ fun GraphBuilder(
                 label = "${node.value}",
                 size = nodeSize,
                 currentOffset = node.offset.value,
-                onDrag = node::onDrag,
+                onDrag = {
+                        node.onDrag(it)
+                },
                 onLongClick = {
                     graph.onNodeLongClick(node)
                 }

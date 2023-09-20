@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DoneOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.DropdownMenu
@@ -37,6 +38,7 @@ fun GraphBuilderScreenTopAppbar(
     title: String,
     isOnInputMode: Boolean = true,
     onNodeAdded: (String) -> Unit,
+    onInputComplete: () -> Unit,
     onAddEdgeClick: () -> Unit
 ) {
 
@@ -47,7 +49,7 @@ fun GraphBuilderScreenTopAppbar(
         ),
         title = {
             Text(
-                text = if (isOnInputMode) "Input Tree" else "$title Traversal",
+                text = if (isOnInputMode) "Input Graph" else "$title Traversal",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 14.sp
@@ -62,13 +64,23 @@ fun GraphBuilderScreenTopAppbar(
             }
         },
         actions = {
-            NodeValueInputer() { onNodeAdded(it) }
+            if(isOnInputMode){
+                NodeValueInputer() { onNodeAdded(it) }
                 IconButton(onClick = onAddEdgeClick) {
                     Icon(
                         imageVector = Icons.Filled.Timeline,
                         contentDescription = "add Edge"
                     )
                 }
+                IconButton(onClick = onInputComplete) {
+                    Icon(
+                        imageVector = Icons.Filled.DoneOutline,
+                        contentDescription = "add Edge"
+                    )
+                }
+
+            }
+
 
 
 
