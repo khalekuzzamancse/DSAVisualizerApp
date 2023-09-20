@@ -17,3 +17,4 @@ rootProject.name = "DSA Visulizer"
 include(":app")
 include(":tree_visualization")
 include(":common_ui")
+include(":graph_visualization")
