@@ -29,7 +29,8 @@ class Graph<T> {
     }
 
 
-    fun getAllNodes() = nodes
+    fun getAllNodes() = nodes.map { it }
+    fun getAllEdges() = edges.map { it }
 
     fun onNodeLongClick(node: GraphNode<T>) {
         if (lastClickedTwoNodes.size < 2 && node !in lastClickedTwoNodes) {
@@ -40,7 +41,14 @@ class Graph<T> {
         }
     }
 
+
     fun getLastClickedPair() = lastClickedTwoNodes.map { it } //returning a copy
+    fun adjacencyList() = nodes.groupBy { it.value }
+        .mapValues { entry ->
+            entry.value.flatMap { node ->
+                node.neighbors.map { neighbor -> neighbor.value }
+            }
+        }
 
 
 }
@@ -50,7 +58,6 @@ interface GraphNode<T> {
     val value: T
     val sizePx: Float
     val neighbors: MutableList<GraphNode<T>>
-    val positions: MutableState<Offset>
     val offset: MutableState<Offset>
     val color: MutableState<Color>
     fun addNeighbor(node: GraphNode<T>)
@@ -62,7 +69,6 @@ data class DraggableGraphNode<T>(
     override val value: T,
     override val sizePx: Float,
     override val neighbors: MutableList<GraphNode<T>> = mutableListOf(),
-    override val positions: MutableState<Offset> = mutableStateOf(Offset.Zero),
     override val offset: MutableState<Offset> = mutableStateOf(Offset.Zero),
     override val color: MutableState<Color> = mutableStateOf(Color.Red),
 ) : GraphNode<T> {
@@ -77,5 +83,7 @@ data class DraggableGraphNode<T>(
     override fun getCenter(): Offset {
         return offset.value + Offset(sizePx / 2, sizePx / 2)
     }
+
+
 }
 

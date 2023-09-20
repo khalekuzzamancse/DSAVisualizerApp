@@ -107,8 +107,9 @@ fun GraphNodeComposable(
                 onPositionChanged(it)
             }
             .combinedClickable(
-                onLongClick = onLongClick
-            ) {
+                onDoubleClick = onLongClick
+
+                ) {
 
             }
 
