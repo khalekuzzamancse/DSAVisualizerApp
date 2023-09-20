@@ -8,7 +8,9 @@ import androidx.compose.ui.graphics.Color
 
 class Graph<T> {
     val nodes: MutableList<GraphNode<T>> = mutableListOf()
-    val edges: MutableList<Pair<Int, Int>> = mutableListOf()
+    val edges: MutableList<Pair<GraphNode<T>, GraphNode<T>>> = mutableListOf()
+    private val lastClickedTwoNodes: MutableList<GraphNode<T>> = mutableListOf()
+
 
     constructor()
 
@@ -23,21 +25,24 @@ class Graph<T> {
     fun addEdge(u: GraphNode<T>, v: GraphNode<T>) {
         u.addNeighbor(v)
         v.addNeighbor(u)
-        val indexOfU = nodes.indexOf(u)
-        val indexOfV = nodes.indexOf(v)
-        edges.add(Pair(indexOfU, indexOfV))
-    }
-
-    fun getNode(index: Int): GraphNode<T>? {
-        return if (index >= 0 && index <= nodes.size - 1)
-            nodes[index]
-        else null
+        edges.add(Pair(u, v))
     }
 
 
-    fun getAllNodes(): List<GraphNode<T>> {
-        return nodes
+    fun getAllNodes() = nodes
+
+    fun onNodeLongClick(node: GraphNode<T>) {
+        if (lastClickedTwoNodes.size < 2 && node !in lastClickedTwoNodes) {
+            lastClickedTwoNodes.add(node)
+        } else if (node !in lastClickedTwoNodes) {
+            lastClickedTwoNodes[0] = lastClickedTwoNodes[1]
+            lastClickedTwoNodes[1] = node
+        }
     }
+
+    fun getLastClickedPair() = lastClickedTwoNodes.map { it } //returning a copy
+
+
 }
 
 
