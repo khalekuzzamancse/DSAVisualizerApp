@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.khalekuzzamanjustcse.dsavisulizer.ui.theme.DSAVisulizerTheme
+import com.khalekuzzamanjustcse.graph_visualization.GraphPreview
 import com.khalekuzzamanjustcse.tree_visualization.visualizer.TreeVisualizerPreview
 
 class MainActivity : ComponentActivity() {
@@ -17,7 +18,8 @@ class MainActivity : ComponentActivity() {
                // PageReplacement()
                // LayoutTreeKnuthPreview()
              //   LayoutShanonLayoutPreview()
-                TreeVisualizerPreview()
+                //TreeVisualizerPreview()
+                 GraphPreview()
             }
         }
     }
