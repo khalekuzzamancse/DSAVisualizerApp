@@ -38,7 +38,7 @@ fun ArrayCellPreview() {
 
     Column {
         Button(onClick = {
-               Log.i("CurrentState", state.toString())
+               Log.i("CurrentArrayState", "${state.cellsCurrentElements}")
         }) {
             Text(text = "State")
         }
@@ -46,7 +46,8 @@ fun ArrayCellPreview() {
             cellSize = cellSize,
             onCellPositionChanged = state::onCellPositionChanged,
             state = state,
-            onDragEnd = state::onDragEnd
+            onDragEnd = state::onDragEnd,
+            onDragStart = state::onDragStart
         )
     }
 }
@@ -58,11 +59,13 @@ fun <T> ArrayComposable(
     state: ArrayComposableState<T>,
     cellSize: Dp,
     onCellPositionChanged: (Int, Offset) -> Unit = { _, _ -> },
+    onDragStart: (Int)->Unit,
     onDragEnd: (Int) -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         FlowRow {
-            state.list.forEachIndexed { index, _ ->
+//            state.list.forEachIndexed { index, _ ->
+            state.cells.forEachIndexed { index, _ ->
                 ArrayCell(cellSize = cellSize,
                     hideBorder = invisibleCell,
                     onPositionChanged = { position ->
@@ -70,15 +73,18 @@ fun <T> ArrayComposable(
                     })
             }
         }
-        state.elementsPosition.forEachIndexed { index, value ->
+        state.elements.forEachIndexed { index, value ->
             GraphNodeComposable(
-                label = "${state.list[index]}",
+                label = "${value.value}",
                 size = cellSize,
-                currentOffset = value.value,
+                currentOffset = value.position.value,
                 onDrag = { dragAmount ->
                     state.onDragElement(index, dragAmount)
                 }, onDragEnd = {
                     onDragEnd(index)
+                }
+                , onDragStart = {
+                    onDragStart(index)
                 }
             )
         }

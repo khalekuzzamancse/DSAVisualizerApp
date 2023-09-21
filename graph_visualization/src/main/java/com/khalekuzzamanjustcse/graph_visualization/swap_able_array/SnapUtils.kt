@@ -7,16 +7,16 @@ class SnapUtils(
     private val cellsPosition:List<Offset>,
     private val cellSizePx:Float
 ) {
-    fun findNearestCellId(elementCurrentPosition: Offset): Offset {
+    fun findNearestCellId(elementCurrentPosition: Offset): Pair<Int,Offset> {
         cellsPosition.forEachIndexed {index,it->
             val snap = shouldSnap(
                 cellTopLeft = it,
                 elementTopLeft = elementCurrentPosition,
             )
             if (snap)
-                return cellsPosition[index]
+                return Pair(index,cellsPosition[index])
         }
-        return elementCurrentPosition
+        return Pair(-1,elementCurrentPosition)
     }
     private fun shouldSnap(
         cellTopLeft: Offset,
