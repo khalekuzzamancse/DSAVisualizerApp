@@ -8,24 +8,23 @@ data class ArrayElement<T>(
     val position: MutableState<Offset> = mutableStateOf(Offset.Zero),
     val value: T,
 )
+
 data class ArrayCell(
     val position: MutableState<Offset> = mutableStateOf(Offset.Zero),
+    var elementRef: Int? = null
 )
 
 data class ArrayComposableState<T>(
     val list: List<T>,
     private val cellSizePx: Float,
 ) {
-    val cells = list.map { ArrayCell() }
+    val cells = List(list.size) { index -> ArrayCell(elementRef = index) }
     val elements = list.mapIndexed { _, value -> ArrayElement(value = value) }
     private val allCellPlaced: Boolean
         get() = cells.drop(1).all { it.position.value != Offset.Zero }
 
-    //index represent the cellNo and value represent the index of element in elements list
-    private val cellElementReference: MutableList<Int?> =
-        List(list.size) { index -> index }.toMutableList()
     val cellsCurrentElements: List<T?>
-        get() = cellElementReference.map { if (it == null) null else elements[it].value }
+        get() = cells.map { if (it.elementRef == null) null else elements[it.elementRef!!].value }
 
     fun onCellPositionChanged(index: Int, position: Offset) {
         cells[index].position.value = position
@@ -48,15 +47,15 @@ data class ArrayComposableState<T>(
         //added into this cells
         val cellNo = snapAt.first
         if (cellNo != -1) {
-            cellElementReference[cellNo] = elementIndex
+            cells[cellNo].elementRef = elementIndex
         }
     }
 
     fun onDragStart(indexOfElement: Int) {
         //find in which cells the element was removed
-        val draggedFrom = cellElementReference.indexOf(indexOfElement)
+        val draggedFrom = cells.map { it.elementRef }.indexOf(indexOfElement)
         if (draggedFrom != -1) {
-            cellElementReference[draggedFrom] = null
+            cells[draggedFrom].elementRef = null
         }
     }
 
