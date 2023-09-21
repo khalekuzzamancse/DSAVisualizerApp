@@ -16,11 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.tree_visualization.ui.common.PopupWithRadioButtons
 
-fun searchSequence()= sequence {
-    val list= listOf(10,20,30,40)
-    yield(1)
-}
-
 @Preview
 @Composable
 fun SequenceBuilderDialogue() {

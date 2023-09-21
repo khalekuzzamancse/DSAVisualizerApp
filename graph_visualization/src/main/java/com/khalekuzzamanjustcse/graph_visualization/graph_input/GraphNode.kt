@@ -18,17 +18,16 @@ class Graph<T> {
     private val _edges: MutableState<List<Pair<Int, Int>>> = mutableStateOf(emptyList())
     private val _lastClickedTwoNodeRef: MutableState<List<Int>> = mutableStateOf(emptyList())
     val nodes: List<GraphNode<T>>
-        get() {
-            return _nodes.value
-        }
+        get() = _nodes.value
     val edges: List<Pair<Int, Int>>
-        get() {
-            return _edges.value
-        }
+        get() = _edges.value
+
+    val adjacencyListNodeRef: List<List<Int>>
+        get() = _nodes.value.map { it.neighbourReference }
+
     val lastClickedTwoNodeRef: List<Int>
-        get() {
-            return _lastClickedTwoNodeRef.value
-        }
+        get() = _lastClickedTwoNodeRef.value
+
 
     constructor()
     constructor(vararg initialNodes: GraphNode<T>) {
@@ -72,6 +71,13 @@ class Graph<T> {
         _lastClickedTwoNodeRef.value = newList
     }
 
+    fun changeNodeColor(nodeRef: Int, color: Color) {
+        if (nodeRef >= 0 && nodeRef < _nodes.value.size) {
+            //avoid copy the node,modify the origal reference
+            _nodes.value[nodeRef].color.value = color
+        }
+    }
+
 
 }
 
@@ -99,8 +105,6 @@ data class DraggableGraphNode<T>(
         neighbourReference = newList
     }
 
-//
-
     override fun onDrag(dragAmount: Offset) {
         offset.value += dragAmount
     }
@@ -108,7 +112,5 @@ data class DraggableGraphNode<T>(
     override fun getCenter(): Offset {
         return offset.value + Offset(sizePx / 2, sizePx / 2)
     }
-
-
 }
 

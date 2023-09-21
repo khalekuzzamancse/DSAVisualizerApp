@@ -34,10 +34,28 @@ fun GraphBuilderPreview() {
     val graph by remember {
         mutableStateOf(
             Graph(
+                DraggableGraphNode(value = 0, sizePx = sizePx),
                 DraggableGraphNode(value = 1, sizePx = sizePx),
                 DraggableGraphNode(value = 2, sizePx = sizePx),
+                DraggableGraphNode(value = 3, sizePx = sizePx),
             )
         )
+    }
+    var bfsIterator by remember { mutableStateOf<Iterator<Any>?>(null) }
+    val onNext: () -> Unit = {
+        if (bfsIterator == null)
+            bfsIterator = bfs(graph.adjacencyListNodeRef).iterator()
+        else {
+            if (bfsIterator!!.hasNext()) {
+                val next = bfsIterator!!.next()
+                if (next is Int) {
+                    Log.i("TRAVERSING:BFS", "${graph.nodeByRef(next)}")
+                    graph.changeNodeColor(next, Color.Blue)
+                }
+            }
+        }
+
+
     }
 
     Scaffold(
@@ -67,7 +85,12 @@ fun GraphBuilderPreview() {
 
                 },
                 onNextClick = {
-                    Log.i("AdjacentList:", "${graph.nodes}")
+                    onNext()
+//                    bfs(graph.adjacencyListNodeRef, onNodeProcessing = {
+//                        graph.changeNodeColor(it, Color.Blue)
+//                        Log.i("TRAVERSING:BFS", "${graph.nodeByRef(it)}")
+//                    })
+
                 }
             )
         }
@@ -92,7 +115,7 @@ fun GraphBuilderPreview() {
 @Composable
 fun GraphBuilder(
     nodeSize: Dp,
-    edgesRef:List<Pair<Int,Int>>,
+    edgesRef: List<Pair<Int, Int>>,
     graph: Graph<Int>,
 ) {
 
@@ -102,9 +125,9 @@ fun GraphBuilder(
             .fillMaxSize()
             .drawBehind {
                 edgesRef.forEach { (i, j) ->
-                    val u=graph.nodeByRef(i)
-                    val v=graph.nodeByRef(j)
-                    if(u!=null && v!=null){
+                    val u = graph.nodeByRef(i)
+                    val v = graph.nodeByRef(j)
+                    if (u != null && v != null) {
                         drawLine(
                             color = Color.Black,
                             start = u.getCenter(),
@@ -119,7 +142,7 @@ fun GraphBuilder(
 
 
     ) {
-        graph.nodes.forEachIndexed{ i, node ->
+        graph.nodes.forEachIndexed { i, node ->
             GraphNodeComposable(
                 label = "${node.value}",
                 size = nodeSize,
@@ -127,6 +150,7 @@ fun GraphBuilder(
                 onDrag = {
                     node.onDrag(it)
                 },
+                color = node.color.value,
                 onLongClick = {
                     graph.onNodeLongClick(i)
                 }

@@ -74,6 +74,7 @@ fun GraphNodeComposablePreview() {
 fun GraphNodeComposable(
     label: String,
     size: Dp,
+    color: Color = Color.Red,
     currentOffset: Offset = Offset.Zero,
     onDragEnd: () -> Unit = {},
     onDragStart: () -> Unit = {},
@@ -109,7 +110,7 @@ fun GraphNodeComposable(
             .combinedClickable(
                 onDoubleClick = onLongClick
 
-                ) {
+            ) {
 
             }
 
@@ -120,7 +121,7 @@ fun GraphNodeComposable(
             modifier = Modifier
                 .padding(padding)
                 .clip(CircleShape)
-                .background(Color.Red)
+                .background(color)
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
         )
