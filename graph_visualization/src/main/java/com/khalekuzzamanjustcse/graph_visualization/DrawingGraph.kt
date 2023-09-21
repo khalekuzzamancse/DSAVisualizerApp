@@ -23,6 +23,17 @@ import com.khalekuzzamanjustcse.graph_visualization.graph_input.DraggableGraphNo
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.Graph
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphBuilderScreenTopAppbar
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNodeComposable
+import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposableState
+
+
+data class Neighbours<T>(
+    val nodeIndexRef: Int,
+    val nodeValue: T
+) {
+    override fun toString(): String {
+        return "$nodeValue"
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -31,33 +42,99 @@ fun GraphBuilderPreview() {
     val nodeSize = 64.dp
     val sizePx = nodeSize.value * LocalDensity.current.density
     var onInputMode by remember { mutableStateOf(true) }
+    var showPicker by remember {
+        mutableStateOf(false)
+    }
+
+    var unVisitedNeigboursOrder by remember {
+        mutableStateOf(emptyList<Int>())
+    }
+    var neighbourSelectedModeOn by remember {
+        mutableStateOf(true)
+    }
+    val onNeigboursOrderSelected: () -> List<Int> = {
+        if (neighbourSelectedModeOn)
+            unVisitedNeigboursOrder
+        else
+            emptyList()
+    }
+
     val graph by remember {
         mutableStateOf(
             Graph(
-                DraggableGraphNode(value = 0, sizePx = sizePx),
-                DraggableGraphNode(value = 1, sizePx = sizePx),
-                DraggableGraphNode(value = 2, sizePx = sizePx),
-                DraggableGraphNode(value = 3, sizePx = sizePx),
+                DraggableGraphNode(value = 10, sizePx = sizePx),
+                DraggableGraphNode(value = 20, sizePx = sizePx),
+                DraggableGraphNode(value = 30, sizePx = sizePx),
+                DraggableGraphNode(value = 40, sizePx = sizePx),
             )
         )
     }
+    graph.addEdge(0, 1)
+    graph.addEdge(0, 2)
+    graph.addEdge(0, 3)
+
+    var state = remember {
+        ArrayComposableState(list = emptyList<Neighbours<Int>>(), cellSizePx = sizePx)
+    }
+
     var bfsIterator by remember { mutableStateOf<Iterator<SimulationState>?>(null) }
     val onNext: () -> Unit = {
         if (bfsIterator == null)
-            bfsIterator = bfs(graph.adjacencyListNodeRef).iterator()
+            bfsIterator = bfs(
+                adjacencyListOfNodeReference = graph.adjacencyListNodeRef,
+                onUnVisitedNeighborsOrderSelected = onNeigboursOrderSelected
+            ).iterator()
         else {
             if (bfsIterator!!.hasNext()) {
-                when(val currentState = bfsIterator!!.next()){
-                    Started->{
+                when (val currentState = bfsIterator!!.next()) {
+                    Started -> {
                         Log.i("TRAVERSING:BFS", "Started")
                     }
-                    Finished->{
+
+                    Finished -> {
                         Log.i("TRAVERSING:BFS", "Finished")
                     }
-                    is Simulating ->{
-                        val index=currentState.processingNodeIndex
-                            Log.i("TRAVERSING:BFS", "${graph.nodeByRef(index)}")
-                            graph.changeNodeColor(index, Color.Blue)
+
+                    is Simulating -> {
+                        val index = currentState.processingNodeIndex
+                        Log.i("TRAVERSING:BFS", "${graph.nodeByRef(index)}")
+                        graph.changeNodeColor(index, Color.Blue)
+                    }
+
+                    is SelectChild -> {
+                        val unVisitedNeighbors = mutableListOf<Neighbours<Int>>()
+                        currentState.unVisitedNeighboursRef.forEach { nodeRef ->
+                            val node = graph.nodeByRef(nodeRef)
+                            if (node != null) {
+                                unVisitedNeighbors.add(
+                                    Neighbours(
+                                        nodeIndexRef = nodeRef,
+                                        nodeValue = node.value
+                                    )
+                                )
+                            }
+
+                        }
+                        currentState.unVisitedNeighboursRef
+                            .map { graph.nodeByRef(it) }
+                            .filterNotNull()
+                            .mapIndexed { index, v ->
+                                Neighbours(
+                                    nodeIndexRef = index,
+                                    nodeValue = v
+                                )
+                            }
+
+                        if (unVisitedNeighbors.isNotEmpty()) {
+                            state =
+                                ArrayComposableState(list = unVisitedNeighbors, cellSizePx = sizePx)
+                            showPicker = true
+                        }
+
+                    }
+
+                    Paused -> {
+
                     }
                 }
 
@@ -95,6 +172,9 @@ fun GraphBuilderPreview() {
                 },
                 onNextClick = {
                     onNext()
+                },
+                onNeighbourSelectedModeClick = {
+                    neighbourSelectedModeOn=!neighbourSelectedModeOn
                 }
             )
         }
@@ -110,6 +190,23 @@ fun GraphBuilderPreview() {
                 edgesRef = graph.edges,
                 graph = graph
             )
+            PopupWithRadioButtons(
+                isOpen = neighbourSelectedModeOn&&showPicker,
+                state = state
+            ) {
+                unVisitedNeigboursOrder = state
+                    .cellsCurrentElements
+                    .filterNotNull()
+                    .map { neighbour -> neighbour.nodeIndexRef }
+                Log.i(
+                    "RecoredList",
+                    "${
+                        state.cellsCurrentElements.filterNotNull()
+                            .map { neighbour -> neighbour.nodeIndexRef }
+                    }"
+                )
+                showPicker = false
+            }
         }
     }
 

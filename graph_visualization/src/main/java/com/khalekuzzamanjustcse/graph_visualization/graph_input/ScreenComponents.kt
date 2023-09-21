@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AirlineStops
 import androidx.compose.material.icons.filled.DoneOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NextPlan
@@ -41,6 +42,7 @@ fun GraphBuilderScreenTopAppbar(
     onNodeAdded: (String) -> Unit,
     onInputComplete: () -> Unit,
     onNextClick:()-> Unit={},
+    onNeighbourSelectedModeClick:()-> Unit,
     onAddEdgeClick: () -> Unit
 ) {
 
@@ -82,13 +84,22 @@ fun GraphBuilderScreenTopAppbar(
                 }
 
             }
-
+            else{
                 IconButton(onClick = onNextClick) {
                     Icon(
                         imageVector = Icons.Filled.NextPlan,
                         contentDescription = "next"
                     )
                 }
+                IconButton(onClick = onNeighbourSelectedModeClick) {
+                    Icon(
+                        imageVector = Icons.Filled.AirlineStops,
+                        contentDescription = "next"
+                    )
+                }
+            }
+
+
 
 
 
