@@ -39,6 +39,7 @@ fun ArrayCellPreview() {
     Column {
         Button(onClick = {
                Log.i("CurrentArrayState", "${state.cellsCurrentElements}")
+
         }) {
             Text(text = "State")
         }

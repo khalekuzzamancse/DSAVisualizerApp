@@ -15,7 +15,7 @@ data class ArrayCell(
 )
 
 data class ArrayComposableState<T>(
-    val list: List<T>,
+  private  val list: List<T>,
     private val cellSizePx: Float,
 ) {
     val cells = List(list.size) { index -> ArrayCell(elementRef = index) }
