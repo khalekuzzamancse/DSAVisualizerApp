@@ -41,17 +41,26 @@ fun GraphBuilderPreview() {
             )
         )
     }
-    var bfsIterator by remember { mutableStateOf<Iterator<Any>?>(null) }
+    var bfsIterator by remember { mutableStateOf<Iterator<SimulationState>?>(null) }
     val onNext: () -> Unit = {
         if (bfsIterator == null)
             bfsIterator = bfs(graph.adjacencyListNodeRef).iterator()
         else {
             if (bfsIterator!!.hasNext()) {
-                val next = bfsIterator!!.next()
-                if (next is Int) {
-                    Log.i("TRAVERSING:BFS", "${graph.nodeByRef(next)}")
-                    graph.changeNodeColor(next, Color.Blue)
+                when(val currentState = bfsIterator!!.next()){
+                    Started->{
+                        Log.i("TRAVERSING:BFS", "Started")
+                    }
+                    Finished->{
+                        Log.i("TRAVERSING:BFS", "Finished")
+                    }
+                    is Simulating ->{
+                        val index=currentState.processingNodeIndex
+                            Log.i("TRAVERSING:BFS", "${graph.nodeByRef(index)}")
+                            graph.changeNodeColor(index, Color.Blue)
+                    }
                 }
+
             }
         }
 
@@ -86,11 +95,6 @@ fun GraphBuilderPreview() {
                 },
                 onNextClick = {
                     onNext()
-//                    bfs(graph.adjacencyListNodeRef, onNodeProcessing = {
-//                        graph.changeNodeColor(it, Color.Blue)
-//                        Log.i("TRAVERSING:BFS", "${graph.nodeByRef(it)}")
-//                    })
-
                 }
             )
         }
