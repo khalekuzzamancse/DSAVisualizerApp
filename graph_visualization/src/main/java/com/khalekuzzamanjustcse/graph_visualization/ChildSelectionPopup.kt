@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.graph_visualization
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -24,17 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNodeComposable
+import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposable
+import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposableState
 
 @Preview
 @Composable
 fun PopupWithRadioButtonsPreview() {
-
-    var selectedOption by remember { mutableStateOf("Option 1") }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,53 +45,47 @@ fun PopupWithRadioButtonsPreview() {
         verticalArrangement = Arrangement.Center
     ) {
         PopupWithRadioButtons(
-            text = "Select",
             isOpen = true,
-            options = listOf("1", "2", "3"),
-            onOptionSelected = {
-                selectedOption = it
-            }
         )
-        Text("Selected Option: $selectedOption")
+
     }
 }
 
 @Composable
 fun PopupWithRadioButtons(
-    text: String,
     isOpen: Boolean,
-    options: List<String>,
-    onOptionSelected: (String) -> Unit
 ) {
-    var offset by remember {
-        mutableStateOf(Offset.Zero)
+
+    val cellSize = 64.dp
+    val cellSizePx = cellSize.value * LocalDensity.current.density
+    val list = listOf(1, 2, 3, 4, 5)
+    val state = remember {
+        ArrayComposableState(list = list, cellSizePx = cellSizePx)
     }
-    var selectedOption by remember { mutableStateOf(options.first()) }
     if (isOpen) {
         Dialog(
             onDismissRequest = { }
         ) {
             Surface(
                 modifier = Modifier
-                    .width(300.dp)
                     .padding(16.dp),
                 shape = MaterialTheme.shapes.medium,
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    Text(
-                        text = text,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    options.forEach { option ->
-                        GraphNodeComposable(
-                            label = option,
-                            size = 64.dp,
-                            currentOffset = offset,
-                            onDrag = {offset+=it  }
-                        )
+                    Button(onClick = {
+                        Log.i("CurrentArrayState", "${state.cellsCurrentElements}")
+                    }) {
+                        Text(text = "State")
                     }
+                    ArrayComposable(
+                        cellSize = cellSize,
+                        onCellPositionChanged = state::onCellPositionChanged,
+                        state = state,
+                        onDragEnd = state::onDragEnd,
+                        onDragStart = state::onDragStart
+                    )
                 }
             }
         }
