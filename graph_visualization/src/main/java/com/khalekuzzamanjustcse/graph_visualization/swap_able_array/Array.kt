@@ -43,6 +43,7 @@ fun ArrayCellPreview() {
             Text(text = "State")
         }
         ArrayComposable(
+            modifier=Modifier.fillMaxSize(),
             cellSize = cellSize,
             onCellPositionChanged = state::onCellPositionChanged,
             state = state,
@@ -55,6 +56,7 @@ fun ArrayCellPreview() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun <T> ArrayComposable(
+    modifier: Modifier=Modifier,
     invisibleCell: Boolean = false,
     state: ArrayComposableState<T>,
     cellSize: Dp,
@@ -62,7 +64,7 @@ fun <T> ArrayComposable(
     onDragStart: (Int)->Unit,
     onDragEnd: (Int) -> Unit = {},
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         FlowRow {
 //            state.list.forEachIndexed { index, _ ->
             state.cells.forEachIndexed { index, _ ->
