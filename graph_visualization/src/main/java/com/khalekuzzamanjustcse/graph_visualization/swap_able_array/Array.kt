@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -30,45 +29,40 @@ import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNodeComposa
 @Preview
 @Composable
 fun ArrayCellPreview() {
-    val cellSize = 45.dp
+    val cellSize = 64.dp
     val cellSizePx = cellSize.value * LocalDensity.current.density
     val list = listOf(1, 2, 3, 4, 5)
     val state = remember {
         ArrayComposableState(list = list, cellSizePx = cellSizePx)
     }
+
     Column {
         Button(onClick = {
-            Log.i("CurrentState", state.toString())
+               Log.i("CurrentState", state.toString())
         }) {
             Text(text = "State")
         }
         ArrayComposable(
             cellSize = cellSize,
-            list = list,
-            onCellPositionChanged = { index, position ->
-                state.onCellPositionChanged(index, position)
-            },
+            onCellPositionChanged = state::onCellPositionChanged,
             state = state,
-            onDragEnd =state::onDragEnd
+            onDragEnd = state::onDragEnd
         )
     }
-
 }
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun <T> ArrayComposable(
     invisibleCell: Boolean = false,
     state: ArrayComposableState<T>,
     cellSize: Dp,
-    onCellPositionChanged: (Int, Offset) -> Unit,
-    onDragEnd: (Int) -> Unit,
-    list: List<T>
+    onCellPositionChanged: (Int, Offset) -> Unit = { _, _ -> },
+    onDragEnd: (Int) -> Unit = {},
 ) {
-
-
     Box(modifier = Modifier.fillMaxSize()) {
         FlowRow {
-            list.forEachIndexed { index, value ->
+            state.list.forEachIndexed { index, _ ->
                 ArrayCell(cellSize = cellSize,
                     hideBorder = invisibleCell,
                     onPositionChanged = { position ->
@@ -83,8 +77,9 @@ fun <T> ArrayComposable(
                 currentOffset = value.value,
                 onDrag = { dragAmount ->
                     state.onDragElement(index, dragAmount)
+                }, onDragEnd = {
+                    onDragEnd(index)
                 }
-                , onDragEnd ={onDragEnd(index)}
             )
         }
     }
