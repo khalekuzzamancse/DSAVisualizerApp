@@ -1,66 +1,87 @@
 package com.khalekuzzamanjustcse.graph_visualization.graph_input
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 
-class Graph<T> {
-    val nodes: MutableList<GraphNode<T>> = mutableListOf()
-    val edges: MutableList<Pair<GraphNode<T>, GraphNode<T>>> = mutableListOf()
-    private val lastClickedTwoNodes: MutableList<GraphNode<T>> = mutableListOf()
 
+/*
+to avoid  wanted behaviour storing the nodes only one list.
+do not copy the node or something equivalent.
+to avoid modifying from outside exposing the same node list as immutable but observable
+so that when node or edge added then observable the update
+ */
+
+class Graph<T> {
+    private val _nodes: MutableState<List<GraphNode<T>>> = mutableStateOf(emptyList())
+    private val _edges: MutableState<List<Pair<Int, Int>>> = mutableStateOf(emptyList())
+    private val _lastClickedTwoNodeRef: MutableState<List<Int>> = mutableStateOf(emptyList())
+    val nodes: List<GraphNode<T>>
+        get() {
+            return _nodes.value
+        }
+    val edges: List<Pair<Int, Int>>
+        get() {
+            return _edges.value
+        }
+    val lastClickedTwoNodeRef: List<Int>
+        get() {
+            return _lastClickedTwoNodeRef.value
+        }
 
     constructor()
-
     constructor(vararg initialNodes: GraphNode<T>) {
-        nodes.addAll(initialNodes)
+        _nodes.value = initialNodes.toList()
     }
 
     fun addNode(node: GraphNode<T>) {
-        nodes.add(node)
+        val newList = _nodes.value.toMutableList()
+        newList.add(node)
+        _nodes.value = newList
     }
 
-    fun addEdge(u: GraphNode<T>, v: GraphNode<T>) {
-        u.addNeighbor(v)
-        v.addNeighbor(u)
-        edges.add(Pair(u, v))
-    }
+    fun addEdge(refU: Int, refV: Int) {
 
-
-    fun getAllNodes() = nodes.map { it }
-    fun getAllEdges() = edges.map { it }
-
-    fun onNodeLongClick(node: GraphNode<T>) {
-        if (lastClickedTwoNodes.size < 2 && node !in lastClickedTwoNodes) {
-            lastClickedTwoNodes.add(node)
-        } else if (node !in lastClickedTwoNodes) {
-            lastClickedTwoNodes[0] = lastClickedTwoNodes[1]
-            lastClickedTwoNodes[1] = node
+        val u = nodeByRef(refU)
+        val v = nodeByRef(refV)
+        if (u != null && v != null) {
+            u.addNeighbor(refV)
+            v.addNeighbor(refU)
+            val newEdges = _edges.value.toMutableList()
+            newEdges.add(Pair(refU, refV))
+            _edges.value = newEdges
         }
     }
 
+    fun nodeByRef(index: Int): GraphNode<T>? {
+        return if (index >= 0 && index < _nodes.value.size)
+            _nodes.value[index]
+        else
+            null
+    }
 
-    fun getLastClickedPair() = lastClickedTwoNodes.map { it } //returning a copy
-    fun adjacencyList() = nodes.groupBy { it.value }
-        .mapValues { entry ->
-            entry.value.flatMap { node ->
-                node.neighbors.map { neighbor -> neighbor.value }
-            }
+    fun onNodeLongClick(node: Int) {
+        val newList = _lastClickedTwoNodeRef.value.toMutableList()
+        if (newList.size < 2 && node !in newList) {
+            newList.add(node)
+        } else if (node !in newList) {
+            newList[0] = newList[1]
+            newList[1] = node
         }
+        _lastClickedTwoNodeRef.value = newList
+    }
 
 
 }
 
-
 interface GraphNode<T> {
     val value: T
     val sizePx: Float
-    val neighbors: MutableList<GraphNode<T>>
+    var neighbourReference: List<Int>
     val offset: MutableState<Offset>
     val color: MutableState<Color>
-    fun addNeighbor(node: GraphNode<T>)
+    fun addNeighbor(nodeRef: Int)
     fun onDrag(dragAmount: Offset)
     fun getCenter(): Offset
 }
@@ -68,13 +89,17 @@ interface GraphNode<T> {
 data class DraggableGraphNode<T>(
     override val value: T,
     override val sizePx: Float,
-    override val neighbors: MutableList<GraphNode<T>> = mutableListOf(),
     override val offset: MutableState<Offset> = mutableStateOf(Offset.Zero),
     override val color: MutableState<Color> = mutableStateOf(Color.Red),
+    override var neighbourReference: List<Int> = emptyList(),
 ) : GraphNode<T> {
-    override fun addNeighbor(node: GraphNode<T>) {
-        neighbors.add(node)
+    override fun addNeighbor(nodeRef: Int) {
+        val newList = neighbourReference.toMutableList()
+        newList.add(nodeRef)
+        neighbourReference = newList
     }
+
+//
 
     override fun onDrag(dragAmount: Offset) {
         offset.value += dragAmount

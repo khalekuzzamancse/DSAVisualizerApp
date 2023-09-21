@@ -22,32 +22,23 @@ import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.DraggableGraphNode
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.Graph
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphBuilderScreenTopAppbar
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNode
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNodeComposable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun GraphPreview() {
-
+fun GraphBuilderPreview() {
     val nodeSize = 64.dp
     val sizePx = nodeSize.value * LocalDensity.current.density
     var onInputMode by remember { mutableStateOf(true) }
     val graph by remember {
         mutableStateOf(
             Graph(
-                DraggableGraphNode(value = 5, sizePx = sizePx),
-                DraggableGraphNode(value = 10, sizePx = sizePx)
+                DraggableGraphNode(value = 1, sizePx = sizePx),
+                DraggableGraphNode(value = 2, sizePx = sizePx),
             )
         )
     }
-    var edges by remember { mutableStateOf(graph.getAllEdges()) }
-    var nodes by remember { mutableStateOf(graph.getAllNodes()) }
-
-    val updateEdges: () -> Unit = {
-        edges = graph.getAllEdges()
-    }
-
 
     Scaffold(
         topBar = {
@@ -58,27 +49,25 @@ fun GraphPreview() {
                         val value = it.toInt()
                         val node = DraggableGraphNode(value = value, sizePx = sizePx)
                         graph.addNode(node)
-                        //updated nodes
-                        nodes = graph.getAllNodes()
-
                     } catch (_: Exception) {
 
                     }
                 },
                 onAddEdgeClick = {
-                    if (graph.getLastClickedPair().size == 2) {
+                    if (graph.lastClickedTwoNodeRef.size == 2) {
                         graph.addEdge(
-                            graph.getLastClickedPair().first(),
-                            graph.getLastClickedPair().last()
+                            graph.lastClickedTwoNodeRef.first(),
+                            graph.lastClickedTwoNodeRef.last()
                         )
-                        Log.i("GraphJDJDKJKD", "${graph.getLastClickedPair().map { it.value }}")
-                        updateEdges()
                     }
                 },
                 isOnInputMode = onInputMode,
                 onInputComplete = {
                     onInputMode = false
 
+                },
+                onNextClick = {
+                    Log.i("AdjacentList:", "${graph.nodes}")
                 }
             )
         }
@@ -90,13 +79,9 @@ fun GraphPreview() {
                 .fillMaxSize()
         ) {
             GraphBuilder(
-                nodeSize=nodeSize,
-                edges = edges,
-                nodes = nodes,
-                onNodeClick ={node->
-                    graph.onNodeLongClick(node)
-                    updateEdges()
-                }
+                nodeSize = nodeSize,
+                edgesRef = graph.edges,
+                graph = graph
             )
         }
     }
@@ -107,9 +92,8 @@ fun GraphPreview() {
 @Composable
 fun GraphBuilder(
     nodeSize: Dp,
-    nodes: List<GraphNode<Int>>,
-    edges: List<Pair<GraphNode<Int>, GraphNode<Int>>>,
-    onNodeClick:(GraphNode<Int>)->Unit,
+    edgesRef:List<Pair<Int,Int>>,
+    graph: Graph<Int>,
 ) {
 
     Box(
@@ -117,20 +101,25 @@ fun GraphBuilder(
             .padding(8.dp)
             .fillMaxSize()
             .drawBehind {
-                edges.forEach { (u, v) ->
-                    drawLine(
-                        color = Color.Black,
-                        start = u.getCenter(),
-                        end = v.getCenter(),
-                        strokeWidth = 4f
-                    )
+                edgesRef.forEach { (i, j) ->
+                    val u=graph.nodeByRef(i)
+                    val v=graph.nodeByRef(j)
+                    if(u!=null && v!=null){
+                        drawLine(
+                            color = Color.Black,
+                            start = u.getCenter(),
+                            end = v.getCenter(),
+                            strokeWidth = 4f
+                        )
+                    }
+
                 }
 
             }
 
 
     ) {
-        nodes.forEach { node ->
+        graph.nodes.forEachIndexed{ i, node ->
             GraphNodeComposable(
                 label = "${node.value}",
                 size = nodeSize,
@@ -139,7 +128,7 @@ fun GraphBuilder(
                     node.onDrag(it)
                 },
                 onLongClick = {
-                   onNodeClick(node)
+                    graph.onNodeLongClick(i)
                 }
             )
         }

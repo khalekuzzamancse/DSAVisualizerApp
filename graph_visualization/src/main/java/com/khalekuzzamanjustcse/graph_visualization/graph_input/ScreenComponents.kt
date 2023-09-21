@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DoneOutline
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.NextPlan
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +40,7 @@ fun GraphBuilderScreenTopAppbar(
     isOnInputMode: Boolean = true,
     onNodeAdded: (String) -> Unit,
     onInputComplete: () -> Unit,
+    onNextClick:()-> Unit={},
     onAddEdgeClick: () -> Unit
 ) {
 
@@ -80,6 +82,14 @@ fun GraphBuilderScreenTopAppbar(
                 }
 
             }
+
+                IconButton(onClick = onNextClick) {
+                    Icon(
+                        imageVector = Icons.Filled.NextPlan,
+                        contentDescription = "next"
+                    )
+                }
+
 
 
 
