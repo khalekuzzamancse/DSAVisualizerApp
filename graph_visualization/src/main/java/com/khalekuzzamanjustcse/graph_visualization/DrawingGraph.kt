@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.graph_visualization
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,12 +38,10 @@ fun GraphBuilderPreview() {
                 onAddEdgeClick = graphState::onAddEdgeIconClick,
                 isOnInputMode = graphState.isInputMode,
                 onInputComplete = graphState::onInputFinished,
-                onNextClick = { graphState.onNext() },
+                onNextClick = graphState::onNextClick,
                 onNeighbourSelectedModeClick = graphState::onNeighbourSelectedModeChangeRequest,
-                traversalOptions = TraversalOptions.options,
-                onTraversalOptionsSelected = {
-                    graphState.onTraversalOptionChanged(TraversalOptions.getOption(it))
-                },
+                traversalOptions = graphState.traversalOptions,
+                onTraversalOptionsSelected = graphState::onTraversalOptionChanged,
             )
         }
     ) {

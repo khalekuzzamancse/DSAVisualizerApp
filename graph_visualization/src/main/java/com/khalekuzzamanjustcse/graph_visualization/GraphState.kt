@@ -31,9 +31,15 @@ data class GraphState(
     private var iterator by mutableStateOf<Iterator<SimulationState>?>(null)
 
     var graph by mutableStateOf(Graph<Int>())
-    var arrayComposableState by mutableStateOf(ArrayComposableState<Neighbours<Int>>(emptyList(), nodeSizePX))
+    var arrayComposableState by mutableStateOf(
+        ArrayComposableState<Neighbours<Int>>(
+            emptyList(),
+            nodeSizePX
+        )
+    )
     val openNeighboursSelectedPopup: Boolean
         get() = neighbourSelectedModeOn && showPopupWindow
+    val traversalOptions = TraversalOptions.options
 
 
     init {
@@ -89,8 +95,9 @@ data class GraphState(
         )
         showPopupWindow = false
     }
-    fun onTraversalOptionChanged(option: GraphTraversalOption){
 
+    fun onTraversalOptionChanged(index: Int) {
+        Log.i("onTraversalOption", "${TraversalOptions.getOption(index)}")
     }
 
     private fun createGraphDemo() {
@@ -107,7 +114,7 @@ data class GraphState(
     }
 
 
-    val onNext: () -> Unit = {
+    fun onNextClick() {
         if (iterator == null)
             iterator = bfs(
                 adjacencyListOfNodeReference = graph.adjacencyListNodeRef,
