@@ -1,10 +1,11 @@
-package com.khalekuzzamanjustcse.common_ui.queue
+package com.khalekuzzamanjustcse.common_ui.queue_queue
 
+import android.util.Log
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.common_ui.visual_array.CellPointerComposable
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.VisualElementComposable
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -29,26 +31,25 @@ fun StackComposablePreview() {
     var cnt by remember {
         mutableIntStateOf(1)
     }
-    val queueState = remember {
-        QueueState(cellSize = size, density = density)
+    val stackState = remember {
+        StackState(cellSize = size, density = density)
 
     }
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxSize()
     ) {
         FlowRow {
-            MyButton(label = "Enqueue") {
-                queueState.enqueue("${cnt * 2}")
+            MyButton(label = "Push") {
+                stackState.push("${cnt * 2}")
                 cnt++
             }
-            MyButton(label = "Dequeue") {
-                queueState.dequeue()
+            MyButton(label = "Pop") {
+                stackState.pop()
             }
         }
 
-        QueueComposable(queueState)
+        StackComposable(stackState)
 
 
     }
@@ -56,17 +57,23 @@ fun StackComposablePreview() {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun QueueComposable(
-    state: QueueState
+fun StackComposable(
+    stackState: StackState
 ) {
-    FlowRow(
-        modifier = Modifier.border(width = 2.dp, color = Color.Black)
-    ) {
-        state.element.forEach {
-            VisualElementComposable(it)
+    Box {
+        FlowRow(
+            modifier = Modifier.border(width = 2.dp, color = Color.Black)
+        ) {
+            stackState.stackElement.forEach {
+                VisualElementComposable(it)
+            }
         }
+        CellPointerComposable(
+            cellSize = stackState.cellSize,
+            label = "top",
+            currentPosition = stackState.stackTopPointerPosition
+        )
     }
-
 
 }
 

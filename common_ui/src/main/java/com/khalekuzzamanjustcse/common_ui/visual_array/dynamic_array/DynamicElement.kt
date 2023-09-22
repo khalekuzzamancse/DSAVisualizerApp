@@ -27,7 +27,17 @@ data class DynamicElement(
     private val isHideBorder: MutableState<Boolean> = mutableStateOf(true),
     private val _boundingRectangleColor: MutableState<Color> = mutableStateOf(Color.Unspecified)
 ) {
+    private val _currentPosition: MutableState<Offset> = mutableStateOf(Offset.Zero)
+    val currentPosition: Offset
+        get() = _currentPosition.value
 
+    fun onPositionChanged(offset: Offset) {
+        _currentPosition.value = offset
+
+    }
+
+    val bottomLeft: Offset
+        get() = Offset(_currentPosition.value.x, sizePx)
     val size: Dp
         get() = _size.value
     val backgroundColor: Color

@@ -1,7 +1,6 @@
-package com.khalekuzzamanjustcse.common_ui.stack
+package com.khalekuzzamanjustcse.common_ui.queue_queue
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
@@ -24,6 +23,8 @@ class StackState(
     private val _stackElements: MutableState<List<DynamicElement>> = mutableStateOf(emptyList())
     val stackElement: List<DynamicElement>
         get() = _stackElements.value
+    val stackTopPointerPosition: Offset
+        get() = if (_stackElements.value.isNotEmpty()) _stackElements.value.last().bottomLeft else Offset.Infinite
 
     fun push(label: String) {
         val tempList = _stackElements.value.toMutableList()

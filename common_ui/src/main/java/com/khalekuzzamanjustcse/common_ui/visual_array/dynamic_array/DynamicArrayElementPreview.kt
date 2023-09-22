@@ -29,6 +29,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -203,6 +205,9 @@ fun VisualElementComposable(
                 else
                     Modifier
             )
+            .onGloballyPositioned { position ->
+            element.onPositionChanged(position.positionInParent())
+        }
     ) {
 
         val textColor = if (element.color.luminance() > 0.5) Color.Black else Color.White

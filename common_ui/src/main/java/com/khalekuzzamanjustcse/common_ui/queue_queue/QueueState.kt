@@ -1,7 +1,8 @@
-package com.khalekuzzamanjustcse.common_ui.queue
+package com.khalekuzzamanjustcse.common_ui.queue_queue
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.DynamicElement
@@ -32,6 +33,11 @@ class QueueState(
         _elements.value = tempList
         _elements.value.last().blinkBackground(2000)
     }
+
+    val rearPointerPosition: Offset
+        get() = if (_elements.value.isNotEmpty()) _elements.value.last().bottomLeft else Offset.Infinite
+    val frontPointerPosition: Offset
+        get() = if (_elements.value.isNotEmpty()) _elements.value.first().bottomLeft else Offset.Infinite
 
     fun dequeue() {
         val tempList = _elements.value.toMutableList()
