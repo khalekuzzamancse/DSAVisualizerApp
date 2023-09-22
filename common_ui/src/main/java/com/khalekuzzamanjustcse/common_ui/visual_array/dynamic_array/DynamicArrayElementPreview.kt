@@ -3,6 +3,7 @@ package com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -41,10 +42,10 @@ fun DynamicArrayElementPreview() {
     val size = 64.dp
     val density = LocalDensity.current
     val element1 = remember {
-        DynamicArrayElement(
+        DynamicElement(
             label = "10",
             _size = mutableStateOf(size),
-            density = density
+            density = density,
         )
     }
 
@@ -63,6 +64,10 @@ fun DynamicArrayElementPreview() {
             MyButton(label = "FlipDraggable") { if (element1.draggable) element1.disableDrag() else element1.enableDrag() }
             MyButton(label = "Blink") { element1.blink() }
             MyButton(label = "StopBlink") { element1.stopBlink() }
+            MyButton(label = "BlinkBG") { element1.blinkBackground() }
+            MyButton(label = "StopBlinkBG") { element1.stopBlinkBackground() }
+            MyButton(label = "Show/HideBorder") { if (element1.shouldShowBorder) element1.hideBorder() else element1.showBorder() }
+            MyButton(label = "ChangeRectColor") { element1.changeBoundingRectColor(Color.Yellow) }
         }
 
         VisualElementComposable(
@@ -75,7 +80,7 @@ fun DynamicArrayElementPreview() {
             onDrag = element1::onDrag,
             onDragEnd = element1::onDragEnd,
             draggable = element1.draggable,
-            onClick = element1::onClick
+            onClick = element1::onClick,
         )
 
         VisualElementComposable(element1)
@@ -106,6 +111,7 @@ fun VisualElementComposable(
     onClick: () -> Unit,
     draggable: Boolean,
     onDrag: (Offset) -> Unit,
+
 
     ) {
     val offsetAnimation by animateOffsetAsState(offset, label = "")
@@ -160,11 +166,12 @@ fun VisualElementComposable(
 
 @Composable
 fun VisualElementComposable(
-    element: DynamicArrayElement
+    element: DynamicElement
 ) {
     val offsetAnimation by animateOffsetAsState(element.topLeft, label = "")
     val colorAnimation by animateColorAsState(targetValue = element.color, label = "")
     val padding = 8.dp
+//    val borderColor = if (element.color.luminance() > 0.5) Color.Black else Color.White
 
     val modifier = Modifier
         .size(element.size)
@@ -196,7 +203,17 @@ fun VisualElementComposable(
         )
 
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .background(element.backgroundColor)
+            .then(
+                if (element.shouldShowBorder)
+                    Modifier
+                        .border(width = 1.dp, color = Color.Black)
+                else
+                    Modifier
+            )
+    ) {
 
         val textColor = if (element.color.luminance() > 0.5) Color.Black else Color.White
         Text(
