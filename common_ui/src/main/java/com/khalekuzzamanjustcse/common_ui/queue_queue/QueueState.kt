@@ -40,13 +40,18 @@ class QueueState(
         get() = if (_elements.value.isNotEmpty()) _elements.value.first().bottomLeft else Offset.Infinite
 
     fun dequeue() {
+        //to showing that each element is shifting left
+        //shift all the elements and delete last element
         val tempList = _elements.value.toMutableList()
         if (tempList.isNotEmpty()) {
             val scope = CoroutineScope(Dispatchers.Default)
             scope.launch {
                 _elements.value.first().blinkBackground(2000)
                 delay(2000)
-                tempList.removeFirst()
+                for (i in 1 until tempList.size) {
+                    tempList[i - 1] = tempList[i]
+                }
+                tempList.removeLast()
                 _elements.value = tempList
             }
         }

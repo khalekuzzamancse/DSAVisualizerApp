@@ -35,6 +35,9 @@ data class DynamicElement(
         _currentPosition.value = offset
 
     }
+    fun changeOffset(offset: Offset) {
+        _offset.value=offset
+    }
 
     val bottomLeft: Offset
         get() = Offset(_currentPosition.value.x, sizePx)
@@ -51,7 +54,7 @@ data class DynamicElement(
     val boundingRectangle: BoundingRectangle
         get() = BoundingRectangle(topLeft, bottomRight)
 
-    private val sizePx: Float
+     val sizePx: Float
         get() = _size.value.value * density.density
 
 
