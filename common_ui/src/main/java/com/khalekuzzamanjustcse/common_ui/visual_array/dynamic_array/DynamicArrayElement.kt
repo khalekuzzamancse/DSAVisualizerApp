@@ -143,7 +143,7 @@ data class DynamicArrayElement(
 }
 
 @Composable
-fun DynamicArrayElementComposable(
+fun VisualElementComposable(
     label: String,
     size: Dp,
     offset: Offset,
@@ -206,3 +206,56 @@ fun DynamicArrayElementComposable(
     }
 }
 
+@Composable
+fun VisualElementComposable(
+    element: DynamicArrayElement
+) {
+    val offsetAnimation by animateOffsetAsState(element.currentOffset, label = "")
+    val colorAnimation by animateColorAsState(targetValue = element.color, label = "")
+    val padding = 8.dp
+
+    val modifier = Modifier
+        .size(element.size)
+        .offset {
+            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
+        }
+        .then(
+            if (element.draggable) {
+                Modifier.pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = element::onDragStart,
+                        onDrag = { change, dragAmount ->
+                            element.onDrag(dragAmount)
+                            change.consume()
+                        },
+                        onDragEnd = element::onDragEnd
+                    )
+                }
+            } else {
+                Modifier
+            }
+        )
+        .then(
+            if (element.clickable) {
+                Modifier.clickable { element.onClick() }
+            } else {
+                Modifier
+            }
+        )
+
+
+    Box(modifier = modifier) {
+
+        val textColor = if (element.color.luminance() > 0.5) Color.Black else Color.White
+        Text(
+            text = element.label,
+            color = textColor,
+            modifier = Modifier
+                .padding(padding)
+                .clip(CircleShape)
+                .background(colorAnimation)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+        )
+    }
+}

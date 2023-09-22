@@ -24,13 +24,11 @@ import androidx.compose.ui.unit.dp
 fun DynamicArrayElementPreview() {
     val size = 64.dp
     val sizePx = size.value * LocalDensity.current.density
-    val state by remember {
-        mutableStateOf(
-            DynamicArrayElement(
-                label = "10",
-                size = 64.dp,
-                sizePx = sizePx
-            )
+    val element1 = remember {
+        DynamicArrayElement(
+            label = "10",
+            size = 64.dp,
+            sizePx = sizePx
         )
     }
 
@@ -40,30 +38,31 @@ fun DynamicArrayElementPreview() {
             .fillMaxSize()
     ) {
         FlowRow {
-            MyButton(label = "Move(200,200)") { state.moveAt(Offset(200f, 200f)) }
-            MyButton(label = "ChangeColor") { state.changeColor(Color.Blue) }
-            MyButton(label = "ResetColor") { state.resetColor() }
-            MyButton(label = "ResetOffset") { state.resetOffset() }
-            MyButton(label = "MoveToInfinity") { state.moveAtInfinite() }
-            MyButton(label = "FlipClickable") { if (state.clickable) state.disableClick() else state.enableClick() }
-            MyButton(label = "FlipDraggable") { if (state.draggable) state.disableDrag() else state.enableDrag() }
-            MyButton(label = "Blink") {state.blink()}
-            MyButton(label = "StopBlink") {state.stopBlink()}
-
+            MyButton(label = "Move(200,200)") { element1.moveAt(Offset(200f, 200f)) }
+            MyButton(label = "ChangeColor") { element1.changeColor(Color.Blue) }
+            MyButton(label = "ResetColor") { element1.resetColor() }
+            MyButton(label = "ResetOffset") { element1.resetOffset() }
+            MyButton(label = "MoveToInfinity") { element1.moveAtInfinite() }
+            MyButton(label = "FlipClickable") { if (element1.clickable) element1.disableClick() else element1.enableClick() }
+            MyButton(label = "FlipDraggable") { if (element1.draggable) element1.disableDrag() else element1.enableDrag() }
+            MyButton(label = "Blink") { element1.blink() }
+            MyButton(label = "StopBlink") { element1.stopBlink() }
         }
 
-        DynamicArrayElementComposable(
-            label = state.label,
-            size = state.size,
-            offset = state.currentOffset,
-            color = state.color,
-            clickable = state.clickable,
-            onDragStart = state::onDragStart,
-            onDrag = state::onDrag,
-            onDragEnd = state::onDragEnd,
-            draggable = state.draggable,
-            onClick = state::onClick
+        VisualElementComposable(
+            label = element1.label,
+            size = element1.size,
+            offset = element1.currentOffset,
+            color = element1.color,
+            clickable = element1.clickable,
+            onDragStart = element1::onDragStart,
+            onDrag = element1::onDrag,
+            onDragEnd = element1::onDragEnd,
+            draggable = element1.draggable,
+            onClick = element1::onClick
         )
+
+        VisualElementComposable(element1)
     }
 
 }
