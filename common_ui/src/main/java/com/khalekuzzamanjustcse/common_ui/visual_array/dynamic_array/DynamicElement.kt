@@ -147,6 +147,21 @@ data class DynamicElement(
         }
     }
 
+    fun blink(duration: Long) {
+        if (!isBlinking) {
+            isBlinking = true
+            originalColor = _color.value
+            var till = 0L
+            blinkingJob = CoroutineScope(Dispatchers.Default).launch {
+                while (till < duration) {
+                    _color.value = randomColor()
+                    delay(500)
+                    till += 500
+                }
+            }
+        }
+    }
+
     fun stopBlink() {
         isBlinking = false
         blinkingJob?.cancel()
@@ -154,6 +169,7 @@ data class DynamicElement(
     }
 
     fun blinkBackground() {
+
         if (!isBlinkingBackground) {
             isBlinkingBackground = true
             blinkingBackgroundJob = CoroutineScope(Dispatchers.Default).launch {
@@ -161,6 +177,24 @@ data class DynamicElement(
                     _boundingRectangleColor.value = randomColor()
                     delay(500)
                 }
+            }
+        }
+    }
+
+    fun blinkBackground(
+        duration: Long,
+        scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    ) {
+        if (!isBlinkingBackground) {
+            isBlinkingBackground = true
+            var till = 0L
+            blinkingBackgroundJob = scope.launch {
+                while (till < duration) {
+                    _boundingRectangleColor.value = randomColor()
+                    delay(200)
+                    till += 200
+                }
+                isBlinkingBackground = false
             }
         }
     }

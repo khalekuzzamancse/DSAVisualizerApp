@@ -88,16 +88,6 @@ fun DynamicArrayElementPreview() {
 
 }
 
-@Composable
-private fun MyButton(
-    label: String,
-    onClick: () -> Unit,
-) {
-    Button(onClick = onClick) {
-        Text(text = label)
-    }
-
-}
 
 @Composable
 fun VisualElementComposable(

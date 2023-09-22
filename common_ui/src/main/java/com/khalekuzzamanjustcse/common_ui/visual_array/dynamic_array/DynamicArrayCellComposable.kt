@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -37,6 +39,9 @@ fun VisualArrayCellComposablePreview() {
     val size = 64.dp
     val density = LocalDensity.current
     val cell1 = remember {
+        DynamicArrayCell(size = size, density = density)
+    }
+    val cell2 = remember {
         DynamicArrayCell(size = size, density = density)
     }
 
@@ -63,6 +68,7 @@ fun VisualArrayCellComposablePreview() {
 
         FlowRow {
             VisualArrayCellComposable(cell = cell1)
+            VisualArrayCellComposable(cell = cell2)
         }
     }
 
@@ -79,7 +85,6 @@ fun VisualArrayCellComposable(
             IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
         }
 
-    Box(modifier = modifier) {
         val borderColor = if (cell.color.luminance() > 0.5) Color.White else Color.Black
         Box(
             modifier = modifier
@@ -94,14 +99,11 @@ fun VisualArrayCellComposable(
                 .onGloballyPositioned { position ->
                     cell.onPositionChanged(position.positionInParent())
                 }
-
-
         )
-    }
 }
 
 @Composable
-private fun MyButton(
+fun MyButton(
     label: String,
     onClick: () -> Unit,
 ) {
