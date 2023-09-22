@@ -104,7 +104,7 @@ fun GraphBuilder(
                     node.onDrag(it)
                 },
                 color = node.color.value,
-                onLongClick = {
+                onNodeClick = {
                     graph.onNodeLongClick(i)
                 }
             )

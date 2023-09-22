@@ -5,9 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.khalekuzzamanjustcse.common_ui.visual_array.static_array.ArrayComposableState
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.DraggableGraphNode
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.Graph
-import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposableState
+
 
 data class Neighbours<T>(
     val nodeIndexRef: Int,
@@ -24,6 +25,7 @@ data class GraphState(
     var isInputMode by mutableStateOf(true)
     private var showPopupWindow by mutableStateOf(false)
     private var unVisitedNeighboursOrder by mutableStateOf(emptyList<Int>())
+
 
     private var neighbourSelectedModeOn by mutableStateOf(true)
     private var iterator by mutableStateOf<Iterator<SimulationState>?>(null)
@@ -150,7 +152,7 @@ data class GraphState(
                                 )
                             }
 
-                        if (unVisitedNeighbors.size>1) {
+                        if (unVisitedNeighbors.isNotEmpty()) {
                             arrayComposableState =
                                 ArrayComposableState(
                                     list = unVisitedNeighbors,

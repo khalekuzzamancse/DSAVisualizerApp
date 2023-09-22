@@ -15,8 +15,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposable
-import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposableState
+import com.khalekuzzamanjustcse.common_ui.visual_array.static_array.ArrayComposable
+import com.khalekuzzamanjustcse.common_ui.visual_array.static_array.ArrayComposableState
 
 @Preview
 @Composable
@@ -27,12 +27,12 @@ fun PopupWithRadioButtonsPreview() {
     val state = remember {
         ArrayComposableState(list = listOf(1, 2, 3, 4, 5), cellSizePx = cellSizePx)
     }
-    PopupWithRadioButtons<Int>(
-        state = state,
-        isOpen = true,
-    ) {
-        Log.i("OnListReOrdered", "${state.cellsCurrentElements.filterNotNull()}")
-    }
+//    PopupWithRadioButtons(
+//        state = state,
+//        isOpen = true,
+//    ) {
+//        Log.i("OnListReOrdered", "${state.cellsCurrentElements.filterNotNull()}")
+//    }
 
 }
 
@@ -56,7 +56,7 @@ fun <T> PopupWithRadioButtons(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    ArrayComposable(
+                  ArrayComposable(
                         modifier = Modifier,
                         cellSize = cellSize,
                         onCellPositionChanged = state::onCellPositionChanged,

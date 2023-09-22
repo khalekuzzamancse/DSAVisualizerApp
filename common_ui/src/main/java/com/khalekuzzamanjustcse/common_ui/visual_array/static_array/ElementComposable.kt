@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization.graph_input
+package com.khalekuzzamanjustcse.common_ui.visual_array.static_array
 
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
@@ -56,7 +56,7 @@ fun GraphNodeComposablePreview() {
     //
     Column(modifier = Modifier.fillMaxSize()) {
 
-        GraphNodeComposable(
+        ElementComposable(
             label = "5",
             size = 64.dp,
             currentOffset = offset,
@@ -69,7 +69,7 @@ fun GraphNodeComposablePreview() {
 }
 
 @Composable
-fun GraphNodeComposable(
+fun ElementComposable(
     label: String,
     size: Dp,
     color: Color = Color.Red,

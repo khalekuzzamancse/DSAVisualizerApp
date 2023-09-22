@@ -98,7 +98,7 @@ fun GraphWithEdges() {
                     positions[index].value = it.positionInRoot()
                     Log.i("PositionChanged:$index :", "${it.positionInRoot()}")
                 },
-                onLongClick = {
+                onNodeClick = {
                     if (u == -1)
                         u = index
                     else if (v == -1 && u != index)

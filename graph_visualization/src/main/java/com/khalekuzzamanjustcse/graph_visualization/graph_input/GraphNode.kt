@@ -73,7 +73,7 @@ class Graph<T> {
 
     fun changeNodeColor(nodeRef: Int, color: Color) {
         if (nodeRef >= 0 && nodeRef < _nodes.value.size) {
-            //avoid copy the node,modify the origal reference
+            //avoid copy the node,modify the original reference
             _nodes.value[nodeRef].color.value = color
         }
     }
