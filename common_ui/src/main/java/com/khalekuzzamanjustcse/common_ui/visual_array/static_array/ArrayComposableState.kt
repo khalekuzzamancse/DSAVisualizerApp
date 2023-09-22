@@ -3,7 +3,8 @@ package com.khalekuzzamanjustcse.common_ui.visual_array.static_array
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
-import com.khalekuzzamanjustcse.common_ui.visual_array.SnapUtils
+import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.SnapUtils
+
 
 data class ArrayElement<T>(
     val position: MutableState<Offset> = mutableStateOf(Offset.Zero),

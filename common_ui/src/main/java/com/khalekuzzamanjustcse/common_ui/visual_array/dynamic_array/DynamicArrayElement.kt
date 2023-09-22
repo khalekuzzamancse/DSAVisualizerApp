@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array
 
+import android.util.Range
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
@@ -25,6 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -36,27 +38,48 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
+
+
 data class DynamicArrayElement(
     val label: String,
-    val size: Dp,
-    val sizePx: Float,
+    private val _size: MutableState<Dp>,
+    val density: Density,
     private val _offset: MutableState<Offset> = mutableStateOf(Offset.Zero),
     private val _color: MutableState<Color> = mutableStateOf(Color.Red),
     private val _clickable: MutableState<Boolean> = mutableStateOf(false),
-    private val _draggable: MutableState<Boolean> = mutableStateOf(true)
-) {
+    private val _draggable: MutableState<Boolean> = mutableStateOf(true),
+
+    ) {
+
+    val size: Dp
+        get() = _size.value
+    val topLeft: Offset
+        get() = _offset.value
+    val center: Offset
+        get() = _offset.value + Offset(sizePx / 2, sizePx / 2)
+    private val bottomRight: Offset
+        get() = _offset.value + Offset(sizePx, sizePx)
+    val boundingRectangle:BoundingRectangle
+    get() = BoundingRectangle(topLeft,bottomRight)
+
+    private val sizePx: Float
+        get() = _size.value.value * density.density
+
+
 
     private var blinkingJob: Job? = null
     private var isBlinking by mutableStateOf(false)
     private var originalColor by mutableStateOf(Color.Red)
-    val currentOffset: Offset
-        get() = _offset.value
+
     val color: Color
         get() = _color.value
     val clickable: Boolean
         get() = _clickable.value
     val draggable: Boolean
         get() = _draggable.value
+    private var _dragStartFrom: Offset = _offset.value
+    val dragStartFrom: Offset
+        get() = _dragStartFrom
 
 
     fun enableDrag() {
@@ -82,7 +105,7 @@ data class DynamicArrayElement(
     }
 
     fun onDragStart(offset: Offset) {
-
+        _dragStartFrom = offset
     }
 
     fun onDragEnd() {
@@ -139,123 +162,5 @@ data class DynamicArrayElement(
         return Color(red, green, blue)
     }
 
-
 }
 
-@Composable
-fun VisualElementComposable(
-    label: String,
-    size: Dp,
-    offset: Offset,
-    color: Color,
-    clickable: Boolean,
-    onDragStart: (Offset) -> Unit,
-    onDragEnd: () -> Unit,
-    onClick: () -> Unit,
-    draggable: Boolean,
-    onDrag: (Offset) -> Unit,
-
-    ) {
-    val offsetAnimation by animateOffsetAsState(offset, label = "")
-    val colorAnimation by animateColorAsState(targetValue = color, label = "")
-    val padding = 8.dp
-
-    val modifier = Modifier
-        .size(size)
-        .offset {
-            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
-        }
-        .then(
-            if (draggable) {
-                Modifier.pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = onDragStart,
-                        onDrag = { change, dragAmount ->
-                            onDrag(dragAmount)
-                            change.consume()
-                        },
-                        onDragEnd = onDragEnd
-                    )
-                }
-            } else {
-                Modifier
-            }
-        )
-        .then(
-            if (clickable) {
-                Modifier.clickable { onClick() }
-            } else {
-                Modifier
-            }
-        )
-
-
-    Box(modifier = modifier) {
-
-        val textColor = if (color.luminance() > 0.5) Color.Black else Color.White
-        Text(
-            text = label,
-            color = textColor,
-            modifier = Modifier
-                .padding(padding)
-                .clip(CircleShape)
-                .background(colorAnimation)
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
-    }
-}
-
-@Composable
-fun VisualElementComposable(
-    element: DynamicArrayElement
-) {
-    val offsetAnimation by animateOffsetAsState(element.currentOffset, label = "")
-    val colorAnimation by animateColorAsState(targetValue = element.color, label = "")
-    val padding = 8.dp
-
-    val modifier = Modifier
-        .size(element.size)
-        .offset {
-            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
-        }
-        .then(
-            if (element.draggable) {
-                Modifier.pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = element::onDragStart,
-                        onDrag = { change, dragAmount ->
-                            element.onDrag(dragAmount)
-                            change.consume()
-                        },
-                        onDragEnd = element::onDragEnd
-                    )
-                }
-            } else {
-                Modifier
-            }
-        )
-        .then(
-            if (element.clickable) {
-                Modifier.clickable { element.onClick() }
-            } else {
-                Modifier
-            }
-        )
-
-
-    Box(modifier = modifier) {
-
-        val textColor = if (element.color.luminance() > 0.5) Color.Black else Color.White
-        Text(
-            text = element.label,
-            color = textColor,
-            modifier = Modifier
-                .padding(padding)
-                .clip(CircleShape)
-                .background(colorAnimation)
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-        )
-    }
-}

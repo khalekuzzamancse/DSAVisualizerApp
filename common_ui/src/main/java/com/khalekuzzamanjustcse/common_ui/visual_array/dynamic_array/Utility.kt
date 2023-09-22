@@ -1,7 +1,29 @@
-package com.khalekuzzamanjustcse.common_ui.visual_array
+package com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array
 
+import android.util.Range
 import androidx.compose.ui.geometry.Offset
 import kotlin.math.abs
+
+data class BoundingRectangle(
+    val topLeft: Offset,
+    val bottomRight: Offset
+) {
+    private val xRange: Range<Float>
+        get() = Range(topLeft.x, bottomRight.x)
+    private val yRange: Range<Float>
+        get() = Range(topLeft.y, bottomRight.y)
+    val center: Offset
+        get() = Offset((topLeft.x + bottomRight.x) / 2, (topLeft.y + bottomRight.y) / 2)
+
+
+    fun isInside(offset: Offset) = offset.x in xRange && offset.y in yRange
+    fun isOverlapping(other: BoundingRectangle): Boolean {
+        return xRange.contains(other.topLeft.x) || other.xRange.contains(topLeft.x) &&
+                yRange.contains(other.topLeft.y) || other.yRange.contains(topLeft.y)
+    }
+
+
+}
 
 class SnapUtils(
     private val cellsPosition:List<Offset>,

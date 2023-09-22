@@ -1,21 +1,37 @@
 package com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateOffsetAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -23,12 +39,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DynamicArrayElementPreview() {
     val size = 64.dp
-    val sizePx = size.value * LocalDensity.current.density
+    val density = LocalDensity.current
     val element1 = remember {
         DynamicArrayElement(
             label = "10",
-            size = 64.dp,
-            sizePx = sizePx
+            _size = mutableStateOf(size),
+            density = density
         )
     }
 
@@ -52,7 +68,7 @@ fun DynamicArrayElementPreview() {
         VisualElementComposable(
             label = element1.label,
             size = element1.size,
-            offset = element1.currentOffset,
+            offset = element1.topLeft,
             color = element1.color,
             clickable = element1.clickable,
             onDragStart = element1::onDragStart,
@@ -76,4 +92,122 @@ private fun MyButton(
         Text(text = label)
     }
 
+}
+
+@Composable
+fun VisualElementComposable(
+    label: String,
+    size: Dp,
+    offset: Offset,
+    color: Color,
+    clickable: Boolean,
+    onDragStart: (Offset) -> Unit,
+    onDragEnd: () -> Unit,
+    onClick: () -> Unit,
+    draggable: Boolean,
+    onDrag: (Offset) -> Unit,
+
+    ) {
+    val offsetAnimation by animateOffsetAsState(offset, label = "")
+    val colorAnimation by animateColorAsState(targetValue = color, label = "")
+    val padding = 8.dp
+
+    val modifier = Modifier
+        .size(size)
+        .offset {
+            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
+        }
+        .then(
+            if (draggable) {
+                Modifier.pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = onDragStart,
+                        onDrag = { change, dragAmount ->
+                            onDrag(dragAmount)
+                            change.consume()
+                        },
+                        onDragEnd = onDragEnd
+                    )
+                }
+            } else {
+                Modifier
+            }
+        )
+        .then(
+            if (clickable) {
+                Modifier.clickable { onClick() }
+            } else {
+                Modifier
+            }
+        )
+
+
+    Box(modifier = modifier) {
+
+        val textColor = if (color.luminance() > 0.5) Color.Black else Color.White
+        Text(
+            text = label,
+            color = textColor,
+            modifier = Modifier
+                .padding(padding)
+                .clip(CircleShape)
+                .background(colorAnimation)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun VisualElementComposable(
+    element: DynamicArrayElement
+) {
+    val offsetAnimation by animateOffsetAsState(element.topLeft, label = "")
+    val colorAnimation by animateColorAsState(targetValue = element.color, label = "")
+    val padding = 8.dp
+
+    val modifier = Modifier
+        .size(element.size)
+        .offset {
+            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
+        }
+        .then(
+            if (element.draggable) {
+                Modifier.pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = element::onDragStart,
+                        onDrag = { change, dragAmount ->
+                            element.onDrag(dragAmount)
+                            change.consume()
+                        },
+                        onDragEnd = element::onDragEnd
+                    )
+                }
+            } else {
+                Modifier
+            }
+        )
+        .then(
+            if (element.clickable) {
+                Modifier.clickable { element.onClick() }
+            } else {
+                Modifier
+            }
+        )
+
+
+    Box(modifier = modifier) {
+
+        val textColor = if (element.color.luminance() > 0.5) Color.Black else Color.White
+        Text(
+            text = element.label,
+            color = textColor,
+            modifier = Modifier
+                .padding(padding)
+                .clip(CircleShape)
+                .background(colorAnimation)
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+        )
+    }
 }
