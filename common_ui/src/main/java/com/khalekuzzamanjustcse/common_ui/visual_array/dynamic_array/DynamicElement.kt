@@ -36,7 +36,7 @@ data class DynamicElement(
 
     }
     fun changeOffset(offset: Offset) {
-        _offset.value=offset
+        _offset.value+=offset
     }
 
     val bottomLeft: Offset
