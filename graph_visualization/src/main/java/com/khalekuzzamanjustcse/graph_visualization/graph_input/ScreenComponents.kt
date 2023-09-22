@@ -6,6 +6,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AirlineStops
+import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.DoneOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NextPlan
@@ -33,6 +34,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.khalekuzzamanjustcse.common_ui.CustomDropDownMenu
+import com.khalekuzzamanjustcse.graph_visualization.GraphTraversalOption
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,8 +45,10 @@ fun GraphBuilderScreenTopAppbar(
     isOnInputMode: Boolean = true,
     onNodeAdded: (String) -> Unit,
     onInputComplete: () -> Unit,
-    onNextClick:()-> Unit={},
-    onNeighbourSelectedModeClick:()-> Unit,
+    onNextClick: () -> Unit = {},
+    onNeighbourSelectedModeClick: () -> Unit,
+    traversalOptions: List<GraphTraversalOption>,
+    onTraversalOptionsSelected: (Int) -> Unit,
     onAddEdgeClick: () -> Unit
 ) {
 
@@ -68,7 +74,7 @@ fun GraphBuilderScreenTopAppbar(
             }
         },
         actions = {
-            if(isOnInputMode){
+            if (isOnInputMode) {
                 NodeValueInputer() { onNodeAdded(it) }
                 IconButton(onClick = onAddEdgeClick) {
                     Icon(
@@ -83,8 +89,9 @@ fun GraphBuilderScreenTopAppbar(
                     )
                 }
 
-            }
-            else{
+            } else {
+
+
                 IconButton(onClick = onNextClick) {
                     Icon(
                         imageVector = Icons.Filled.NextPlan,
@@ -97,12 +104,13 @@ fun GraphBuilderScreenTopAppbar(
                         contentDescription = "next"
                     )
                 }
+                CustomDropDownMenu(
+                    icon = Icons.Default.ArrowCircleDown,
+                    options = traversalOptions,
+                    onItemClick = onTraversalOptionsSelected
+                )
+
             }
-
-
-
-
-
 
 
         }

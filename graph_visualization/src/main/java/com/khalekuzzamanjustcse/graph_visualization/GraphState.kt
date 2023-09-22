@@ -89,6 +89,9 @@ data class GraphState(
         )
         showPopupWindow = false
     }
+    fun onTraversalOptionChanged(option: GraphTraversalOption){
+
+    }
 
     private fun createGraphDemo() {
         graph = Graph(

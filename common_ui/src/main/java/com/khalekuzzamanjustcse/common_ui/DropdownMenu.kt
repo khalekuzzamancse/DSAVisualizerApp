@@ -11,9 +11,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +62,10 @@ fun CustomDropDownMenuPreview() {
                     ) { index ->
                         Log.i("ClickedItem: ", "${options[index]}")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
+                )
             )
         }
     ) { paddingValues ->
@@ -76,7 +82,7 @@ fun CustomDropDownMenu(
     modifier: Modifier = Modifier,
     icon: ImageVector,
     options: List<DropdownMenuOption>,
-    offset: DpOffset = DpOffset(0.dp, (-200).dp),
+    offset: DpOffset = DpOffset(0.dp,0.dp),
     onItemClick: (index: Int) -> Unit,
 ) {
     var expanded by remember {
