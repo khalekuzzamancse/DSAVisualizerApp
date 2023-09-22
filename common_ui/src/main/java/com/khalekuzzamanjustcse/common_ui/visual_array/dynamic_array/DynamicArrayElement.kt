@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 
 data class DynamicArrayElement(
@@ -39,7 +46,9 @@ data class DynamicArrayElement(
     private val _draggable: MutableState<Boolean> = mutableStateOf(true)
 ) {
 
-
+    private var blinkingJob: Job? = null
+    private var isBlinking by mutableStateOf(false)
+    private var originalColor by mutableStateOf(Color.Red)
     val currentOffset: Offset
         get() = _offset.value
     val color: Color
@@ -48,6 +57,7 @@ data class DynamicArrayElement(
         get() = _clickable.value
     val draggable: Boolean
         get() = _draggable.value
+
 
     fun enableDrag() {
         _draggable.value = true
@@ -102,6 +112,33 @@ data class DynamicArrayElement(
     fun onClick() {
 
     }
+
+    fun blink() {
+        if (!isBlinking) {
+            isBlinking = true
+            originalColor = _color.value
+            blinkingJob = CoroutineScope(Dispatchers.Default).launch {
+                while (isBlinking) {
+                    _color.value = randomColor()
+                    delay(500)
+                }
+            }
+        }
+    }
+
+    fun stopBlink() {
+        isBlinking = false
+        blinkingJob?.cancel()
+        _color.value = originalColor // Restore the original color
+    }
+
+    private fun randomColor(): Color {
+        val red = Random.nextFloat()
+        val green = Random.nextFloat()
+        val blue = Random.nextFloat()
+        return Color(red, green, blue)
+    }
+
 
 }
 

@@ -47,6 +47,9 @@ fun DynamicArrayElementPreview() {
             MyButton(label = "MoveToInfinity") { state.moveAtInfinite() }
             MyButton(label = "FlipClickable") { if (state.clickable) state.disableClick() else state.enableClick() }
             MyButton(label = "FlipDraggable") { if (state.draggable) state.disableDrag() else state.enableDrag() }
+            MyButton(label = "Blink") {state.blink()}
+            MyButton(label = "StopBlink") {state.stopBlink()}
+
         }
 
         DynamicArrayElementComposable(
