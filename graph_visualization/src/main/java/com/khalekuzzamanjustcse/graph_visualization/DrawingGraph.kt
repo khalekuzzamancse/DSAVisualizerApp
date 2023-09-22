@@ -34,10 +34,10 @@ fun GraphBuilderPreview() {
         topBar = {
             GraphBuilderScreenTopAppbar(
                 title = "Graph",
-                onNodeAdded = graphState::onAddNode,
+                onNodeAdded = graphState::onAddNodeRequest,
                 onAddEdgeClick = graphState::onAddEdgeIconClick,
-                isOnInputMode = graphState.inputModeOn,
-                onInputComplete = graphState::onInputComplete,
+                isOnInputMode = graphState.isInputMode,
+                onInputComplete = graphState::onInputFinished,
                 onNextClick = { graphState.onNext() },
                 onNeighbourSelectedModeClick = graphState::onNeighbourSelectedModeChangeRequest
             )
@@ -56,7 +56,7 @@ fun GraphBuilderPreview() {
             )
             PopupWithRadioButtons(
                 isOpen = graphState.openNeighboursSelectedPopup,
-                state = graphState.state,
+                state = graphState.arrayComposableState,
                 onListReOrdered =graphState::onNeighbourOrderSelected
             )
         }

@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.graph_visualization
 
+import android.util.Log
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNode
 
 
@@ -53,19 +54,18 @@ fun bfs(
         }
         yield(SelectChild(unVisitedNeighbours.distinct()))
         val selectedOrder = onUnVisitedNeighborsOrderSelected()
-//        Log.i("UnvisitedNeighbor:Received", "$selectedOrder")
+        Log.i("TRAVERSING:NeighbourReceived", "$selectedOrder")
         yield(Paused)
         yield(Paused)
-        val neighborsSelectModeOn=selectedOrder.isNotEmpty()
-        if(neighborsSelectModeOn){
+        val neighborsSelectModeOn = selectedOrder.isNotEmpty()
+        if (neighborsSelectModeOn) {
             for (neighborIndex in selectedOrder) {
                 if (neighborIndex !in visited) {
                     queue.add(neighborIndex)
                     visited.add(neighborIndex)
                 }
             }
-        }
-        else{
+        } else {
             for (neighborIndex in neighbors) {
                 if (neighborIndex !in visited) {
                     queue.add(neighborIndex)
@@ -82,23 +82,3 @@ fun bfs(
     yield(Finished)
 }
 
-
-fun <T> dfsTraversal(startNode: GraphNode<T>, visitAction: (GraphNode<T>) -> Unit) {
-    val visited = mutableSetOf<GraphNode<T>>()
-    val stack = mutableListOf<GraphNode<T>>()
-
-    stack.add(startNode)
-    visited.add(startNode)
-
-    while (stack.isNotEmpty()) {
-        val currentNode = stack.removeAt(stack.size - 1)
-        visitAction(currentNode)
-
-//        for (neighbor in currentNode.neighbors.asReversed()) {
-//            if (neighbor !in visited) {
-//                stack.add(neighbor)
-//                visited.add(neighbor)
-//            }
-//        }
-    }
-}

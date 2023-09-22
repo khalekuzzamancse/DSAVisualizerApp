@@ -1,13 +1,10 @@
 package com.khalekuzzamanjustcse.graph_visualization
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.DraggableGraphNode
 import com.khalekuzzamanjustcse.graph_visualization.graph_input.Graph
 import com.khalekuzzamanjustcse.graph_visualization.swap_able_array.ArrayComposableState
@@ -24,23 +21,24 @@ data class Neighbours<T>(
 data class GraphState(
     val nodeSizePX: Float
 ) {
-    var inputModeOn by mutableStateOf(true)
-    var showPicker by mutableStateOf(false)
-    var unVisitedNeigboursOrder by mutableStateOf(emptyList<Int>())
+    var isInputMode by mutableStateOf(true)
+    private var showPopupWindow by mutableStateOf(false)
+    private var unVisitedNeighboursOrder by mutableStateOf(emptyList<Int>())
 
-    var neighbourSelectedModeOn by mutableStateOf(true)
-    var bfsIterator by mutableStateOf<Iterator<SimulationState>?>(null)
+    private var neighbourSelectedModeOn by mutableStateOf(true)
+    private var iterator by mutableStateOf<Iterator<SimulationState>?>(null)
+
     var graph by mutableStateOf(Graph<Int>())
-    var state by mutableStateOf(ArrayComposableState<Neighbours<Int>>(emptyList(), nodeSizePX))
+    var arrayComposableState by mutableStateOf(ArrayComposableState<Neighbours<Int>>(emptyList(), nodeSizePX))
     val openNeighboursSelectedPopup: Boolean
-        get() = neighbourSelectedModeOn && showPicker
+        get() = neighbourSelectedModeOn && showPopupWindow
 
 
     init {
         createGraphDemo()
     }
 
-    fun onAddNode(it: String) {
+    fun onAddNodeRequest(it: String) {
         try {
             val value = it.toInt()
             val node = DraggableGraphNode(value = value, sizePx = nodeSizePX)
@@ -59,8 +57,8 @@ data class GraphState(
         }
     }
 
-    fun onInputComplete() {
-        inputModeOn = false
+    fun onInputFinished() {
+        isInputMode = false
     }
 
     fun onNeighbourSelectedModeChangeRequest() {
@@ -68,29 +66,29 @@ data class GraphState(
     }
 
 
-    fun onNeigboursOrderSelected(): List<Int> {
+    private fun onNeighboursOrderSelected(): List<Int> {
         return if (neighbourSelectedModeOn)
-            unVisitedNeigboursOrder
+            unVisitedNeighboursOrder
         else
             emptyList()
     }
 
     fun onNeighbourOrderSelected() {
-        unVisitedNeigboursOrder = state
+        unVisitedNeighboursOrder = arrayComposableState
             .cellsCurrentElements
             .filterNotNull()
             .map { neighbour -> neighbour.nodeIndexRef }
         Log.i(
-            "RecoredList",
+            "RecordList",
             "${
-                state.cellsCurrentElements.filterNotNull()
+                arrayComposableState.cellsCurrentElements.filterNotNull()
                     .map { neighbour -> neighbour.nodeIndexRef }
             }"
         )
-        showPicker = false
+        showPopupWindow = false
     }
 
-    fun createGraphDemo() {
+    private fun createGraphDemo() {
         graph = Graph(
             DraggableGraphNode(value = 10, sizePx = nodeSizePX),
             DraggableGraphNode(value = 20, sizePx = nodeSizePX),
@@ -103,20 +101,16 @@ data class GraphState(
 
     }
 
-    fun updateState(list: List<Neighbours<Int>>) {
-        state = ArrayComposableState(list = list, cellSizePx = nodeSizePX)
-    }
-
 
     val onNext: () -> Unit = {
-        if (bfsIterator == null)
-            bfsIterator = bfs(
+        if (iterator == null)
+            iterator = bfs(
                 adjacencyListOfNodeReference = graph.adjacencyListNodeRef,
-                onUnVisitedNeighborsOrderSelected = ::onNeigboursOrderSelected
+                onUnVisitedNeighborsOrderSelected = ::onNeighboursOrderSelected
             ).iterator()
         else {
-            if (bfsIterator!!.hasNext()) {
-                when (val currentState = bfsIterator!!.next()) {
+            if (iterator!!.hasNext()) {
+                when (val currentState = iterator!!.next()) {
                     Started -> {
                         Log.i("TRAVERSING:BFS", "Started")
                     }
@@ -143,6 +137,7 @@ data class GraphState(
                                     )
                                 )
                             }
+                            Log.i("TRAVERSING:SelectChild", "$unVisitedNeighbors")
 
                         }
                         currentState.unVisitedNeighboursRef
@@ -155,13 +150,13 @@ data class GraphState(
                                 )
                             }
 
-                        if (unVisitedNeighbors.isNotEmpty()) {
-                            state =
+                        if (unVisitedNeighbors.size>1) {
+                            arrayComposableState =
                                 ArrayComposableState(
                                     list = unVisitedNeighbors,
                                     cellSizePx = nodeSizePX
                                 )
-                            showPicker = true
+                            showPopupWindow = true
                         }
 
                     }
