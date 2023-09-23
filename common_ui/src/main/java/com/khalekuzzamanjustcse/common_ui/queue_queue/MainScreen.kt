@@ -48,9 +48,6 @@ class LinearDSViewModel(
     private val linkedListViewModel = LinkedListViewModel(density)
 
 
-
-
-
     //end
     private var currentScreen: Screen = LinkedListScreen
     private var currentTopAppbar = mutableStateOf(linkedListViewModel.topAppbarData)
@@ -74,16 +71,17 @@ class LinearDSViewModel(
             currentScreen = QueueScreen
             currentTopAppbar.value = queueViewModel.topAppbarData
             //initial the queue with some items
-            if(queueViewModel.queueState.element.isEmpty())
+            if (queueViewModel.queueState.element.isEmpty())
                 for (i in 5 until 11)
                     queueViewModel.queueState.enqueue("$i")
 
         } else if (isStackScreen(item)) {
             currentScreen = StackScreen
             currentTopAppbar.value = stackViewModel.topAppbarData
-            if(stackViewModel.stateState.stackElement.isEmpty())
+            //
+            if (stackViewModel.stateState.stackElement.isEmpty())
                 for (i in 5 until 11)
-                    queueViewModel.queueState.enqueue("${5 * i}")
+                    stackViewModel.stateState.push("${5 * i}")
         }
     }
 
@@ -96,7 +94,7 @@ class LinearDSViewModel(
 @Composable
 fun LinearDataStructureScreen(
     onDestinationClick: (String) -> Unit,
-    viewModel:LinearDSViewModel,
+    viewModel: LinearDSViewModel,
     currentScreen: @Composable (PaddingValues) -> Unit,
 ) {
     CommonScreenLayout(
