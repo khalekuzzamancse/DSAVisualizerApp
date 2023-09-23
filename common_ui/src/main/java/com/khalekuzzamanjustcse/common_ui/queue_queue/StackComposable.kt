@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -23,9 +24,9 @@ import com.khalekuzzamanjustcse.common_ui.visual_array.CellPointerComposable
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.VisualElementComposable
 
 @OptIn(ExperimentalLayoutApi::class)
-@Preview
+
 @Composable
-fun StackComposablePreview() {
+fun StackComposablePreview(scaffoldPadding: PaddingValues = PaddingValues(0.dp)) {
     val size = 64.dp
     val density = LocalDensity.current
     var cnt by remember {
@@ -37,7 +38,7 @@ fun StackComposablePreview() {
     }
     Column(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(scaffoldPadding)
     ) {
         FlowRow {
             MyButton(label = "Push") {

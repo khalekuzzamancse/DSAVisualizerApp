@@ -1,6 +1,7 @@
 package com.khalekuzzamanjustcse.dsavisulizer.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,7 +31,11 @@ fun LinearDSScreenSwitch(
     val navController = rememberNavController()
     val navigationActions = NavigationActions(navController)
     LinearDataStructureScreen(onDestinationClick = navigationActions::navigateTo) {
-        LinearDSNavGraph(navController,onNavigationIconClick)
+        LinearDSNavGraph(
+            navController,
+            onNavigationIconClick,
+            scaffoldPadding = it
+        )
     }
 
 }
@@ -51,7 +57,7 @@ private fun LinearDSScreenNavigationPreview() {
         }) {
             Text(text = "ChangeScreen")
         }
-        LinearDSNavGraph(navController,{})
+        LinearDSNavGraph(navController, {})
     }
 
 }
@@ -60,20 +66,23 @@ private fun LinearDSScreenNavigationPreview() {
 fun LinearDSNavGraph(
     navController: NavHostController,
     onNavigationIconClick: () -> Unit,
+    scaffoldPadding:PaddingValues = PaddingValues(0.dp),
 ) {
     NavHost(
         navController = navController,
         route = TopLevelDestinations.LINEAR_DATA_STRUCTURE,
-        startDestination = LinearDSDestinations.STACK_SCREEN
+        startDestination = LinearDSDestinations.LINKED_LIST_SCREEN
     ) {
+        composable(route = LinearDSDestinations.LINKED_LIST_SCREEN) {
+            UnderConstructionScreen(
+                onNavigationIconClick = onNavigationIconClick)
+        }
         composable(route = LinearDSDestinations.STACK_SCREEN) {
-            StackComposablePreview()
+            StackComposablePreview(scaffoldPadding)
         }
         composable(route = LinearDSDestinations.QUEUE_SCREEN) {
-            QueueComposablePreview()
+            QueueComposablePreview(scaffoldPadding)
         }
-        composable(route = LinearDSDestinations.LINKED_LIST_SCREEN) {
-            UnderConstructionScreen(onNavigationIconClick = onNavigationIconClick)
-        }
+
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -26,9 +27,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
-@Preview
+
 @Composable
-fun QueueComposablePreview() {
+fun QueueComposablePreview(scaffoldPadding: PaddingValues = PaddingValues(0.dp)) {
     val size = 64.dp
     val density = LocalDensity.current
     var cnt by remember {
@@ -40,7 +41,7 @@ fun QueueComposablePreview() {
     }
     Column(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(scaffoldPadding)
             .fillMaxSize()
 
     ) {
@@ -65,7 +66,7 @@ fun QueueComposablePreview() {
 fun QueueComposable(
     state: QueueState
 ) {
-    Box{
+    Box {
         FlowRow(
             modifier = Modifier.border(width = 2.dp, color = Color.Black)
         ) {
@@ -86,7 +87,6 @@ fun QueueComposable(
             currentPosition = state.frontPointerPosition
         )
     }
-
 
 
 }

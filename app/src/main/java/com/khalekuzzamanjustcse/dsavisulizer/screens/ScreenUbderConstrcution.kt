@@ -3,6 +3,7 @@ package com.khalekuzzamanjustcse.dsavisulizer.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -42,7 +43,9 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UnderConstructionScreen(onNavigationIconClick: () -> Unit) {
+fun UnderConstructionScreen(
+    onNavigationIconClick: () -> Unit
+) {
     var color by remember {
         mutableStateOf(randomColor())
     }

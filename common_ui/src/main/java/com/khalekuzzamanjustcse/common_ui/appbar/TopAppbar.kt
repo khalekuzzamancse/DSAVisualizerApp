@@ -53,8 +53,9 @@ class TopAppbarState {
     )
     val data: TopAppbarData
         get() = _data
-    fun changeTopAppbar(){
-        _data=TopAppbarData(
+
+    fun changeTopAppbar() {
+        _data = TopAppbarData(
             title = "World Hello!",
             elevation = 8.dp,
             navigationIcon = AppbarItem(label = "Back Arrow", icon = Icons.Filled.ArrowBack),
@@ -75,7 +76,7 @@ fun CommonTopAppbarPreview() {
     val topAppbarState = remember {
         TopAppbarState()
     }
-    
+
     Scaffold(
         topBar = {
             CommonTopAppbar(topAppbarState.data) {
@@ -84,8 +85,8 @@ fun CommonTopAppbarPreview() {
         }
     ) {
         Column(modifier = Modifier.padding(it)) {
-            Button(onClick = { topAppbarState.changeTopAppbar()}) {
-               Text(text = "Change Top Appbar")
+            Button(onClick = { topAppbarState.changeTopAppbar() }) {
+                Text(text = "Change Top Appbar")
             }
         }
     }
@@ -94,7 +95,7 @@ fun CommonTopAppbarPreview() {
 data class TopAppbarData(
     val title: String,
     val titleFontSize: TextUnit = TextUnit.Unspecified,
-    val navigationIcon: IconComponent ?=null,
+    val navigationIcon: IconComponent? = null,
     val elevation: Dp,
     val actions: List<IconComponent> = emptyList()
 )
@@ -117,19 +118,20 @@ fun CommonTopAppbar(
                 overflow = TextOverflow.Ellipsis
             )
         }, navigationIcon = {
-            IconButton(onClick = { topAppbarData.navigationIcon?.let { onClick(it) } }) {
-                if (topAppbarData.navigationIcon?.icon != null) {
-                    Icon(
-                        imageVector = topAppbarData.navigationIcon.icon!!,
-                        contentDescription = null
-                    )
-                } else if (topAppbarData.navigationIcon?.iconRes != null) {
-                    Icon(
-                        painter = painterResource(id = topAppbarData.navigationIcon.iconRes!!),
-                        contentDescription = null
-                    )
+            if (topAppbarData.navigationIcon != null) {
+                IconButton(onClick = { onClick(topAppbarData.navigationIcon) }) {
+                    if (topAppbarData.navigationIcon.icon != null) {
+                        Icon(
+                            imageVector = topAppbarData.navigationIcon.icon!!,
+                            contentDescription = null
+                        )
+                    } else if (topAppbarData.navigationIcon.iconRes != null) {
+                        Icon(
+                            painter = painterResource(id = topAppbarData.navigationIcon.iconRes!!),
+                            contentDescription = null
+                        )
+                    }
                 }
-
             }
         },
         actions = {
