@@ -7,8 +7,7 @@ import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.NetworkPing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.preview.Preview
-import com.khalekuzzamanjustcse.common_ui.BottomNavigationItem
+import com.khalekuzzamanjustcse.common_ui.AppbarItem
 import com.khalekuzzamanjustcse.common_ui.CommonScreenLayout
 import com.khalekuzzamanjustcse.tree_visualization.TreeDestinations
 
@@ -17,15 +16,15 @@ import com.khalekuzzamanjustcse.tree_visualization.TreeDestinations
 
 class TreeTraversalScreenState {
     val bottomDestinations = listOf(
-        BottomNavigationItem(
+        AppbarItem(
             label = TreeDestinations.BINARY_TREE,
             icon = Icons.Filled.NetworkPing,
         ),
-        BottomNavigationItem(
+        AppbarItem(
             label = TreeDestinations.BINARY_SEARCH_TREE,
             icon = Icons.Filled.Grain,
         ),
-        BottomNavigationItem(
+        AppbarItem(
             label = TreeDestinations.NON_BINARY_TREE,
             icon = Icons.Filled.AccountTree,
         )
