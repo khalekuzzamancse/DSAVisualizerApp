@@ -47,13 +47,7 @@ class LinearDSViewModel(
     val stackViewModel = StackViewModel(density)
     private val linkedListViewModel = LinkedListViewModel(density)
 
-    init {
-        for(i in 5 until  10){
-            queueViewModel.queueState.enqueue("$i")
-            stackViewModel.stateState.push("${2 * i}")
-        }
 
-    }
 
 
 
@@ -79,9 +73,17 @@ class LinearDSViewModel(
         } else if (isQueueScreen(item)) {
             currentScreen = QueueScreen
             currentTopAppbar.value = queueViewModel.topAppbarData
+            //initial the queue with some items
+            if(queueViewModel.queueState.element.isEmpty())
+                for (i in 5 until 11)
+                    queueViewModel.queueState.enqueue("$i")
+
         } else if (isStackScreen(item)) {
             currentScreen = StackScreen
             currentTopAppbar.value = stackViewModel.topAppbarData
+            if(stackViewModel.stateState.stackElement.isEmpty())
+                for (i in 5 until 11)
+                    queueViewModel.queueState.enqueue("${5 * i}")
         }
     }
 

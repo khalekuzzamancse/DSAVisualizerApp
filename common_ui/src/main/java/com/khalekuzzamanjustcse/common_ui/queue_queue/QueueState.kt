@@ -61,9 +61,11 @@ class QueueState(
     val density: Density,
 ) {
 
-    private val _elements: MutableState<List<DynamicElement>> = mutableStateOf(emptyList())
+    private val _elements: MutableState<List<DynamicElement>> =
+        mutableStateOf(emptyList())
     val element: List<DynamicElement>
         get() = _elements.value
+
 
     fun enqueue(label: String) {
         val tempList = _elements.value.toMutableList()
