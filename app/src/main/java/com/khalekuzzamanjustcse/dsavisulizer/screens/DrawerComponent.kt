@@ -23,8 +23,7 @@ object DrawerItemsProvider {
     private val linearDS = ModalDrawerGroup(
         name = "Linear DS",
         members = listOf(
-            ModalDrawerItem(TopLevelDestinations.STACK, Icons.Filled.StackedBarChart),
-            ModalDrawerItem(TopLevelDestinations.QUEUE, Icons.Filled.Queue)
+            ModalDrawerItem(TopLevelDestinations.LINEAR_DATA_STRUCTURE, Icons.Filled.StackedBarChart),
         )
     )
     private val graphTheory = ModalDrawerGroup(

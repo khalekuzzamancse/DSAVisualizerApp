@@ -1,6 +1,7 @@
 package com.khalekuzzamanjustcse.dsavisulizer.screens
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -44,7 +45,9 @@ fun ModalDrawer(
                 (LocalConfiguration.current.screenWidthDp * 0.80).dp
             }
             DrawerContent(
-                modifier = Modifier.width(drawerWidth),
+                modifier = Modifier
+                    .width(drawerWidth)
+                    .fillMaxHeight(),
                 drawerGroups,
                 onNavigate = onDrawerItemClick,
                 closeDrawer = closeDrawer,
@@ -71,7 +74,7 @@ private fun DrawerContent(
         val selectedItem = remember { mutableStateOf(firstGroupFirstItem) }
         drawerGroups.forEach { group ->
             val items = group.members
-                DisplayGroupName(group.name)
+            DisplayGroupName(group.name)
 
             //placing the each drawer items
             items.forEach { drawerItem ->
