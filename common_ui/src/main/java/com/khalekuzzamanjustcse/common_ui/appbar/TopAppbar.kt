@@ -94,7 +94,7 @@ fun CommonTopAppbarPreview() {
 data class TopAppbarData(
     val title: String,
     val titleFontSize: TextUnit = TextUnit.Unspecified,
-    val navigationIcon: IconComponent,
+    val navigationIcon: IconComponent ?=null,
     val elevation: Dp,
     val actions: List<IconComponent> = emptyList()
 )
@@ -117,13 +117,13 @@ fun CommonTopAppbar(
                 overflow = TextOverflow.Ellipsis
             )
         }, navigationIcon = {
-            IconButton(onClick = { onClick(topAppbarData.navigationIcon) }) {
-                if (topAppbarData.navigationIcon.icon != null) {
+            IconButton(onClick = { topAppbarData.navigationIcon?.let { onClick(it) } }) {
+                if (topAppbarData.navigationIcon?.icon != null) {
                     Icon(
                         imageVector = topAppbarData.navigationIcon.icon!!,
                         contentDescription = null
                     )
-                } else if (topAppbarData.navigationIcon.iconRes != null) {
+                } else if (topAppbarData.navigationIcon?.iconRes != null) {
                     Icon(
                         painter = painterResource(id = topAppbarData.navigationIcon.iconRes!!),
                         contentDescription = null
