@@ -1,15 +1,60 @@
 package com.khalekuzzamanjustcse.common_ui.queue_queue
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SwipeLeft
+import androidx.compose.material.icons.filled.SwipeRight
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import com.khalekuzzamanjustcse.common_ui.AppbarItem
+import com.khalekuzzamanjustcse.common_ui.IconComponent
+import com.khalekuzzamanjustcse.common_ui.appbar.TopAppbarData
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.DynamicElement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
+
+
+class QueueViewModel(
+    val density: Density,
+) : ViewModel() {
+    val queueState = QueueState(cellSize = 64.dp, density = density)
+
+    private val _topAppbarData by mutableStateOf(
+        TopAppbarData(
+            title = "Queue Screen",
+            elevation = 8.dp,
+            navigationIcon = null,
+            actions = listOf(
+                AppbarItem(label = "Enqueue", icon = Icons.Filled.SwipeLeft),
+                AppbarItem(label = "Dequeue", icon = Icons.Filled.SwipeRight),
+            )
+        )
+    )
+    val topAppbarData
+        get() = _topAppbarData
+
+
+    fun onTopAppbarIconClick(item: IconComponent) {
+        when (item) {
+            _topAppbarData.actions[0] -> {
+                queueState.enqueue("${Random.nextInt(100)}")
+            }
+
+            _topAppbarData.actions[1] -> {
+                queueState.dequeue()
+            }
+        }
+    }
+
+}
 
 class QueueState(
     val cellSize: Dp,
@@ -53,5 +98,6 @@ class QueueState(
         }
 
     }
+
 
 }

@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse
+package com.khalekuzzamanjustcse.common_ui
 
 object LinearDSDestinations{
     const val STACK_SCREEN="Stack"
