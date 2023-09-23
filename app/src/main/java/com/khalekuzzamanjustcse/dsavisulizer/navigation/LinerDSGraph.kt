@@ -18,15 +18,18 @@ import com.khalekuzzaman.just.cse.gmailclone.ui.navigation.NavigationActions
 import com.khalekuzzamanjustcse.LinearDSDestinations
 import com.khalekuzzamanjustcse.common_ui.queue_queue.QueueComposablePreview
 import com.khalekuzzamanjustcse.common_ui.queue_queue.StackComposablePreview
+import com.khalekuzzamanjustcse.dsavisulizer.screens.UnderConstructionScreen
 import com.khalekuzzamanjustcse.linear_datastructures.LinearDataStructureScreen
 
-@Preview
+
 @Composable
-fun LinearDSScreenSwitch() {
+fun LinearDSScreenSwitch(
+    onNavigationIconClick: () -> Unit,
+) {
     val navController = rememberNavController()
     val navigationActions = NavigationActions(navController)
     LinearDataStructureScreen(onDestinationClick = navigationActions::navigateTo) {
-        LinearDSNavGraph(navController)
+        LinearDSNavGraph(navController,onNavigationIconClick)
     }
 
 }
@@ -48,13 +51,16 @@ private fun LinearDSScreenNavigationPreview() {
         }) {
             Text(text = "ChangeScreen")
         }
-        LinearDSNavGraph(navController)
+        LinearDSNavGraph(navController,{})
     }
 
 }
 
 @Composable
-fun LinearDSNavGraph(navController: NavHostController) {
+fun LinearDSNavGraph(
+    navController: NavHostController,
+    onNavigationIconClick: () -> Unit,
+) {
     NavHost(
         navController = navController,
         route = TopLevelDestinations.LINEAR_DATA_STRUCTURE,
@@ -67,7 +73,7 @@ fun LinearDSNavGraph(navController: NavHostController) {
             QueueComposablePreview()
         }
         composable(route = LinearDSDestinations.LINKED_LIST_SCREEN) {
-            StackComposablePreview()
+            UnderConstructionScreen(onNavigationIconClick = onNavigationIconClick)
         }
     }
 }

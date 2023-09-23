@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.khalekuzzaman.just.cse.gmailclone.ui.navigation.NavigationActions
 import com.khalekuzzamanjustcse.dsavisulizer.screens.ScreenWithDrawer
+import com.khalekuzzamanjustcse.dsavisulizer.screens.UnderConstructionScreen
 import kotlinx.coroutines.launch
 
 @Preview
@@ -50,7 +51,7 @@ fun ModalDrawerNavHost(
                 closeDrawer = closeDrawer,
                 onDrawerItemClick = navAction::navigateTo
             ) {
-                GraphTraversalScreenSwitch()
+                GraphTraversalScreenSwitch(openDrawer)
             }
         }
         composable(TopLevelDestinations.LINEAR_DATA_STRUCTURE) {
@@ -59,7 +60,38 @@ fun ModalDrawerNavHost(
                 closeDrawer = closeDrawer,
                 onDrawerItemClick = navAction::navigateTo
             ) {
-                LinearDSScreenSwitch()
+                LinearDSScreenSwitch(openDrawer)
+            }
+
+        }
+
+        composable(TopLevelDestinations.GRAPH_REPRESENTATION) {
+            ScreenWithDrawer(
+                drawerState = drawerState,
+                closeDrawer = closeDrawer,
+                onDrawerItemClick = navAction::navigateTo
+            ) {
+                UnderConstructionScreen(openDrawer)
+            }
+
+        }
+        composable(TopLevelDestinations.GRAPH_ALGORITHMS) {
+            ScreenWithDrawer(
+                drawerState = drawerState,
+                closeDrawer = closeDrawer,
+                onDrawerItemClick = navAction::navigateTo
+            ) {
+                UnderConstructionScreen(openDrawer)
+            }
+
+        }
+        composable(TopLevelDestinations.TREE_REPRESENTATION) {
+            ScreenWithDrawer(
+                drawerState = drawerState,
+                closeDrawer = closeDrawer,
+                onDrawerItemClick = navAction::navigateTo
+            ) {
+                UnderConstructionScreen(openDrawer)
             }
 
         }
@@ -69,7 +101,17 @@ fun ModalDrawerNavHost(
                 closeDrawer = closeDrawer,
                 onDrawerItemClick = navAction::navigateTo
             ) {
-                TreeTransversalSwitch()
+                TreeTransversalSwitch(openDrawer)
+            }
+
+        }
+        composable(TopLevelDestinations.TREE_ALGORITHMS) {
+            ScreenWithDrawer(
+                drawerState = drawerState,
+                closeDrawer = closeDrawer,
+                onDrawerItemClick = navAction::navigateTo
+            ) {
+                UnderConstructionScreen(openDrawer)
             }
 
         }
