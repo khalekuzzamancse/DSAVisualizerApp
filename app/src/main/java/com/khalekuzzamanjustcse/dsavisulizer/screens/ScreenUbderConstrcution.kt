@@ -44,7 +44,7 @@ import kotlin.random.Random
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnderConstructionScreen(
-    onNavigationIconClick: () -> Unit
+    onNavigationIconClick: () -> Unit ={}
 ) {
     var color by remember {
         mutableStateOf(randomColor())

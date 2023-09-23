@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.common_ui.queue_queue
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
@@ -35,6 +36,7 @@ object StackScreen : Screen {
 
 class LinearDSViewModel(
     val density: Density,
+    val onTopMenuItemClick: () -> Unit = {},
 ) {
     val bottomDestinations = listOf(
         AppbarItem(label = LinearDSDestinations.LINKED_LIST_SCREEN, icon = Icons.Filled.List),
@@ -59,7 +61,11 @@ class LinearDSViewModel(
         when (currentScreen) {
             StackScreen -> stackViewModel.onTopAppbarIconClick(item)
             QueueScreen -> queueViewModel.onTopAppbarIconClick(item)
-            else -> {}
+            LinkedListScreen -> {
+                if(item==linkedListViewModel.topAppbarData.navigationIcon)
+                    onTopMenuItemClick()
+            }
+
         }
     }
 
@@ -72,7 +78,7 @@ class LinearDSViewModel(
             currentTopAppbar.value = queueViewModel.topAppbarData
             //initial the queue with some items
             if (queueViewModel.queueState.element.isEmpty())
-                for (i in 5 until 11)
+                for (i in 1 until 4)
                     queueViewModel.queueState.enqueue("$i")
 
         } else if (isStackScreen(item)) {
@@ -80,7 +86,7 @@ class LinearDSViewModel(
             currentTopAppbar.value = stackViewModel.topAppbarData
             //
             if (stackViewModel.stateState.stackElement.isEmpty())
-                for (i in 5 until 11)
+                for (i in 1 until 6)
                     stackViewModel.stateState.push("${5 * i}")
         }
     }
