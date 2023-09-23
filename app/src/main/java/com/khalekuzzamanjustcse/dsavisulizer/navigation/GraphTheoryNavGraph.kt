@@ -19,7 +19,7 @@ fun GraphTraversalScreenSwitch() {
     GraphTraversalScreen(onDestinationClick = navigationActions::navigateTo) {
         GraphTheoryNavHost(navController)
     }
-
+//
 }
 
 @Composable
