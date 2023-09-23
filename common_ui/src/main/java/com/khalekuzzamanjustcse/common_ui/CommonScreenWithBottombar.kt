@@ -27,6 +27,7 @@ interface IconComponent {
     val label: String
     val icon: ImageVector?
     val iconRes: Int?
+    val showIcon: Boolean
     fun onClick()
 }
 
@@ -35,7 +36,9 @@ data class AppbarItem(
     override val label: String,
     override val icon: ImageVector? = null,
     override val iconRes: Int? = null,
+    override val showIcon: Boolean =true,
 ) : IconComponent {
+
     override fun onClick() {
 
     }
