@@ -47,6 +47,16 @@ class LinearDSViewModel(
     val stackViewModel = StackViewModel(density)
     private val linkedListViewModel = LinkedListViewModel(density)
 
+    init {
+        for(i in 5 until  10){
+            queueViewModel.queueState.enqueue("$i")
+            stackViewModel.stateState.push("${2 * i}")
+        }
+
+    }
+
+
+
     //end
     private var currentScreen: Screen = LinkedListScreen
     private var currentTopAppbar = mutableStateOf(linkedListViewModel.topAppbarData)

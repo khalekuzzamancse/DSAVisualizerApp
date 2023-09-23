@@ -31,7 +31,7 @@ fun LinearDSScreenSwitch(
         viewModel = viewModels,
         onDestinationClick = navigationActions::navigateTo,
         currentScreen = {
-            LinearDSNavGraph(
+            LinearDataStructureScreenContent(
                 viewModels,
                 navController,
                 onNavigationIconClick,
@@ -43,7 +43,7 @@ fun LinearDSScreenSwitch(
 }
 
 @Composable
-fun LinearDSNavGraph(
+fun LinearDataStructureScreenContent(
     viewModel: LinearDSViewModel,
     navController: NavHostController,
     onNavigationIconClick: () -> Unit,
