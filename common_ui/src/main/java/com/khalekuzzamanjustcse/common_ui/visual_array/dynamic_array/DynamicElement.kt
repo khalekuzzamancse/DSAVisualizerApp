@@ -40,7 +40,7 @@ data class DynamicElement(
     }
 
     val bottomLeft: Offset
-        get() = Offset(_currentPosition.value.x, sizePx)
+        get() = Offset(_currentPosition.value.x, _currentPosition.value.y+sizePx)
     val size: Dp
         get() = _size.value
     val backgroundColor: Color

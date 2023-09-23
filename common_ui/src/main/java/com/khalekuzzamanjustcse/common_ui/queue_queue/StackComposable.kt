@@ -51,7 +51,6 @@ fun StackComposablePreview() {
 
         StackComposable(stackState)
 
-
     }
 }
 

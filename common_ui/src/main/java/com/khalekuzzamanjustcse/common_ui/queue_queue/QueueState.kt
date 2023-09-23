@@ -27,7 +27,8 @@ class QueueState(
                 label = label,
                 _size = mutableStateOf(cellSize),
                 density = density,
-                isHideBorder = mutableStateOf(false)
+                isHideBorder = mutableStateOf(false),
+                _draggable = mutableStateOf(false)
             )
         )
         _elements.value = tempList
