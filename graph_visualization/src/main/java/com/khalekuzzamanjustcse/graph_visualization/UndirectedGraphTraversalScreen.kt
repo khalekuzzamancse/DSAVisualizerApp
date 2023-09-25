@@ -82,7 +82,7 @@ fun GraphBuilder(
                             color = Color.Black,
                             start = u.getCenter(),
                             end = v.getCenter(),
-                            strokeWidth = 4f
+                            strokeWidth = 4f,
                         )
                     }
 
