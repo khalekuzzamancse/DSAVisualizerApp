@@ -28,6 +28,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -35,6 +37,25 @@ import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 import kotlin.concurrent.timer
 import kotlin.random.Random
+
+@Immutable
+data class NodeComposableState(
+    val label: String,
+    val size: Dp,
+    private val sizePx: Float,
+    val offset: Offset = Offset.Zero,
+    val color: Color = Color.Green,
+    val backgroundColor: Color = Color.Unspecified,
+    val clickable: Boolean = true,
+    val draggable: Boolean = true,
+) {
+    val textColor: Color
+        get() = if (color.luminance() > 0.5) Color.Black else Color.White
+    val center: Offset
+        get() = offset + Offset(sizePx / 2, sizePx / 2)
+
+}
+
 
 /*
 This preview is for testing purpose we change that state inside the preview composable
@@ -44,8 +65,11 @@ however in real project change the state only inside the View model
 @Preview
 @Composable
 private fun NodeComposePreview() {
+
+    val size = 64.dp
+    val sizePx = LocalDensity.current.density * size.value
     var state by remember {
-        mutableStateOf(NodeComposableState("20"))
+        mutableStateOf(NodeComposableState(size = size, sizePx = sizePx, label = "20"))
     }
     val randomColor: () -> Color = {
         val random = Random.Default
@@ -96,7 +120,7 @@ fun NodeComposable(
     val offsetAnimation by animateOffsetAsState(state.offset, label = "")
     val nodeColor by animateColorAsState(targetValue = state.color, label = "")
     val backgroundColor by animateColorAsState(targetValue = state.backgroundColor, label = "")
-    val padding = 8.dp
+//    val padding = 8.dp
 
 
     val modifier = Modifier
@@ -135,7 +159,7 @@ fun NodeComposable(
             text = state.label,
             color = state.textColor,
             modifier = Modifier
-                .padding(padding)
+              //  .padding(padding)
                 .clip(CircleShape)
                 .background(nodeColor)
                 .fillMaxSize()
@@ -145,16 +169,3 @@ fun NodeComposable(
 }
 
 
-@Immutable
-data class NodeComposableState(
-    val label: String,
-    val size: Dp = 64.dp,
-    val offset: Offset = Offset.Zero,
-    val color: Color = Color.Green,
-    val backgroundColor: Color = Color.Unspecified,
-    val clickable: Boolean = true,
-    val draggable: Boolean = true,
-) {
-    val textColor: Color
-        get() = if (color.luminance() > 0.5) Color.Black else Color.White
-}
