@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization.screen
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer.screen
 
 import com.khalekuzzamanjustcse.common_ui.queue_queue.Screen
 

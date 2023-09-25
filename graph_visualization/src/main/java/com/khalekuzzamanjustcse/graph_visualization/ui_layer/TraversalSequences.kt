@@ -1,7 +1,6 @@
-package com.khalekuzzamanjustcse.graph_visualization
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer
 
 import android.util.Log
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNode
 
 
 sealed class SimulationState

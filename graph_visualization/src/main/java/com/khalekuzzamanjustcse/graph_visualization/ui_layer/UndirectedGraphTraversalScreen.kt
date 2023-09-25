@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -14,9 +14,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.Graph
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.GraphNodeComposable
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.NodeValueInputer
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.Graph
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.GraphNodeComposable
 
 
 @OptIn(ExperimentalMaterial3Api::class)

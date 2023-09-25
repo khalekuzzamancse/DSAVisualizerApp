@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer
 
 object GraphDestination {
     const val UNDIRECTED_TRAVERSAL = "Undirected Traversal"

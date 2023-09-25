@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization.graph_draw
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateOffsetAsState

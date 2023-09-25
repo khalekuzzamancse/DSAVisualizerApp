@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer
 
 import android.util.Log
 import androidx.compose.material.icons.Icons
@@ -16,8 +16,8 @@ import androidx.lifecycle.ViewModel
 import com.khalekuzzamanjustcse.common_ui.IconComponent
 import com.khalekuzzamanjustcse.common_ui.appbar.TopAppbarData
 import com.khalekuzzamanjustcse.common_ui.visual_array.static_array.ArrayComposableState
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.DraggableGraphNode
-import com.khalekuzzamanjustcse.graph_visualization.graph_input.Graph
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.DraggableGraphNode
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.Graph
 
 class UndirectedGraphTraversalViewModel(
     private val nodeSizePX: Float,

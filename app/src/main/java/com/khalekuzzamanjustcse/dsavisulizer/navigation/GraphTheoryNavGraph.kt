@@ -11,10 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.khalekuzzaman.just.cse.gmailclone.ui.navigation.NavigationActions
 import com.khalekuzzamanjustcse.dsavisulizer.screens.UnderConstructionScreen
-import com.khalekuzzamanjustcse.graph_visualization.UndirectedGraphTraversalScreen
-import com.khalekuzzamanjustcse.graph_visualization.GraphDestination
-import com.khalekuzzamanjustcse.graph_visualization.screen.GraphTraversalScreen
-import com.khalekuzzamanjustcse.graph_visualization.screen.GraphTraversalScreensViewModel
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.UndirectedGraphTraversalScreen
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.GraphDestination
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.screen.GraphTraversalScreen
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.screen.GraphTraversalScreensViewModel
 
 
 @Composable

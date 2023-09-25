@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization.graph_draw
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
@@ -17,7 +17,8 @@ and handle the request of GraphDrawer state composable directly  or by delegatin
 use flow instead of composable MutableState so that
 we can use the flow both data layer and composable
 and also can manipulate it
-
+***Host the state to it lowest common ancestor
+ViewModel does not depends how the UI looks
  */
 data class GraphDrawerViewModel(
     private val size: Dp,

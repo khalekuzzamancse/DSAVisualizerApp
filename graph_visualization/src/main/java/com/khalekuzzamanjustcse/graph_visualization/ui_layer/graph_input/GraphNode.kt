@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization.graph_input
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

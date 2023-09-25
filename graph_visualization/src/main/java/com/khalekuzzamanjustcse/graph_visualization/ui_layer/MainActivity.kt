@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization
+package com.khalekuzzamanjustcse.graph_visualization.ui_layer
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
