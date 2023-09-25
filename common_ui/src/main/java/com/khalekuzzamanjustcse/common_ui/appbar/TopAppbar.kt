@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.common_ui.appbar
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -82,9 +81,7 @@ fun CommonTopAppbarPreview() {
 
     Scaffold(
         topBar = {
-            CommonTopAppbar(topAppbarState.data) {
-                Log.i("TopAppbarIconClick", it.label)
-            }
+            CommonTopAppbar(topAppbarState.data)
         }
     ) {
         Column(modifier = Modifier.padding(it)) {
@@ -108,7 +105,6 @@ data class TopAppbarData(
 @Composable
 fun CommonTopAppbar(
     topAppbarData: TopAppbarData,
-    onClick: (IconComponent) -> Unit,
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.smallTopAppBarColors(
@@ -122,7 +118,10 @@ fun CommonTopAppbar(
             )
         }, navigationIcon = {
             if (topAppbarData.navigationIcon != null) {
-                IconButton(onClick = { onClick(topAppbarData.navigationIcon) }) {
+                IconButton(onClick = {
+                    topAppbarData.navigationIcon.onClick()
+                    // onClick(topAppbarData.navigationIcon)
+                }) {
                     if (topAppbarData.navigationIcon.icon != null) {
                         Icon(
                             imageVector = topAppbarData.navigationIcon.icon!!,
@@ -139,7 +138,9 @@ fun CommonTopAppbar(
         },
         actions = {
             topAppbarData.actions.forEach { action ->
-                TextButton(onClick = { onClick(action) }) {
+                TextButton(onClick = {
+                    action.onClick()
+                }) {
                     Column(
                         modifier = Modifier
                             .wrapContentSize(),
@@ -156,8 +157,10 @@ fun CommonTopAppbar(
                                 contentDescription = null
                             )
                         }
-                        if(action.showIcon)
-                        Text(text = action.label)
+                        if (action.showIcon) {
+                            Text(text = action.label)
+                        }
+
                     }
                 }
             }

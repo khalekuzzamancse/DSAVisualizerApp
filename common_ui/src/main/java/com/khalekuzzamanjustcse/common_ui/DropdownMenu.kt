@@ -57,7 +57,7 @@ fun CustomDropDownMenuPreview() {
                 title = { Text(text = "Hello ") },
                 actions = {
                     CustomDropDownMenu(
-                        icon = Icons.Default.ExpandMore,
+                       // icon = Icons.Default.ExpandMore,
                         options = options
                     ) { index ->
                         Log.i("ClickedItem: ", "${options[index]}")
@@ -80,33 +80,23 @@ fun CustomDropDownMenuPreview() {
 @Composable
 fun CustomDropDownMenu(
     modifier: Modifier = Modifier,
-    icon: ImageVector,
+    expanded:Boolean=false,
     options: List<DropdownMenuOption>,
     offset: DpOffset = DpOffset(0.dp,0.dp),
     onItemClick: (index: Int) -> Unit,
 ) {
-    var expanded by remember {
-        mutableStateOf(false)
-    }
+
     Box(
         modifier = modifier,
 //            .wrapContentSize(),
         contentAlignment = Alignment.TopEnd
     ) {
-        IconButton(
-            onClick = { expanded = true },
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = "More"
-            )
-        }
         DropdownMenu(
             offset = offset,
             modifier = Modifier,
             expanded = expanded,
             onDismissRequest = {
-                expanded = false
+
             }
         ) {
             options.forEachIndexed { index, it ->
@@ -114,7 +104,6 @@ fun CustomDropDownMenu(
                     Text(text = it.label)
                 }, onClick = {
                     onItemClick(index)
-                    expanded = false
                 })
             }
         }

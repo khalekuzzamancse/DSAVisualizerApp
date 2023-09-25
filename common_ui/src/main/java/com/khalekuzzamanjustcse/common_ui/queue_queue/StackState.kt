@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.common_ui.queue_queue
 
-import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowOutward
@@ -11,7 +10,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import com.khalekuzzamanjustcse.common_ui.AppbarItem
 import com.khalekuzzamanjustcse.common_ui.IconComponent
 import com.khalekuzzamanjustcse.common_ui.appbar.TopAppbarData
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.DynamicElement
@@ -19,42 +17,33 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 
 class StackViewModel(
     val density: Density,
 ) : ViewModel() {
-     val stateState = StackState(cellSize = 64.dp, density = density)
-
+    val state = StackState(cellSize = 64.dp, density = density)
     val topAppbarData =
         TopAppbarData(
             title = "Stack Screen ",
             elevation = 8.dp,
             navigationIcon = null,
             actions = listOf(
-                AppbarItem(label = "Push", icon = Icons.Filled.ArrowDownward),
-                AppbarItem(label = "Pop", icon = Icons.Filled.ArrowOutward),
+                object : IconComponent(label = "Push", icon = Icons.Filled.ArrowDownward) {
+                    override fun onClick() {
+                        state.push("33")
+                    }
+
+                },
+                object : IconComponent(label = "Pop", icon = Icons.Filled.ArrowOutward) {
+                    override fun onClick() {
+                        state.pop()
+                    }
+
+                },
             )
         )
-
-
-    fun onTopAppbarIconClick(item: IconComponent) {
-        Log.i("StackScreen:TopIcon", item.label)
-        when (item) {
-            topAppbarData.actions[0] -> {
-                stateState.push("${Random.nextInt(100)}")
-                Log.i("StackScreen:State", "${stateState.stackElement.map { it.label }}")
-            }
-
-            topAppbarData.actions[1] -> {
-                stateState.pop()
-            }
-        }
-    }
-
 }
-
 
 
 /*

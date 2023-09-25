@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.common_ui.queue_queue
 
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
@@ -9,13 +8,12 @@ import androidx.compose.material.icons.filled.StackedBarChart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.Density
-import com.khalekuzzamanjustcse.common_ui.AppbarItem
 import com.khalekuzzamanjustcse.common_ui.CommonScreenLayout
 import com.khalekuzzamanjustcse.common_ui.IconComponent
 import com.khalekuzzamanjustcse.common_ui.LinearDSDestinations
 import com.khalekuzzamanjustcse.common_ui.LinkedListViewModel
 
-sealed interface Screen {
+interface Screen {
     val route: String
 }
 
@@ -36,64 +34,56 @@ object StackScreen : Screen {
 
 class LinearDSViewModel(
     val density: Density,
-    val onTopMenuItemClick: () -> Unit = {},
 ) {
-    val bottomDestinations = listOf(
-        AppbarItem(label = LinearDSDestinations.LINKED_LIST_SCREEN, icon = Icons.Filled.List),
-        AppbarItem(label = LinearDSDestinations.STACK_SCREEN, icon = Icons.Filled.StackedBarChart),
-        AppbarItem(label = LinearDSDestinations.QUEUE_SCREEN, icon = Icons.Filled.Queue)
-    )
 
     //view models
     val queueViewModel = QueueViewModel(density)
     val stackViewModel = StackViewModel(density)
     private val linkedListViewModel = LinkedListViewModel(density)
 
-
     //end
     private var currentScreen: Screen = LinkedListScreen
     private var currentTopAppbar = mutableStateOf(linkedListViewModel.topAppbarData)
-
     val topAppbarData
         get() = currentTopAppbar.value
-
-    fun onTopAppbarIconClick(item: IconComponent) {
-        when (currentScreen) {
-            StackScreen -> stackViewModel.onTopAppbarIconClick(item)
-            QueueScreen -> queueViewModel.onTopAppbarIconClick(item)
-            LinkedListScreen -> {
-                if(item==linkedListViewModel.topAppbarData.navigationIcon)
-                    onTopMenuItemClick()
+    //
+    val bottomDestinations = listOf(
+        object : IconComponent(
+            label = LinearDSDestinations.LINKED_LIST_SCREEN,
+            icon = Icons.Filled.List
+        ) {
+            override fun onClick() {
+                currentScreen = LinkedListScreen
+                currentTopAppbar.value = linkedListViewModel.topAppbarData
             }
+        },
+        object : IconComponent(
+            label = LinearDSDestinations.STACK_SCREEN,
+            icon = Icons.Filled.StackedBarChart
+        ) {
+            override fun onClick() {
+                currentScreen = StackScreen
+                currentTopAppbar.value = stackViewModel.topAppbarData
+                if (stackViewModel.state.stackElement.isEmpty())
+                {
+                    for (i in 1 until 6)
+                        stackViewModel.state.push("${5 * i}")
+                }
+            }
+        },
+        object :
+            IconComponent(label = LinearDSDestinations.QUEUE_SCREEN, icon = Icons.Filled.Queue) {
+            override fun onClick() {
+                currentScreen = QueueScreen
+                currentTopAppbar.value = queueViewModel.topAppbarData
+                if (queueViewModel.queue.element.isEmpty()){
+                    for (i in 1 until 4)
+                        queueViewModel.queue.enqueue("$i")
+                }
 
+            }
         }
-    }
-
-    fun onBottomAppbarIconClick(item: IconComponent) {
-        if (isLinkedListScreen(item)) {
-            currentScreen = LinkedListScreen
-            currentTopAppbar.value = linkedListViewModel.topAppbarData
-        } else if (isQueueScreen(item)) {
-            currentScreen = QueueScreen
-            currentTopAppbar.value = queueViewModel.topAppbarData
-            //initial the queue with some items
-            if (queueViewModel.queueState.element.isEmpty())
-                for (i in 1 until 4)
-                    queueViewModel.queueState.enqueue("$i")
-
-        } else if (isStackScreen(item)) {
-            currentScreen = StackScreen
-            currentTopAppbar.value = stackViewModel.topAppbarData
-            //
-            if (stackViewModel.stateState.stackElement.isEmpty())
-                for (i in 1 until 6)
-                    stackViewModel.stateState.push("${5 * i}")
-        }
-    }
-
-    private fun isLinkedListScreen(item: IconComponent) = bottomDestinations[0] == item
-    private fun isStackScreen(item: IconComponent) = bottomDestinations[1] == item
-    private fun isQueueScreen(item: IconComponent) = bottomDestinations[2] == item
+    )
 
 }
 
@@ -104,12 +94,10 @@ fun LinearDataStructureScreen(
     currentScreen: @Composable (PaddingValues) -> Unit,
 ) {
     CommonScreenLayout(
-        topAppbarData = viewModel.topAppbarData,
-        onTopAppbarItemClick = viewModel::onTopAppbarIconClick,
+        topAppbarItems = viewModel.topAppbarData,
         bottomBarDestinations = viewModel.bottomDestinations,
         onDestinationClick = {
             onDestinationClick(it.label)
-            viewModel.onBottomAppbarIconClick(it)
         }) {
         currentScreen(it)
     }

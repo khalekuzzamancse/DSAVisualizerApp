@@ -25,7 +25,7 @@ fun LinearDSScreenSwitch(
     val navigationActions = NavigationActions(navController)
 
     val density = LocalDensity.current
-    val viewModels = LinearDSViewModel(density, onNavigationIconClick)
+    val viewModels = LinearDSViewModel(density)
 
     LinearDataStructureScreen(
         viewModel = viewModels,
@@ -48,6 +48,7 @@ fun LinearDataStructureScreenContent(
     scaffoldPadding: PaddingValues = PaddingValues(0.dp),
 ) {
 
+
     NavHost(
         navController = navController,
         route = TopLevelDestinations.LINEAR_DATA_STRUCTURE,
@@ -58,13 +59,13 @@ fun LinearDataStructureScreenContent(
         }
         composable(route = LinearDSDestinations.STACK_SCREEN) {
             StackVisualizationScreen(
-                viewModel.stackViewModel.stateState,
+                viewModel.stackViewModel.state,
                 scaffoldPadding
             )
         }
         composable(route = LinearDSDestinations.QUEUE_SCREEN) {
             QueueVisualizationScreen(
-                state = viewModel.queueViewModel.queueState,
+                state = viewModel.queueViewModel.queue,
                 scaffoldPadding = scaffoldPadding
             )
         }

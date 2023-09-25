@@ -23,33 +23,29 @@ import androidx.compose.ui.res.painterResource
 import com.khalekuzzamanjustcse.common_ui.appbar.CommonTopAppbar
 import com.khalekuzzamanjustcse.common_ui.appbar.TopAppbarData
 
-interface IconComponent {
-    val label: String
-    val icon: ImageVector?
-    val iconRes: Int?
-    val showIcon: Boolean
-    fun onClick()
+abstract class IconComponent(
+    open val label: String="",
+    open val icon: ImageVector? = null,
+    open val iconRes: Int? = null,
+    open val showIcon: Boolean = false
+) {
+    abstract fun onClick()
 }
-
 
 data class AppbarItem(
     override val label: String,
     override val icon: ImageVector? = null,
     override val iconRes: Int? = null,
-    override val showIcon: Boolean =true,
-) : IconComponent {
-
+    override val showIcon: Boolean = true,
+) : IconComponent() {
     override fun onClick() {
-
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommonScreenLayout(
-    topAppbarData: TopAppbarData,
-    onTopAppbarItemClick: (IconComponent) -> Unit,
+    topAppbarItems: TopAppbarData,
     bottomBarDestinations: List<IconComponent> = emptyList(),
     onDestinationClick: (IconComponent) -> Unit = {},
     snackBarHost: @Composable () -> Unit = {},
@@ -60,7 +56,7 @@ fun CommonScreenLayout(
 ) {
     Scaffold(
         topBar = {
-            CommonTopAppbar(topAppbarData, onClick = onTopAppbarItemClick)
+            CommonTopAppbar(topAppbarItems)
         },
         containerColor = containerColor,
         snackbarHost = snackBarHost,
@@ -77,6 +73,7 @@ fun CommonScreenLayout(
                     NavigationBarItem(
                         selected = selected == item,
                         onClick = {
+                            item.onClick()
                             onDestinationClick(item)
                             selected = item
                         },
