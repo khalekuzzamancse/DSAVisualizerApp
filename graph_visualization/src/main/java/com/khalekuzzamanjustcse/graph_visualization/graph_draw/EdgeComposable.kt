@@ -30,7 +30,8 @@ data class EdgeComposableState(
     val endPoint: Offset,
     val color: Color = Color.Black,
     val thickness: Float = 4f,
-    val edgeWeight: String? = null,
+    val hasCost: Boolean = false,
+    val cost: String = "",
     val hasDirection: Boolean = false,
     val directionStartToEnd: Boolean = false,
 )
@@ -50,11 +51,13 @@ fun EdgeComposablePreview() {
             )
         )
     }
+
     Column(
         modifier
             .fillMaxSize()
             .drawBehind {
                 drawEdge(state)
+
             }
     ) {
         Row {
@@ -62,7 +65,7 @@ fun EdgeComposablePreview() {
                 state = state.copy(hasDirection = true)
             }
             MyButton(label = "<-") {
-                state = state.copy(directionStartToEnd = true)
+                state = state.copy(hasDirection = true,directionStartToEnd = true)
             }
         }
     }
@@ -83,6 +86,7 @@ fun DrawScope.drawEdge(
             style = Fill
         )
     }
+
 
 }
 
@@ -114,3 +118,4 @@ fun createArrowPath(
         close()
     }
 }
+
