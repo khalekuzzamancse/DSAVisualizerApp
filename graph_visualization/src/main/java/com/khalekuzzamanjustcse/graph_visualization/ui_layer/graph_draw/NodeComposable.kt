@@ -42,7 +42,7 @@ import kotlin.random.Random
 data class NodeComposableState(
     val label: String,
     val size: Dp,
-    private val sizePx: Float,
+     val sizePx: Float,
     val offset: Offset = Offset.Zero,
     val color: Color = Color.Green,
     val backgroundColor: Color = Color.Unspecified,

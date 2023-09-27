@@ -11,9 +11,12 @@ to avoid  wanted behaviour storing the nodes only one list.
 do not copy the node or something equivalent.
 to avoid modifying from outside exposing the same node list as immutable but observable
 so that when node or edge added then observable the update
+
+
  */
 
 class Graph<T> {
+    private val lock=Any()
     private val _nodes: MutableState<List<GraphNode<T>>> = mutableStateOf(emptyList())
     private val _edges: MutableState<List<Pair<Int, Int>>> = mutableStateOf(emptyList())
     private val _lastClickedTwoNodeRef: MutableState<List<Int>> = mutableStateOf(emptyList())

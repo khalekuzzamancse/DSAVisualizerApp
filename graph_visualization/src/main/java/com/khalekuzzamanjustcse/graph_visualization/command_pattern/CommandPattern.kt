@@ -26,7 +26,9 @@ so that the both block can get the the lock at a time.
 class UndoManager {
     //
     var undoAvailable by mutableStateOf(false)
+        private set
     var redoAvailable by mutableStateOf(false)
+    private set
     private var undoStack = emptyList<Command>()
         set(value) {
             field = value

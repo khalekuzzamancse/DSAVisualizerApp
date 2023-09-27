@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
+import kotlin.random.Random
 
 @Preview
 @Composable
@@ -23,10 +24,23 @@ fun GraphTraversalScreen() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row {
-            MyButton(label = "AddEdge", onClick = viewModel::addEdge)
-            MyButton(label = "AddNode", onClick ={
-                viewModel.addNode("33")
+            MyButton(
+                label = "AddEdge", onClick = viewModel::addEdge
+            )
+            MyButton(label = "AddNode", onClick = {
+                viewModel.addNode("$random")
             })
+            MyButton(label = "RemoveNode", onClick = viewModel::removeNode)
+            MyButton(
+                enabled = viewModel.disableUndo,
+                label = "Undo",
+                onClick = viewModel::undo
+            )
+            MyButton(
+                enabled = viewModel.disableRedo,
+                label = "Redo",
+                onClick = viewModel::redo
+            )
         }
         GraphDrawer(
             nodes = viewModel.nodes.collectAsState().value,
@@ -38,4 +52,8 @@ fun GraphTraversalScreen() {
     }
 
 }
+
+private val random
+    get() = Random.nextInt(99)
+
 

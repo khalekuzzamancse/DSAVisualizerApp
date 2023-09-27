@@ -25,7 +25,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Immutable
-data class EdgeComposableState(
+ data class EdgeComposableState(
     val startPoint: Offset,
     val endPoint: Offset,
     val color: Color = Color.Black,

@@ -85,29 +85,33 @@ fun VisualArrayCellComposable(
             IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
         }
 
-        val borderColor = if (cell.color.luminance() > 0.5) Color.White else Color.Black
-        Box(
-            modifier = modifier
-                .size(cell.size)
-                .then(
-                    if (cell.shouldShowBorder)
-                        Modifier.border(width = 1.dp, color = borderColor)
-                    else
-                        Modifier
-                )
-                .background(colorAnimation)
-                .onGloballyPositioned { position ->
-                    cell.onPositionChanged(position.positionInParent())
-                }
-        )
+    val borderColor = if (cell.color.luminance() > 0.5) Color.White else Color.Black
+    Box(
+        modifier = modifier
+            .size(cell.size)
+            .then(
+                if (cell.shouldShowBorder)
+                    Modifier.border(width = 1.dp, color = borderColor)
+                else
+                    Modifier
+            )
+            .background(colorAnimation)
+            .onGloballyPositioned { position ->
+                cell.onPositionChanged(position.positionInParent())
+            }
+    )
 }
 
 @Composable
 fun MyButton(
     label: String,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    Button(onClick = onClick) {
+    Button(
+        enabled = enabled,
+        onClick = onClick
+    ) {
         Text(text = label)
     }
 

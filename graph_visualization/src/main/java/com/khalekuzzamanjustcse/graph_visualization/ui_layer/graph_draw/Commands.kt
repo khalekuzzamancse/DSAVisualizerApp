@@ -8,11 +8,11 @@ import com.khalekuzzamanjustcse.graph_visualization.data_layer.DataLayerGraphEdg
 See the testing in the unit test package
  */
 class AddNodeCommand<T>(
-    private val nodeData: T,
+    private val node:NodeComposableState,
     private val graph : DataLayerGraph<T>
 ) : Command {
     override fun execute() {
-        graph.addNode(nodeData)
+        graph.addNode(node)
     }
 
     override fun undo() {
@@ -83,15 +83,5 @@ class RemoveEdgeCommand<T>(
     override fun redo() {
         execute()
     }
-
-}
-fun main() {
-
-    val graph = DataLayerGraph<String>()
-    val addNodeCommand = AddNodeCommand("Dhaka",graph)
-    addNodeCommand.execute()
-    println("${graph.nodesList.map { it.data }}")
-    println("${graph.printAdjacency()}")
-
 
 }
