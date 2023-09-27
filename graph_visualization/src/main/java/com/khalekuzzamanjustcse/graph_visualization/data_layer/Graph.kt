@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -35,10 +36,24 @@ data class DataLayerGraph<T>(
 
     private var _nodes = MutableStateFlow(emptyList<DataLayerGraphNode<T>>())
     private var _edges = MutableStateFlow(emptyList<DataLayerGraphEdge>())
-    val nodes = _nodes
-    val edges = _edges
+    val nodes = _nodes.asStateFlow()
+    val edges = _edges.asStateFlow()
+    val nodesList:List<DataLayerGraphNode<T>>
+        get()=_nodes.value
+    val edgesList:List<DataLayerGraphEdge>
+        get()=_edges.value
+
     private val numberOfNodes: Int
         get() = _nodes.value.size
+
+    //-----------Manipulating nodes and edges---------
+    fun setNodes(nodes: List<DataLayerGraphNode<T>>) {
+        _nodes.update { nodes }
+    }
+
+    fun setEdges(edges: List<DataLayerGraphEdge>) {
+        _edges.update { edges }
+    }
 
     //---------------Manipulating Nodes------------------------//
     fun addNode(value: T) {
@@ -54,8 +69,8 @@ data class DataLayerGraph<T>(
             }
             nodes.toList()
         }
-        _edges.update {edges->
-                edges.filter { edge -> edge.uIndexRef != indexRef && edge.vIndexRef != indexRef }
+        _edges.update { edges ->
+            edges.filter { edge -> edge.uIndexRef != indexRef && edge.vIndexRef != indexRef }
                 .map { edge ->
                     var u = edge.uIndexRef
                     var v = edge.vIndexRef
@@ -88,6 +103,7 @@ data class DataLayerGraph<T>(
             }
         }
     }
+
 
     val adjacentList: List<List<Int>>
         get() {
@@ -152,7 +168,7 @@ fun main() {
         delay(1000)
         graph.removeNode(0)
         delay(1000)
-       graph.removeEdge(0)
+        graph.removeEdge(0)
 
     }
 }

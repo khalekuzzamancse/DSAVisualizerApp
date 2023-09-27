@@ -5,11 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 interface Command {
-    val name: String
+
     fun execute()
     fun undo()
-    fun redo() = execute()
-    //
+    fun redo()
+    //redo=execute most of the times
 }
 
 
