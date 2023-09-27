@@ -45,11 +45,38 @@ data class DataLayerGraph<T>(
         _nodes.value = _nodes.value + DataLayerGraphNode(data = value)
     }
 
+    fun removeNode(indexRef: Int) {
+        //removing all edges associated with the node
+        _nodes.update { currentNodes ->
+            val nodes = currentNodes.toMutableList()
+            if (isANode(indexRef)) {
+                nodes.removeAt(indexRef)
+            }
+            nodes.toList()
+        }
+        _edges.update {edges->
+                edges.filter { edge -> edge.uIndexRef != indexRef && edge.vIndexRef != indexRef }
+                .map { edge ->
+                    var u = edge.uIndexRef
+                    var v = edge.vIndexRef
+                    if (u > indexRef)
+                        u--
+                    if (v > indexRef)
+                        v--
+                    if (isANode(u) && isANode(v))
+                        edge.copy(uIndexRef = u, vIndexRef = v)
+                    else edge
+                }
+        }
+
+    }
+
 
     //---------------Manipulating Edges------------------------//
 
     fun addEdge(edge: DataLayerGraphEdge) {
-        _edges.value = _edges.value + edge
+        if (isANode(edge.uIndexRef) && isANode(edge.vIndexRef))
+            _edges.value = _edges.value + edge
     }
 
     fun removeEdge(index: Int) {
@@ -90,6 +117,7 @@ data class DataLayerGraph<T>(
     private fun isANode(indexRef: Int): Boolean {
         return indexRef in 0 until numberOfNodes
     }
+
     private fun isAnEdge(indexRef: Int): Boolean {
         return indexRef in 0 until _edges.value.size
     }
@@ -122,7 +150,9 @@ fun main() {
         delay(1000)
         graph.addEdge(edge23)
         delay(1000)
-        graph.removeEdge(0)
+        graph.removeNode(0)
+        delay(1000)
+       graph.removeEdge(0)
 
     }
 }
