@@ -38,10 +38,10 @@ data class DataLayerGraph<T>(
     private var _edges = MutableStateFlow(emptyList<DataLayerGraphEdge>())
     val nodes = _nodes.asStateFlow()
     val edges = _edges.asStateFlow()
-    val nodesList:List<DataLayerGraphNode<T>>
-        get()=_nodes.value
-    val edgesList:List<DataLayerGraphEdge>
-        get()=_edges.value
+    val nodesList: List<DataLayerGraphNode<T>>
+        get() = _nodes.value
+    val edgesList: List<DataLayerGraphEdge>
+        get() = _edges.value
 
     private val numberOfNodes: Int
         get() = _nodes.value.size
@@ -126,7 +126,15 @@ data class DataLayerGraph<T>(
         adjacentList.forEachIndexed { node, neighbors ->
             println("$node :$neighbors")
         }
-//        println("Edges:${_edges.value.map { Pair(it.uIndexRef,it.vIndexRef) }}")
+        println("Edges:${
+            _edges.value
+                .map {
+                if(isUnDirected)    
+                    "${_nodes.value[it.uIndexRef].data} <-->${_nodes.value[it.vIndexRef].data}\n" 
+                    else  "${_nodes.value[it.uIndexRef].data} -->${_nodes.value[it.vIndexRef].data}\n"
+                }
+        }"
+        )
         println()
     }
 

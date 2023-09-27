@@ -15,94 +15,85 @@ import org.junit.Test
 
 class CommandTest {
 
-    private fun printGraph(graph :DataLayerGraph<String>){
+    val graph =DataLayerGraph<String>()
+
+    private fun printGraph(){
         println("Nodes: ${graph.nodesList.map { it.data }}")
         println("Adjacency: ")
         graph.printAdjacency()
     }
+    @Before
+    fun  setup() {
+        graph.addNode("A")
+        graph.addNode("B")
+        graph.addNode("C")
+        graph.addNode("D")
+    }
+
 
     @Test
     fun testAddNodeCommand() {
-        val graph =DataLayerGraph<String>()
-        val addNodeCommand = AddNodeCommand("Dhaka", graph)
+        val addNodeCommand = AddNodeCommand("E", graph)
         addNodeCommand.execute()
-        printGraph(graph)
-        assertEquals(1, graph.nodesList.size)
+        printGraph()
+        assertEquals(5, graph.nodesList.size)
         addNodeCommand.undo()
-        assertEquals(0, graph.nodesList.size)
-        printGraph(graph)
+        assertEquals(4, graph.nodesList.size)
+        printGraph()
         addNodeCommand.redo()
-        assertEquals(1, graph.nodesList.size)
-        printGraph(graph)
+        assertEquals(5, graph.nodesList.size)
+        printGraph()
     }
     @Test
     fun testRemoveNodeCommand() {
-        val graph =DataLayerGraph<String>()
-        val commands= listOf(
-            AddNodeCommand("Dhaka",graph),
-            AddNodeCommand("Delhi",graph),
-        )
-        commands.forEach { it.execute() }
-
-        printGraph(graph)
+        printGraph()
         val removeNodeCommand = RemoveNodeCommand(0,graph)
         removeNodeCommand.execute()
-        assertEquals(1, graph.nodesList.size)
-        printGraph(graph)
+        assertEquals(3, graph.nodesList.size)
+        printGraph()
         removeNodeCommand.undo()
-        assertEquals(2, graph.nodesList.size)
-        printGraph(graph)
+        assertEquals(4, graph.nodesList.size)
+        printGraph()
         removeNodeCommand.redo()
-        assertEquals(1, graph.nodesList.size)
-        printGraph(graph)
+        assertEquals(3, graph.nodesList.size)
+        printGraph()
     }
     @Test
     fun testAddEdgeCommand() {
-        val graph =DataLayerGraph<String>()
-        val commands= listOf(
-            AddNodeCommand("Dhaka",graph),
-            AddNodeCommand("Delhi",graph),
-            AddNodeCommand("Lahore",graph),
-        )
-        commands.forEach { it.execute() }
-        printGraph(graph)
+
+        printGraph()
         val edge = DataLayerGraphEdge(0, 1)
         val addEdgeCommand = AddEdgeCommand(edge, graph)
         addEdgeCommand.execute()
 
         assertEquals(1, graph.edgesList.size)
-        printGraph(graph)
+        printGraph()
 
         addEdgeCommand.undo()
         assertEquals(0, graph.edgesList.size)
-        printGraph(graph)
+        printGraph()
         addEdgeCommand.redo()
         assertEquals(1, graph.edgesList.size)
-        printGraph(graph)
+        printGraph()
     }
     @Test
     fun testRemoveEdgeCommand() {
-        val graph =DataLayerGraph<String>()
-        val commands= listOf(
-            AddNodeCommand("Dhaka",graph),
-            AddNodeCommand("Delhi",graph),
-            AddNodeCommand("Lahore",graph),
-            AddEdgeCommand(DataLayerGraphEdge(0,1), graph)
-        )
-        commands.forEach { it.execute() }
-        printGraph(graph)
+        val edge = DataLayerGraphEdge(0, 1)
+        val addEdgeCommand = AddEdgeCommand(edge, graph)
+        addEdgeCommand.execute()
+        printGraph()
         val removeEdgeCommand = RemoveEdgeCommand(0,graph)
         removeEdgeCommand.execute()
         assertEquals(0, graph.edgesList.size)
-        printGraph(graph)
+        printGraph()
 
         removeEdgeCommand.undo()
         assertEquals(1, graph.edgesList.size)
-        printGraph(graph)
+        printGraph()
 
         removeEdgeCommand.redo()
         assertEquals(0, graph.edgesList.size)
-        printGraph(graph)
+        printGraph()
 
     }
 
