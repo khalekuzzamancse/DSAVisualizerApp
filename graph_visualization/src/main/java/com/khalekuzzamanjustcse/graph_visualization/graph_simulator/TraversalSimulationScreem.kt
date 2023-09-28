@@ -34,13 +34,10 @@ class GraphTraversalScreenState(
 ) {
     private val _inputMode = MutableStateFlow(true)
     val inputMode = _inputMode.asStateFlow()
-
-    private val _simulationState = MutableStateFlow(GraphSimulatorState(GraphEditorResult()))
-    var simulationState =_simulationState.asStateFlow()
-
+    var simulationState = GraphSimulatorState(GraphEditorResult())
     val editorState = GraphEditorState(size, sizePx,
         onInputComplete = { sState ->
-            _simulationState.update { GraphSimulatorState(sState) }
+            simulationState = GraphSimulatorState(sState)
             _inputMode.update { false }
         }
     )
@@ -50,7 +47,7 @@ class GraphTraversalScreenState(
             override val icon = Icons.Filled.NextPlan
             override val label = "Next"
             override val enabled = mutableStateOf(true)
-            override fun onClick() = simulationState.value.onNext()
+            override fun onClick() = simulationState.onNext()
         },
         object : ControlButton {
             override val icon = Icons.Filled.Code
@@ -69,7 +66,7 @@ class GraphTraversalScreenState(
     )
 
     fun onTraversalChanged(index: Int) =
-        simulationState.value.onTraversalChanged(TraversalOptions.getOption(index))
+        simulationState.onTraversalChanged(TraversalOptions.getOption(index))
 }
 
 @Preview
@@ -86,7 +83,7 @@ fun GraphTraversalPreview() {
                 modifier = Modifier.matchParentSize(),
                 state = screenState.editorState,
                 onDone = {
-                  screenState.editorState.onDone()
+                    screenState.editorState.onDone()
                 }
             )
         } else {
@@ -99,8 +96,8 @@ fun GraphTraversalPreview() {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 GraphDrawer(
-                    nodes = screenState.simulationState.collectAsState().value.nodes.collectAsState().value,
-                    edges = screenState.simulationState.collectAsState().value.edges.collectAsState().value,
+                    nodes = screenState.simulationState.nodes.collectAsState().value,
+                    edges = screenState.simulationState.edges.collectAsState().value,
                 )
             }
         }
