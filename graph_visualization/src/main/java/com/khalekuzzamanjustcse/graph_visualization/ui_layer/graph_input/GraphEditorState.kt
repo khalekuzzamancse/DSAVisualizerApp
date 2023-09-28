@@ -36,6 +36,8 @@ class GraphEditorState(
     private val _edges = MutableStateFlow(emptyList<EdgeComposableState>())
     val nodes = _nodes.asStateFlow()
     val edges = _edges.asStateFlow()
+    private val adjacencyList
+    get() = graph.adjacencyListOfIds
 
     private val undoManager = UndoManager()
     val disableUndo: Boolean
@@ -85,10 +87,11 @@ class GraphEditorState(
 
     fun onDone() {
         onInputComplete(
-          GraphEditorResult(
-              nodes=_nodes.value.map { it.copy(clickable = false, draggable = false) },
-              edges=_edges.value
-          )
+            GraphEditorResult(
+                nodes = _nodes.value.map { it.copy(clickable = false, draggable = false) },
+                edges = _edges.value,
+                adjacencyList=adjacencyList
+            )
         )
     }
 

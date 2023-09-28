@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.graph_visualization.graph_simulator.GraphSimulatorState
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.GraphDrawer
 import kotlin.random.Random
 
@@ -40,6 +41,7 @@ fun GraphMakerComposablePreview() {
     val state = remember {
         GraphEditorState(size, sizePx) {
             result.value = it
+            val g=GraphSimulatorState(it)
         }
     }
     val inputModeOn = remember {
@@ -48,7 +50,7 @@ fun GraphMakerComposablePreview() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (inputModeOn.value) {
-            GraphMakerComposable(
+            GraphEditorComposable(
                 modifier = Modifier.matchParentSize(),
                 state = state
             ) {
@@ -73,7 +75,7 @@ fun GraphMakerComposablePreview() {
 }
 
 @Composable
-fun GraphMakerComposable(
+fun GraphEditorComposable(
     modifier: Modifier = Modifier,
     state: GraphEditorState,
     onDone: () -> Unit,

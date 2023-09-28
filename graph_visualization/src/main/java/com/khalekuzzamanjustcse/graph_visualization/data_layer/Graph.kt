@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.graph_visualization.data_layer
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,9 @@ data class AdjacencyList<T>(
     val nodes: List<GraphCommonNode<T>> = emptyList()
 ) {
 
+
+    val adjacencyList: Map<Int, List<Int>>
+        get() = nodes.associate { it.id to it.neighborsId }
 
     //manipulating nodes
     fun addOffset(nodeId: Int, amount: Offset): AdjacencyList<T> {
@@ -118,6 +122,7 @@ data class AdjacencyList<T>(
         return neighbours.toList()
     }
 
+
 }
 
 /*
@@ -141,26 +146,28 @@ same lock for that operations that can depends on each other
 data class Graph<T>(val undirected: Boolean = true) {
     var adjacencyList = AdjacencyList<T>(undirected = undirected)
         private set
-    private val lock=Any()
+    private val lock = Any()
 
     private val _nodes = MutableStateFlow(adjacencyList.nodes)
     private val _edges = MutableStateFlow(adjacencyList.edges)
-    val nodes=_nodes.asStateFlow()
-    val edges=_edges.asStateFlow()
+    val nodes = _nodes.asStateFlow()
+    val edges = _edges.asStateFlow()
+    val adjacencyListOfIds
+        get() = adjacencyList.adjacencyList
 
     fun setNodes(nodes: List<GraphCommonNode<T>>) {
         synchronized(lock) {
-           nodes.forEach {
-               addNode(it)
-           }
+            nodes.forEach {
+                addNode(it)
+            }
         }
     }
 
-    fun setEdges(edges: List<Pair<Int,Int>>) {
+    fun setEdges(edges: List<Pair<Int, Int>>) {
         synchronized(lock) {
-           edges.forEach {(u,v) ->
-               addEdge(u,v)
-           }
+            edges.forEach { (u, v) ->
+                addEdge(u, v)
+            }
         }
     }
 
@@ -168,27 +175,28 @@ data class Graph<T>(val undirected: Boolean = true) {
         adjacencyList = adjacencyList.addNode(node)
         _nodes.update { adjacencyList.nodes }
     }
-    fun onNodeDrag(id:Int,amount: Offset){
-       adjacencyList= adjacencyList.addOffset(id,amount)
+
+    fun onNodeDrag(id: Int, amount: Offset) {
+        adjacencyList = adjacencyList.addOffset(id, amount)
         _nodes.update { adjacencyList.nodes }
-        _edges.update { adjacencyList.edges}
+        _edges.update { adjacencyList.edges }
     }
 
     fun removeNode(id: Int) {
         adjacencyList = adjacencyList.removeNode(id)
         _nodes.update { adjacencyList.nodes }
         //there may need to remove some edge
-        _edges.update { adjacencyList.edges}
+        _edges.update { adjacencyList.edges }
     }
 
     fun addEdge(uId: Int, vId: Int) {
         adjacencyList = adjacencyList.addEdge(uId, vId)
-        _edges.update { adjacencyList.edges}
+        _edges.update { adjacencyList.edges }
     }
 
     fun removeEdge(uId: Int, vId: Int) {
         adjacencyList = adjacencyList.removeEdge(uId, vId)
-        _edges.update { adjacencyList.edges}
+        _edges.update { adjacencyList.edges }
     }
 
 }
