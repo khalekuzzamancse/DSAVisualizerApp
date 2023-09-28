@@ -51,7 +51,7 @@ fun ModalDrawerNavHost(
                 closeDrawer = closeDrawer,
                 onDrawerItemClick = navAction::navigateTo
             ) {
-                GraphTraversalScreenSwitch(openDrawer)
+
             }
         }
         composable(TopLevelDestinations.LINEAR_DATA_STRUCTURE) {

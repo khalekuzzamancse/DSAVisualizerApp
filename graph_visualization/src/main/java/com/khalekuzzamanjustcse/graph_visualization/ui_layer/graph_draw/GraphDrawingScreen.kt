@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 import kotlin.random.Random
 
+
+private val random
+    get() = Random.nextInt(99)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
@@ -28,7 +32,7 @@ fun GraphTraversalScreen() {
     val size = 50.dp
     val sizePx = size.value * LocalDensity.current.density
     val viewModel = remember {
-        GraphDrawerViewModel(size = size, sizePx = sizePx)
+        ViewModel(size = size, sizePx = sizePx)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -76,8 +80,3 @@ fun GraphTraversalScreen() {
     }
 
 }
-
-private val random
-    get() = Random.nextInt(99)
-
-

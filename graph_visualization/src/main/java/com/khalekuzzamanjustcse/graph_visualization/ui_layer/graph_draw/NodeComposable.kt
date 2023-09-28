@@ -48,6 +48,7 @@ data class NodeComposableState(
     val backgroundColor: Color = Color.Unspecified,
     val clickable: Boolean = true,
     val draggable: Boolean = true,
+    val id: Int =0,
 ) {
     val textColor: Color
         get() = if (color.luminance() > 0.5) Color.Black else Color.White
@@ -120,8 +121,6 @@ fun NodeComposable(
     val offsetAnimation by animateOffsetAsState(state.offset, label = "")
     val nodeColor by animateColorAsState(targetValue = state.color, label = "")
     val backgroundColor by animateColorAsState(targetValue = state.backgroundColor, label = "")
-//    val padding = 8.dp
-
 
     val modifier = Modifier
         .size(state.size)

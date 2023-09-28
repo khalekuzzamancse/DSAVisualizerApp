@@ -66,7 +66,6 @@ fun GraphDrawerPreview() {
                 EdgeComposableState(
                     startPoint = nodes[1].center,
                     endPoint = nodes[2].center - Offset(0f, sizePx / 2 - 10f),
-                    hasDirection = true,
                 )
             )
         )
@@ -158,13 +157,13 @@ fun GraphDrawer(
                 }
             }
     ) {
-        nodes.forEachIndexed { nodeIndex, nodeState ->
+        nodes.forEachIndexed { nodeIndex, node ->
             NodeComposable(
-                state = nodeState,
-                onDragStart = { offset -> onDragStart(nodeIndex, offset) },
-                onDragEnd = { onDragEnd(nodeIndex) },
-                onClick = { onClick(nodeIndex) },
-                onDrag = { dragAmount -> onDrag(nodeIndex, dragAmount) }
+                state = node,
+                onDragStart = { offset -> onDragStart(node.id, offset) },
+                onDragEnd = { onDragEnd(node.id) },
+                onClick = { onClick(node.id) },
+                onDrag = { dragAmount -> onDrag(node.id, dragAmount) }
             )
         }
 

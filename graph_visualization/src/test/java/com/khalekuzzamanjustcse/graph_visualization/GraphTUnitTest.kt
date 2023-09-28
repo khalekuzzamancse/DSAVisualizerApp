@@ -2,24 +2,24 @@ package com.khalekuzzamanjustcse.graph_visualization
 
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.AdjacencyList
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph22
-import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode22
+import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode
 import org.junit.Before
 import org.junit.Test
 
 class AdjacencyListTest {
     private var adjacencyList = AdjacencyList<String>()
-   private fun printGraph() {
+    private fun printGraph() {
         println("Nodes : ${adjacencyList.nodes.map { it.label }}")
         println("Edges :\n${adjacencyList.edges.map { " (${it.first.label} ---> ${it.second.label} ) " }}")
     }
 
     @Before
     fun setup() {
-        adjacencyList = adjacencyList.addNode(GraphNode22("A", id = 1))
-        adjacencyList = adjacencyList.addNode(GraphNode22("B",id=2))
-        adjacencyList = adjacencyList.addNode(GraphNode22("C",id=3))
-        adjacencyList = adjacencyList.addNode(GraphNode22("D",id=4))
-        adjacencyList = adjacencyList.addNode(GraphNode22("E",id=5))
+        adjacencyList = adjacencyList.addNode(GraphNode("A", id = 1))
+        adjacencyList = adjacencyList.addNode(GraphNode("B", id = 2))
+        adjacencyList = adjacencyList.addNode(GraphNode("C", id = 3))
+        adjacencyList = adjacencyList.addNode(GraphNode("D", id = 4))
+        adjacencyList = adjacencyList.addNode(GraphNode("E", id = 5))
         adjacencyList = adjacencyList.addEdge(1, 2)
         adjacencyList = adjacencyList.addEdge(2, 3)
         printGraph()
@@ -28,13 +28,14 @@ class AdjacencyListTest {
 
     @Test
     fun test() {
-        adjacencyList=adjacencyList.removeEdge(1,2)
+        adjacencyList = adjacencyList.removeEdge(1, 2)
         printGraph()
 
     }
+
     @Test
-    fun  removeNode(){
-        adjacencyList=adjacencyList.removeNode(1)
+    fun removeNode() {
+        adjacencyList = adjacencyList.removeNode(1)
         printGraph()
     }
 
@@ -50,14 +51,14 @@ class GraphTUnitTest {
 
     @Before
     fun setUp() {
-        graph.addNode(GraphNode22("A"))
-        graph.addNode(GraphNode22("B"))
-        graph.addNode(GraphNode22("C"))
-        graph.addNode(GraphNode22("D"))
-        graph.addNode(GraphNode22("E"))
-        graph.addEdge(0,1)
-        graph.addEdge(0,2)
-        graph.addEdge(2,3)
+        graph.addNode(GraphNode("A"))
+        graph.addNode(GraphNode("B"))
+        graph.addNode(GraphNode("C"))
+        graph.addNode(GraphNode("D"))
+        graph.addNode(GraphNode("E"))
+        graph.addEdge(0, 1)
+        graph.addEdge(0, 2)
+        graph.addEdge(2, 3)
         printGraph()
     }
 
@@ -67,13 +68,12 @@ class GraphTUnitTest {
         println("ids : $ids")
         printGraph()
     }
+
     @Test
-    fun  removeNode(){
-       graph.removeNode(0)
+    fun removeNode() {
+        graph.removeNode(0)
         printGraph()
     }
-
-
 
 
 }

@@ -2,11 +2,123 @@ package com.khalekuzzamanjustcse.graph_visualization.data_layer
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.EdgeComposableState
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.NodeComposableState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+
+
+interface GraphCommonNode<T> {
+    val data: T
+    val id: Int
+    val label: String
+    val offset: Offset
+    val neighborsId: List<Int>
+    fun addNeighbors(id: Int): GraphCommonNode<T>
+    fun removeNeighbors(id: Int): GraphCommonNode<T>
+    fun changeId(newId: Int): GraphCommonNode<T>
+    fun addToOffset(amount: Offset): GraphCommonNode<T>
+}
+
+@Immutable
+data class GraphNode<T>(
+    override val data: T,
+    override val offset: Offset = Offset.Zero,
+    override val neighborsId: List<Int> = emptyList(),
+    override val id: Int = 0,
+) : GraphCommonNode<T> {
+    override val label: String
+        get() = "$data"
+
+    override fun addNeighbors(id: Int): GraphCommonNode<T> {
+        return this.copy(neighborsId = this.neighborsId + id)
+    }
+
+    override fun removeNeighbors(id: Int): GraphCommonNode<T> {
+        return this.copy(neighborsId = this.neighborsId.filter { it != id })
+    }
+
+    override fun changeId(newId: Int): GraphCommonNode<T> {
+        return this.copy(id = newId)
+    }
+
+    override fun addToOffset(amount: Offset): GraphCommonNode<T> {
+        return this.copy(offset = offset + amount)
+    }
+}
+
+@Immutable
+data class AdjacencyList<T>(
+    val undirected: Boolean = true,
+    val nodes: List<GraphCommonNode<T>> = emptyList()
+) {
+
+
+    //manipulating nodes
+    fun addOffset(nodeId: Int, amount: Offset): AdjacencyList<T> {
+        val tempNodes = nodes.toMutableList()
+        val node = nodes.find { it.id == nodeId }
+        val index = nodes.indexOf(node)
+        if (node != null && index != -1) {
+            tempNodes[index] = node.addToOffset(amount)
+        }
+        return this.copy(nodes = tempNodes)
+
+    }
+
+    fun addNode(node: GraphCommonNode<T>) = this.copy(nodes = nodes + node)
+    fun removeNode(id: Int) = this.copy(nodes = nodes.filter { it.id != id })
+    val edges: List<Pair<GraphCommonNode<T>, GraphCommonNode<T>>>
+        get() {
+            var edges: List<Pair<GraphCommonNode<T>, GraphCommonNode<T>>> = emptyList()
+            nodes.forEach { node ->
+                edges = edges + getNeighborsByIds(node.neighborsId).map { node to it }
+            }
+            return edges
+        }
+
+
+    fun addEdge(uId: Int, vId: Int): AdjacencyList<T> {
+        val tempNodes = nodes.toMutableList()
+        val nodeU = nodes.find { it.id == uId }
+        val indexOfU = nodes.indexOf(nodeU)
+        val nodeV = nodes.find { it.id == vId }
+        val indexOfV = nodes.indexOf(nodeV)
+        if (nodeU != null && indexOfU != -1 && nodeV != null && indexOfV != -1) {
+            tempNodes[indexOfU] = nodeU.addNeighbors(vId)
+        }
+        if (undirected) {
+            if (nodeV != null && indexOfV != -1 && nodeU != null) {
+                tempNodes[indexOfV] = nodeV.addNeighbors(uId)
+            }
+        }
+        return this.copy(nodes = tempNodes)
+    }
+
+    fun removeEdge(uId: Int, vId: Int): AdjacencyList<T> {
+        val nodes = nodes.map { node ->
+            when (node.id) {
+                vId -> node.removeNeighbors(uId)
+                uId -> node.removeNeighbors(vId)
+                else -> node
+            }
+        }
+        //keep edge list up to date
+        return this.copy(nodes = nodes)
+    }
+
+
+    private fun getNeighborsByIds(ids: List<Int>): List<GraphCommonNode<T>> {
+        val neighbours = mutableListOf<GraphCommonNode<T>>()
+        ids.forEach { id ->
+            val neighbor = nodes.find { it.id == id }
+            if (neighbor != null) {
+                neighbours.add(neighbor)
+            }
+        }
+        return neighbours.toList()
+    }
+
+}
 
 /*
 It is independent of UI
@@ -23,175 +135,60 @@ same lock for that operations that can depends on each other
 
  */
 
+/*
+   Unit test Done
+    */
+data class Graph22<T>(val undirected: Boolean = true) {
+    var adjacencyList = AdjacencyList<T>(undirected = undirected)
+        private set
+    private val lock=Any()
 
-@Immutable
-data class DataLayerGraphEdge(
-    val uIndexRef: Int,
-    val vIndexRef: Int,
-    val cost: Int = 0,
-)
+    private val _nodes = MutableStateFlow(adjacencyList.nodes)
+    private val _edges = MutableStateFlow(adjacencyList.edges)
+    val nodes=_nodes.asStateFlow()
+    val edges=_edges.asStateFlow()
 
-
-data class DataLayerGraph<T>(
-    val isUnDirected: Boolean = true,
-) {
-    private val lock = Any()
-    private var _nodes = MutableStateFlow(emptyList<NodeComposableState>())
-    private var _edges = MutableStateFlow(emptyList<DataLayerGraphEdge>())
-    val nodes = _nodes.asStateFlow()
-    val drawingEdge = MutableStateFlow(emptyList<EdgeComposableState>())
-
-    val nodesList: List<NodeComposableState>
-        get() = _nodes.value
-    val edgesList: List<DataLayerGraphEdge>
-        get() = _edges.value
-
-    private val numberOfNodes: Int
-        get() = _nodes.value.size
-
-    private fun updateDrawingEdge() {
-        drawingEdge.update {
-            _edges.value.map {
-                val start = _nodes.value[it.uIndexRef].center
-                val end = _nodes.value[it.vIndexRef].center
-                EdgeComposableState(start, end)
-            }
-        }
-    }
-
-    //-----------Manipulating nodes and edges---------
-    fun setNodes(nodes: List<NodeComposableState>) {
+    fun setNodes(nodes: List<GraphCommonNode<T>>) {
         synchronized(lock) {
-            _nodes.update { nodes }
+           nodes.forEach {
+               addNode(it)
+           }
         }
-
     }
 
-    fun setEdges(edges: List<DataLayerGraphEdge>) {
+    fun setEdges(edges: List<Pair<Int,Int>>) {
         synchronized(lock) {
-            _edges.update { edges }
-        }
-
-    }
-
-    //---------------Manipulating Nodes------------------------//
-    fun addNode(value: T) {
-//        synchronized(lock) {
-//            _nodes.value = _nodes.value + DataLayerGraphNode(data = value)
-//        }
-    }
-
-    fun addNode(node: NodeComposableState) {
-        synchronized(lock) {
-            _nodes.value = _nodes.value + node
+           edges.forEach {(u,v) ->
+               addEdge(u,v)
+           }
         }
     }
 
-    fun removeNode(indexRef: Int) {
-        //removing all edges associated with the node
-        synchronized(lock) {
-            _nodes.update { currentNodes ->
-                val nodes = currentNodes.toMutableList()
-                if (isANode(indexRef)) {
-                    nodes.removeAt(indexRef)
-                }
-                nodes.toList()
-            }
-            _edges.update { edges ->
-                edges.filter { edge -> edge.uIndexRef != indexRef && edge.vIndexRef != indexRef }
-                    .map { edge ->
-                        var u = edge.uIndexRef
-                        var v = edge.vIndexRef
-                        if (u > indexRef)
-                            u--
-                        if (v > indexRef)
-                            v--
-                        if (isANode(u) && isANode(v))
-                            edge.copy(uIndexRef = u, vIndexRef = v)
-                        else edge
-                    }
-            }
-            //update edges
-            updateDrawingEdge()
-        }
-
+    fun addNode(node: GraphCommonNode<T>) {
+        adjacencyList = adjacencyList.addNode(node)
+        _nodes.update { adjacencyList.nodes }
+    }
+    fun onNodeDrag(id:Int,amount: Offset){
+       adjacencyList= adjacencyList.addOffset(id,amount)
+        _nodes.update { adjacencyList.nodes }
+        _edges.update { adjacencyList.edges}
     }
 
-
-    //---------------Manipulating Edges------------------------//
-
-    fun addEdge(edge: DataLayerGraphEdge) {
-        synchronized(lock) {
-            if (isANode(edge.uIndexRef) && isANode(edge.vIndexRef)) {
-                _edges.value = _edges.value + edge
-            }
-            updateDrawingEdge()
-
-        }
-
+    fun removeNode(id: Int) {
+        adjacencyList = adjacencyList.removeNode(id)
+        _nodes.update { adjacencyList.nodes }
+        //there may need to remove some edge
+        _edges.update { adjacencyList.edges}
     }
 
-    fun removeEdge(index: Int) {
-        synchronized(lock) {
-            val edge = _edges.value.toMutableList()
-            if (isAnEdge(index)) {
-                _edges.update {
-                    edge.removeAt(index)
-                    edge
-                }
-            }
-            updateDrawingEdge()
-        }
-
+    fun addEdge(uId: Int, vId: Int) {
+        adjacencyList = adjacencyList.addEdge(uId, vId)
+        _edges.update { adjacencyList.edges}
     }
 
-    //Node property manipulation
-    fun onDrag(nodeIndex: Int, offset: Offset) {
-        val oldState = _nodes.value[nodeIndex]
-        val updatedNode = oldState.copy(offset = offset + oldState.offset)
-        _nodes.update { it.toMutableList().apply { set(nodeIndex, updatedNode) } }
-        //move the edges also
-        updateDrawingEdge()
+    fun removeEdge(uId: Int, vId: Int) {
+        adjacencyList = adjacencyList.removeEdge(uId, vId)
+        _edges.update { adjacencyList.edges}
     }
 
-    val adjacentList: List<List<Int>>
-        get() {
-            val adjacency: List<MutableList<Int>> = List(numberOfNodes) { mutableListOf() }
-            _edges.value.forEach { edge ->
-                val u = edge.uIndexRef
-                val v = edge.vIndexRef
-                if (isANode(u) && isANode(v)) {
-                    adjacency[u].add(v)
-                    if (isUnDirected) {
-                        adjacency[v].add(u)
-                    }
-                }
-
-            }
-            return adjacency.toList()
-        }
-
-    fun printAdjacency() {
-        adjacentList.forEachIndexed { node, neighbors ->
-            println("$node :$neighbors")
-        }
-        println("Edges:${
-            _edges.value
-                .map {
-                    if (isUnDirected)
-                        "${_nodes.value[it.uIndexRef].label} <-->${_nodes.value[it.vIndexRef].label}\n"
-                    else "${_nodes.value[it.uIndexRef].label} -->${_nodes.value[it.vIndexRef].label}\n"
-                }
-        }"
-        )
-        println()
-    }
-
-    private fun isANode(indexRef: Int): Boolean {
-        return indexRef in 0 until numberOfNodes
-    }
-
-    private fun isAnEdge(indexRef: Int): Boolean {
-        return indexRef in 0 until _edges.value.size
-    }
 }
