@@ -3,6 +3,7 @@ package com.khalekuzzamanjustcse.graph_visualization.graph_simulator
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.BFSSimulationSequence
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.DFSSimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.SimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.GraphEditorResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,17 +19,24 @@ data class GraphSimulatorState(
     val edges = _edges.asStateFlow()
     private val adjacencyList = result.adjacencyList
     var bfsSequence: SimulationSequence? = null
+    var dfsSequence: SimulationSequence? = null
+
     fun processing(id: Int) {
         _nodes.update { list ->
             list.map { if (it.id == id) it.copy(color = Color.Red) else it }
+        }
+    }
+    fun onTraversalChanged(){
+        _nodes.update { list ->
+            list.map { it.copy(color = Color.Green) }
         }
     }
 
     init {
         if (nodes.value.isNotEmpty()) {
             bfsSequence = BFSSimulationSequence(adjacencyList, nodes.value[0].id)
+            dfsSequence= DFSSimulationSequence(adjacencyList, nodes.value[0].id)
         }
-
 
     }
 }

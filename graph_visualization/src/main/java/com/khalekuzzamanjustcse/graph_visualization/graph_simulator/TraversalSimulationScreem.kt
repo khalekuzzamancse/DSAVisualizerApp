@@ -76,16 +76,42 @@ fun GraphTraversalPreview() {
                             Log.i("Simulating:Procesing", "${res.processingNodeIndex}")
                             simulationState.value.processing(res.processingNodeIndex)
                         }
+
                         is Started -> {
                             Log.i("Simulating:Procesing", "Started")
                         }
+
                         is Finished -> {
                             Log.i("Simulating:Procesing", "Finsished")
                         }
                     }
 
                 }) {
-                    Text(text = "Next")
+                    Text(text = "BFS Next")
+                }
+                Button(onClick = { simulationState.value.onTraversalChanged() }) {
+
+                    Text(text = "ChangeTraversal")
+                }
+                Button(onClick = {
+
+                    when (val res = simulationState.value.dfsSequence?.next()) {
+                        is Simulating -> {
+                            Log.i("Simulating:Procesing", "${res.processingNodeIndex}")
+                            simulationState.value.processing(res.processingNodeIndex)
+                        }
+
+                        is Started -> {
+                            Log.i("Simulating:Procesing", "Started")
+                        }
+
+                        is Finished -> {
+                            Log.i("Simulating:Procesing", "Finsished")
+                        }
+                    }
+
+                }) {
+                    Text(text = "DFS Next")
                 }
                 GraphDrawer(
                     nodes = simulationState.value.nodes.collectAsState().value,
