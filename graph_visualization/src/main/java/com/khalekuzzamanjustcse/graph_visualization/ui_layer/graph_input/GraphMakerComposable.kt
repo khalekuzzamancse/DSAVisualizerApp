@@ -34,24 +34,35 @@ private val random
 fun GraphMakerComposablePreview() {
     val size = 50.dp
     val sizePx = size.value * LocalDensity.current.density
+    val result = remember {
+      mutableStateOf(  GraphEditorResult())
+    }
     val state = remember {
-        GraphMakerState(size, sizePx)
+        GraphEditorState(size, sizePx) {
+            result.value = it
+        }
     }
     val inputModeOn = remember {
         mutableStateOf(false)
     }
-    Box(modifier=Modifier.fillMaxSize()) {
-        Button(onClick = {
-            inputModeOn.value = !inputModeOn.value
-        }) {
-            Text(text = "Go to Graph Editor")
-        }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         if (inputModeOn.value) {
             GraphMakerComposable(
                 modifier = Modifier.matchParentSize(),
                 state = state
             ) {
                 inputModeOn.value = false
+                state.onDone()
+            }
+        } else {
+            Column (modifier = Modifier.fillMaxSize()){
+                Button(onClick = {
+                    inputModeOn.value = !inputModeOn.value
+                }) {
+                    Text(text = "Go to Graph Editor")
+                }
+                GraphDrawer(nodes = result.value.nodes, edges = result.value.edges)
             }
         }
 
@@ -64,7 +75,7 @@ fun GraphMakerComposablePreview() {
 @Composable
 fun GraphMakerComposable(
     modifier: Modifier = Modifier,
-    state: GraphMakerState,
+    state: GraphEditorState,
     onDone: () -> Unit,
 ) {
 
@@ -109,7 +120,7 @@ fun GraphMakerComposable(
             override val icon = Icons.Filled.DoneOutline
             override val label = "Done"
             override val enabled = enabled
-            override fun onClick()=onDone()
+            override fun onClick() = onDone()
         },
     )
     Column(modifier = modifier.fillMaxSize()) {
