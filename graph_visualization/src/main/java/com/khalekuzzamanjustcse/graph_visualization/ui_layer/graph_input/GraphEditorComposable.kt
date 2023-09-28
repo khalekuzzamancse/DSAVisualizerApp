@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.DoneOutline
 import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.LinearScale
 import androidx.compose.material.icons.filled.Redo
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -41,7 +40,7 @@ fun GraphMakerComposablePreview() {
     val state = remember {
         GraphEditorState(size, sizePx) {
             result.value = it
-            val g=GraphSimulatorState(it)
+            GraphSimulatorState(it)
         }
     }
     val inputModeOn = remember {
@@ -93,13 +92,7 @@ fun GraphEditorComposable(
                 state.addNode("$random")
             }
         },
-        object : ControlButton {
-            override val icon = Icons.Filled.Remove
-            override val label = "Remove Node"
-            override val enabled = enabled
-            override fun onClick() = state.removeNode()
 
-        },
         object : ControlButton {
             override val icon = Icons.Filled.LinearScale
             override val label = "Add Edge"

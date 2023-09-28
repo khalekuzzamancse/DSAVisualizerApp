@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.khalekuzzamanjustcse.dsavisulizer.ui.theme.DSAVisulizerTheme
+import com.khalekuzzamanjustcse.graph_visualization.graph_simulator.GraphTraversalPreview
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.GraphTraversalScreen
 
 class MainActivity : ComponentActivity() {
@@ -12,7 +13,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DSAVisulizerTheme {
                // ModalDrawerNavHost()
-                GraphTraversalScreen()
+                GraphTraversalPreview()
             }
         }
     }

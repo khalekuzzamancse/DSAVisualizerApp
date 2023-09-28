@@ -80,12 +80,13 @@ fun CustomDropDownMenuPreview() {
 @Composable
 fun CustomDropDownMenu(
     modifier: Modifier = Modifier,
-    expanded:Boolean=false,
     options: List<DropdownMenuOption>,
     offset: DpOffset = DpOffset(0.dp,0.dp),
     onItemClick: (index: Int) -> Unit,
 ) {
-
+    var show by remember {
+        mutableStateOf(true)
+    }
     Box(
         modifier = modifier,
 //            .wrapContentSize(),
@@ -94,7 +95,7 @@ fun CustomDropDownMenu(
         DropdownMenu(
             offset = offset,
             modifier = Modifier,
-            expanded = expanded,
+            expanded = show,
             onDismissRequest = {
 
             }
@@ -104,6 +105,7 @@ fun CustomDropDownMenu(
                     Text(text = it.label)
                 }, onClick = {
                     onItemClick(index)
+                    show=false
                 })
             }
         }
