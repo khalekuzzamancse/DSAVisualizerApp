@@ -138,7 +138,7 @@ same lock for that operations that can depends on each other
 /*
    Unit test Done
     */
-data class Graph22<T>(val undirected: Boolean = true) {
+data class Graph<T>(val undirected: Boolean = true) {
     var adjacencyList = AdjacencyList<T>(undirected = undirected)
         private set
     private val lock=Any()

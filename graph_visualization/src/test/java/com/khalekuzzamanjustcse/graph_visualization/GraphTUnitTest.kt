@@ -1,7 +1,7 @@
 package com.khalekuzzamanjustcse.graph_visualization
 
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.AdjacencyList
-import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph22
+import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode
 import org.junit.Before
 import org.junit.Test
@@ -43,7 +43,7 @@ class AdjacencyListTest {
 }
 
 class GraphTUnitTest {
-    private val graph = Graph22<String>()
+    private val graph = Graph<String>()
     private fun printGraph() {
         println("Nodes : ${graph.adjacencyList.nodes.map { it.label }}")
         println("Edges :\n${graph.adjacencyList.edges.map { " ( ${it.first.label} ---> ${it.second.label}" }} ) ")

@@ -1,6 +1,6 @@
 package com.khalekuzzamanjustcse.graph_visualization.command_pattern
 
-import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph22
+import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode
 
 /*
@@ -8,7 +8,7 @@ See the testing in the unit test package
  */
 class AddNodeCommand<T>(
     private val node:GraphNode<T>,
-    private val graph : Graph22<T>
+    private val graph : Graph<T>
 ) : Command {
     override fun execute()=graph.addNode(node)
     override fun undo()=graph.removeNode(node.id)
@@ -17,7 +17,7 @@ class AddNodeCommand<T>(
 
 class RemoveNodeCommand<T>(
     private val nodeId: Int,
-    private val graph : Graph22<T>
+    private val graph : Graph<T>
 ) : Command {
     private val nodesList = graph.nodes.value
     private val edgesList = graph.edges.value
@@ -39,7 +39,7 @@ class RemoveNodeCommand<T>(
 class AddEdgeCommand<T>(
     private val uId:Int,
     private val  vId:Int,
-    private val graph : Graph22<T>
+    private val graph : Graph<T>
 ) : Command {
     override fun execute()=graph.addEdge(uId, vId)
     override fun undo()=graph.removeEdge(uId, vId)
