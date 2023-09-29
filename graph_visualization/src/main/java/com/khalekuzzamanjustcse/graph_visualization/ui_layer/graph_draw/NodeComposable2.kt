@@ -1,7 +1,7 @@
 package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,45 +24,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 import kotlin.concurrent.timer
 import kotlin.random.Random
 
-@Immutable
-data class NodeComposableState(
-    val label: String,
-    val size: Dp,
-    val sizePx: Float,
-    val offset: Offset = Offset.Zero,
-    val color: Color = Color.Green,
-    val backgroundColor: Color = Color.Unspecified,
-    val clickable: Boolean = true,
-    val draggable: Boolean = true,
-    val id: Int = 0,
-) {
-    val textColor: Color
-        get() = if (color.luminance() > 0.5) Color.Black else Color.White
-    val center: Offset
-        get() = offset + Offset(sizePx / 2, sizePx / 2)
-
-}
-
-
 /*
-This preview is for testing purpose we change that state inside the preview composable
-however in real project change the state only inside the View model
+Dragging is an costly operation it execute  frequently
+so used the drag amount internally and when drag end then notify the user
+that drag is ended
 
  */
 @Preview
 @Composable
-private fun NodeComposePreview() {
+private fun NodeCompose2Preview() {
 
     val size = 64.dp
     val sizePx = LocalDensity.current.density * size.value
@@ -98,32 +76,35 @@ private fun NodeComposePreview() {
         NodeComposable(
             state = state,
             onDragStart = {},
-            onDragEnd = { },
             onClick = { },
-            onDrag = {}
+            onDragEnd = { state = state.copy(offset = it)}
         )
     }
 
 
 }
 
-
 @Composable
 fun NodeComposable(
     state: NodeComposableState,
     onDragStart: (Offset) -> Unit,
-    onDragEnd: () -> Unit,
-    onClick: () -> Unit,
-    onDrag: (Offset) -> Unit,
+    onDragEnd: (Offset) -> Unit,
+    onClick: () -> Unit
 ) {
-    val offsetAnimation by animateOffsetAsState(state.offset, label = "")
+    var offsetWithDragged by remember {
+        mutableStateOf(Offset.Zero + state.offset)
+    }
+    // val offsetAnimation by animateOffsetAsState(state.offset, label = "")
+//    val offsetAnimation by animateOffsetAsState(state.offset, label = "")
     val nodeColor by animateColorAsState(targetValue = state.color, label = "")
     val backgroundColor by animateColorAsState(targetValue = state.backgroundColor, label = "")
+
 
     val modifier = Modifier
         .size(state.size)
         .offset {
-            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
+//            IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
+            IntOffset(offsetWithDragged.x.toInt(), offsetWithDragged.y.toInt())
         }
         .then(
             if (state.draggable) {
@@ -131,10 +112,12 @@ fun NodeComposable(
                     detectDragGestures(
                         onDragStart = onDragStart,
                         onDrag = { change, dragAmount ->
-                            onDrag(dragAmount)
+                            offsetWithDragged += dragAmount
                             change.consume()
                         },
-                        onDragEnd = onDragEnd
+                        onDragEnd = {
+                            onDragEnd(offsetWithDragged)
+                        }
                     )
                 }
             } else {
@@ -164,3 +147,6 @@ fun NodeComposable(
         )
     }
 }
+
+
+

@@ -38,6 +38,7 @@ fun GraphTraversalScreen(
     screenState: GraphTraversalScreenViewModel
 ) {
     val density = LocalDensity.current.density
+    //give the graph editor canvas some initial size otherwise tapping   will not work
     Box(
         modifier =
         Modifier
@@ -47,7 +48,7 @@ fun GraphTraversalScreen(
         if (screenState.inputMode.collectAsState().value) {
             GraphEditorComposable(
                 modifier = Modifier.matchParentSize(),
-                state = screenState.editorState,
+                editorState = screenState.editorState,
                 onDone = {
                     screenState.editorState.onDone()
                 }
@@ -73,7 +74,6 @@ fun GraphTraversalScreen(
                         ),
                     nodes = screenState.simulationState.nodes.collectAsState().value,
                     edges = screenState.simulationState.edges.collectAsState().value,
-                    canvasSize = Pair(500.dp,500.dp),
                 )
                 if (screenState.showVariableState.collectAsState().value) {
                     QueueVisualizationScreen(

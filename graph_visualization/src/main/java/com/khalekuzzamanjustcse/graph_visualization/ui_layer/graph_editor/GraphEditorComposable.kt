@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.graph_visualization.graph_simulator.GraphSimulatorState
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.GraphDrawer
@@ -32,17 +31,19 @@ private val random
 
 @Preview
 @Composable
-fun GraphMakerComposablePreview() {
+fun GraphEditorComposablePreview() {
     val size = 50.dp
     val sizePx = size.value * LocalDensity.current.density
     val result = remember {
-      mutableStateOf(  GraphEditorResult())
+        mutableStateOf(GraphEditorResult())
     }
     val state = remember {
-        GraphEditorState(size, sizePx) {
-            result.value = it
-            GraphSimulatorState(it)
-        }
+        GraphEditorState(size, sizePx,
+            onInputComplete = {
+                result.value = it
+                GraphSimulatorState(it)
+            }
+        )
     }
     val inputModeOn = remember {
         mutableStateOf(false)
@@ -52,13 +53,17 @@ fun GraphMakerComposablePreview() {
         if (inputModeOn.value) {
             GraphEditorComposable(
                 modifier = Modifier.matchParentSize(),
-                state = state
-            ) {
-                inputModeOn.value = false
-                state.onDone()
-            }
+                editorState = state,
+                onDone = {
+                    inputModeOn.value = false
+                    state.onDone()
+                }
+            )
         } else {
-            Column (modifier = Modifier.fillMaxSize()){
+            //
+            // After edit the graph
+            //
+            Column(modifier = Modifier.fillMaxSize()) {
                 Button(onClick = {
                     inputModeOn.value = !inputModeOn.value
                 }) {
@@ -67,7 +72,7 @@ fun GraphMakerComposablePreview() {
                 GraphDrawer(
                     nodes = result.value.nodes,
                     edges = result.value.edges,
-                    canvasSize = Pair(500.dp,500.dp)
+                    onDragEnd =state::onDragEnd
                 )
             }
         }
@@ -81,8 +86,7 @@ fun GraphMakerComposablePreview() {
 @Composable
 fun GraphEditorComposable(
     modifier: Modifier = Modifier,
-    canvasHeight: Dp=500.dp,
-    state: GraphEditorState,
+    editorState: GraphEditorState,
     onDone: () -> Unit,
 ) {
 
@@ -95,7 +99,7 @@ fun GraphEditorComposable(
             override val label = "Add Node"
             override val enabled = enabled
             override fun onClick() {
-                state.addNode("$random")
+                editorState.addNode("$random")
             }
         },
 
@@ -103,19 +107,19 @@ fun GraphEditorComposable(
             override val icon = Icons.Filled.LinearScale
             override val label = "Add Edge"
             override val enabled = enabled
-            override fun onClick() = state.addEdge()
+            override fun onClick() = editorState.addEdge()
         },
         object : ControlButton {
             override val icon = Icons.Filled.Undo
             override val label = "Undo"
             override val enabled = enabled
-            override fun onClick() = state.undo()
+            override fun onClick() = editorState.undo()
         },
         object : ControlButton {
             override val icon = Icons.Filled.Redo
             override val label = "Redo"
             override val enabled = enabled
-            override fun onClick() = state.redo()
+            override fun onClick() = editorState.redo()
         },
         object : ControlButton {
             override val icon = Icons.Filled.DoneOutline
@@ -128,12 +132,12 @@ fun GraphEditorComposable(
         ControlsComposable(title = "Graph Editor", controls = controls)
         Spacer(modifier = Modifier.height(20.dp))
         GraphDrawer(
-            nodes = state.nodes.collectAsState().value,
-            edges = state.edges.collectAsState().value,
-            onClick = state::onNodeClick,
-            onDrag = state::onDrag,
-            onCanvasTapped = state::onCanvasTapped,
-            canvasSize = Pair(500.dp,500.dp)
+            nodes = editorState.nodes.collectAsState().value,
+            edges = editorState.edges.collectAsState().value,
+            onClick = editorState::onNodeClick,
+            onDragEnd =editorState::onDragEnd,
+            onCanvasTapped = editorState::onCanvasTapped,
+
         )
     }
 

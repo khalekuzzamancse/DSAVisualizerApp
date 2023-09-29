@@ -25,7 +25,7 @@ import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 
 @Preview
 @Composable
-fun GraphDrawerPreview() {
+fun GraphMakerPreview() {
     val size = 64.dp
     val sizePx = LocalDensity.current.density * size.value
     val recentlyClickedNodes = Array(2) { 0 }
@@ -40,19 +40,19 @@ fun GraphDrawerPreview() {
             listOf(
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "10",
-                    offset = Offset(10f, 10f)
+                    offset = Offset(10f, 10f),id=0
                 ),
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "20",
-                    offset = Offset(2 * sizePx + 10f, 10f)
+                    offset = Offset(2 * sizePx + 10f, 10f),id=1
                 ),
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "30",
-                    offset = Offset(10f, sizePx + 180f)
+                    offset = Offset(10f, sizePx + 180f),id=2
                 ),
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "30",
-                    offset = Offset(3 * sizePx + 10f, sizePx + 180f)
+                    offset = Offset(3 * sizePx + 10f, sizePx + 180f),id=3
                 )
             )
         )
@@ -72,14 +72,14 @@ fun GraphDrawerPreview() {
         )
     }
 
-    val onDrag: (Int, Offset) -> Unit = { nodeIndex, offset ->
+    val onDragEnd: (Int, Offset) -> Unit = { nodeIndex, offset ->
         val updatedNodes = nodes.toMutableList()
         val oldState = nodes[nodeIndex]
         updatedNodes[nodeIndex] = oldState.copy(offset = offset + oldState.offset)
         nodes = updatedNodes
     }
-    val onNodeClick: (Int) -> Unit = { nodeIndex ->
-        recentlyClickedNodes[clickCount % 2] = nodeIndex
+    val onNodeClick: (Int) -> Unit = { nodeId ->
+        recentlyClickedNodes[clickCount % 2] = nodeId
         clickCount++
 
     }
@@ -100,13 +100,18 @@ fun GraphDrawerPreview() {
 
     val addEdge: () -> Unit = {
         val newEdges = edges.toMutableList()
-        newEdges.add(
-            EdgeComposableState(
-                startPoint = nodes[recentlyClickedNodes[0]].center,
-                endPoint = nodes[recentlyClickedNodes[1]].center,
+        val nodeU=nodes.find {it.id==recentlyClickedNodes[0] }
+        val nodeV=nodes.find {it.id==recentlyClickedNodes[1]}
+        if(nodeU!=null && nodeV!=null){
+            newEdges.add(
+                EdgeComposableState(
+                    startPoint = nodeU.center,
+                    endPoint = nodeV.center,
+                )
             )
-        )
-        edges = newEdges
+            edges = newEdges
+        }
+
     }
     //Canvas has no initial size so if we make sure you give some initial size
     //other wise tapping and other gestures will nor work
@@ -119,9 +124,8 @@ fun GraphDrawerPreview() {
             nodes = nodes,
             edges = edges,
             onClick = onNodeClick,
-            onDrag = onDrag,
             onCanvasTapped = onCanvasTapped,
-            canvasSize = Pair(500.dp, 500.dp)
+            onDragEnd = onDragEnd
         )
     }
 
@@ -139,18 +143,16 @@ List<EdgeState> represents edges
 @Composable
 fun GraphDrawer(
     modifier: Modifier = Modifier,
-    canvasSize: Pair<Dp, Dp>,
     nodes: List<NodeComposableState>,
     edges: List<EdgeComposableState>,
     onDragStart: (Int, Offset) -> Unit = { _, _ -> },
-    onDragEnd: (Int) -> Unit = {},
+    onDragEnd: (Int, Offset) -> Unit = { _, _ -> },
     onClick: (Int) -> Unit = {},
-    onDrag: (Int, Offset) -> Unit = { _, _ -> },
     onCanvasTapped: (Offset) -> Unit = {},
 ) {
     Box(
         modifier = modifier
-            .size(canvasSize.first, canvasSize.second)
+            .fillMaxSize()
             .drawBehind {
                 edges.forEach { edgeState ->
                     drawEdge(edgeState)
@@ -162,13 +164,23 @@ fun GraphDrawer(
                 }
             }
     ) {
-        nodes.forEachIndexed { nodeIndex, node ->
+        nodes.forEach {nodeState ->
+//            NodeComposable(
+//                state = nodeState,
+//                onDragStart = { offset -> onDragStart(nodeState.id, offset) },
+//                onDragEnd = { onDragEnd(nodeState.id) },
+//                onClick = { onClick(nodeState.id) },
+//                onDrag = { dragAmount -> onDrag(nodeState.id, dragAmount) }
+//            )
             NodeComposable(
-                state = node,
-                onDragStart = { offset -> onDragStart(node.id, offset) },
-                onDragEnd = { onDragEnd(node.id) },
-                onClick = { onClick(node.id) },
-                onDrag = { dragAmount -> onDrag(node.id, dragAmount) }
+                state = nodeState,
+                onDragStart = {},
+                onClick = {
+                    onClick(nodeState.id)
+                },
+                onDragEnd = { offset ->
+                    onDragEnd(nodeState.id, offset)
+                }
             )
         }
 

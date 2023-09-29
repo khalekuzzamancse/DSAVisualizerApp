@@ -2,10 +2,10 @@ package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_editor
 
 import android.util.Log
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import com.khalekuzzamanjustcse.graph_visualization.command_pattern.AddEdgeCommand
 import com.khalekuzzamanjustcse.graph_visualization.command_pattern.AddNodeCommand
-import com.khalekuzzamanjustcse.graph_visualization.command_pattern.RemoveNodeCommand
 import com.khalekuzzamanjustcse.graph_visualization.command_pattern.UndoManager
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode
@@ -73,9 +73,12 @@ class GraphEditorState(
     private var clickCount = 0
     private var lastTappedLocation = Offset.Zero
     private var lastTappedNodeId = -1
+    private val canvasCurrentMaxHeightPx= MutableStateFlow(sizePx+sizePx)
+
+
 
     //event handlers
-    fun onDrag(nodeIndex: Int, offset: Offset) {
+    fun onDragEnd(nodeIndex: Int, offset: Offset) {
         val scope = CoroutineScope(Dispatchers.Default)
         scope.launch {
             graph.onNodeDrag(nodeIndex, offset)
@@ -84,7 +87,6 @@ class GraphEditorState(
 
 
     fun onNodeClick(nodeId: Int) {
-//        Log.i("onNodeClick","$nodeId")
         val scope = CoroutineScope(Dispatchers.Default)
         scope.launch {
             recentlyClickedNodes[clickCount % 2] = nodeId
