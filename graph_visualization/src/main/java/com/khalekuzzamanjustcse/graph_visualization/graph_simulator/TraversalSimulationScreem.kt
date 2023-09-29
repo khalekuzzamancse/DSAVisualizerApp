@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -28,14 +29,14 @@ fun TraversalPreview() {
     val density = LocalDensity.current.density
     val sizePx = size.value * density
     val screenState = remember {
-        GraphTraversalScreenViewModel(size, sizePx)
+        GraphTraversalState(size, sizePx)
     }
     GraphTraversalScreen(screenState)
 }
 
 @Composable
 fun GraphTraversalScreen(
-    screenState: GraphTraversalScreenViewModel
+    screenState: GraphTraversalState
 ) {
     val density = LocalDensity.current.density
     //give the graph editor canvas some initial size otherwise tapping   will not work
@@ -56,6 +57,7 @@ fun GraphTraversalScreen(
         } else {
             Column(
                 modifier = Modifier
+                    .padding(8.dp)
                     .fillMaxSize()
             ) {
                 GraphTraversalScreenControl(
@@ -76,9 +78,16 @@ fun GraphTraversalScreen(
                     edges = screenState.simulationState.edges.collectAsState().value,
                 )
                 if (screenState.showVariableState.collectAsState().value) {
-                    QueueVisualizationScreen(
-                        screenState.queueState
-                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Current Processing Node : ${screenState.currentProcessingNode.collectAsState().value}"
+                        )
+                        QueueVisualizationScreen(
+                            screenState.queueState
+                        )
+                    }
+
                 }
 
             }

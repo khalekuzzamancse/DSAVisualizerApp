@@ -30,10 +30,11 @@ data class GraphSimulatorState(
     }
 
 
-    fun onNext() {
+    fun onNext(onProcessing:(SimulationResult)->Unit={}) {
         when (val res = sequence?.next()) {
             is Simulating -> {
                 processing(res.processingNodeIndex)
+                onProcessing(res)
             }
 
             is Started -> {
@@ -71,6 +72,7 @@ data class Simulating(
     val processingNodeIndex: Int,
     val futureProcessingNodeIndices: List<Int>,
     val newlyPushedNodesIndices: List<Int>,
+    val dequeue:Boolean = false,
     val intermediateDS: DataStructure = DataStructure.Queue
 ) : SimulationResult()
 

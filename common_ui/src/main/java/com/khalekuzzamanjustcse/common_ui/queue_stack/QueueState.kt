@@ -72,7 +72,7 @@ class QueueState(
             )
         )
         _elements.value = tempList
-        //  _elements.value.last().blinkBackground(2000)
+      //  _elements.value.last().blinkBackground(500)
     }
 
     val rearPointerPosition: Offset
@@ -85,8 +85,8 @@ class QueueState(
         if (tempList.isNotEmpty()) {
 //            val scope = CoroutineScope(Dispatchers.IO)
 //            scope.launch {
-//                _elements.value.first().blinkBackground(1000)
-//                delay(1000)
+//                _elements.value.first().blinkBackground(500)
+//                delay(500)
 //
 //            }
             tempList.removeFirst()

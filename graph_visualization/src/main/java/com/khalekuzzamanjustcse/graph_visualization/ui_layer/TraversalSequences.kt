@@ -18,18 +18,27 @@ data class BFSSimulationSequence(
 ) : SimulationSequence {
 
     private val result = sequence {
+        yield(Started)
         val visited = mutableSetOf<Int>()
         val queue = mutableListOf<Int>()
         queue.add(startNodeIndex)
+        yield(
+            Simulating(
+                processingNodeIndex = -1,
+                newlyPushedNodesIndices =listOf(startNodeIndex),
+                futureProcessingNodeIndices = queue
+            )
+        )
         visited.add(startNodeIndex)
-        yield(Started)
+
         while (queue.isNotEmpty()) {
             val currentNodeIndex = queue.removeAt(0)
             yield(
                 Simulating(
                     processingNodeIndex = currentNodeIndex,
                     newlyPushedNodesIndices = emptyList(),
-                    futureProcessingNodeIndices = queue
+                    futureProcessingNodeIndices = queue,
+                    dequeue = true
                 )
             )
             //
@@ -50,10 +59,12 @@ data class BFSSimulationSequence(
             Log.i("TRAVERSING:NeighbourReceived", "$selectedOrder")
 //            yield(Paused)
             val neighborsSelectModeOn = selectedOrder.isNotEmpty()
+            val newEnqueued= mutableListOf<Int>()
             if (neighborsSelectModeOn) {
                 for (neighborIndex in selectedOrder) {
                     if (neighborIndex !in visited) {
                         queue.add(neighborIndex)
+                        newEnqueued.add(neighborIndex)
                         visited.add(neighborIndex)
                     }
                 }
@@ -63,12 +74,22 @@ data class BFSSimulationSequence(
                         if (neighborIndex !in visited) {
                             queue.add(neighborIndex)
                             visited.add(neighborIndex)
+                            newEnqueued.add(neighborIndex)
                             //
                             addedInQueue.add(neighborIndex)
                         }
                     }
                 }
             }
+            yield(
+                Simulating(
+                    processingNodeIndex = currentNodeIndex,
+                    newlyPushedNodesIndices =newEnqueued,
+                    futureProcessingNodeIndices = queue,
+                )
+            )
+
+
         }
         //when finished
         yield(Finished)
