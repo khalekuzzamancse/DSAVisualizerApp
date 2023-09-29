@@ -10,10 +10,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.khalekuzzaman.just.cse.gmailclone.ui.navigation.NavigationActions
 import com.khalekuzzamanjustcse.common_ui.LinearDSDestinations
-import com.khalekuzzamanjustcse.common_ui.queue_queue.LinearDSViewModel
-import com.khalekuzzamanjustcse.common_ui.queue_queue.LinearDataStructureScreen
-import com.khalekuzzamanjustcse.common_ui.queue_queue.QueueVisualizationScreen
-import com.khalekuzzamanjustcse.common_ui.queue_queue.StackVisualizationScreen
+import com.khalekuzzamanjustcse.common_ui.queue_stack.LinearDSViewModel
+import com.khalekuzzamanjustcse.common_ui.queue_stack.LinearDataStructureScreen
+import com.khalekuzzamanjustcse.common_ui.queue_stack.QueueVisualizationScreen
+import com.khalekuzzamanjustcse.common_ui.queue_stack.StackVisualizationScreen
 import com.khalekuzzamanjustcse.dsavisulizer.screens.UnderConstructionScreen
 
 
@@ -64,10 +64,10 @@ fun LinearDataStructureScreenContent(
             )
         }
         composable(route = LinearDSDestinations.QUEUE_SCREEN) {
-            QueueVisualizationScreen(
-                state = viewModel.queueViewModel.queue,
-                scaffoldPadding = scaffoldPadding
-            )
+//            QueueVisualizationScreen(
+//                state = viewModel.queueViewModel.queue,
+//                scaffoldPadding = scaffoldPadding
+//            )
         }
 
     }

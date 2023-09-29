@@ -1,6 +1,6 @@
 package com.khalekuzzamanjustcse.graph_visualization.ui_layer.screen
 
-import com.khalekuzzamanjustcse.common_ui.queue_queue.Screen
+import com.khalekuzzamanjustcse.common_ui.queue_stack.Screen
 
 object UndirectedTraversalScreen : Screen {
     override val route: String

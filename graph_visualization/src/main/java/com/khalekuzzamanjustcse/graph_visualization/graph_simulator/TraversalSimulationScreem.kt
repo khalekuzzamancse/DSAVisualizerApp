@@ -4,80 +4,46 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.NextPlan
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.common_ui.queue_stack.QueueVisualizationScreen
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.GraphDrawer
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.ControlButton
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.GraphEditorComposable
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.GraphEditorResult
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.GraphEditorState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_editor.GraphEditorComposable
 
-
-class GraphTraversalScreenState(
-    val size: Dp = 50.dp,
-    val sizePx: Float = 0f,
-) {
-    private val _inputMode = MutableStateFlow(true)
-    val inputMode = _inputMode.asStateFlow()
-    var simulationState = GraphSimulatorState(GraphEditorResult())
-    val editorState = GraphEditorState(size, sizePx,
-        onInputComplete = { sState ->
-            simulationState = GraphSimulatorState(sState)
-            _inputMode.update { false }
-        }
-    )
-
-    val controls = listOf(
-        object : ControlButton {
-            override val icon = Icons.Filled.NextPlan
-            override val label = "Next"
-            override val enabled = mutableStateOf(true)
-            override fun onClick() = simulationState.onNext()
-        },
-        object : ControlButton {
-            override val icon = Icons.Filled.Code
-            override val label = "Pseudocode Execution"
-            override val enabled = mutableStateOf(true)
-            override fun onClick() {
-            }
-        },
-        object : ControlButton {
-            override val icon = Icons.Filled.Memory
-            override val label = "Variables Status"
-            override val enabled = mutableStateOf(true)
-            override fun onClick() {
-            }
-        }
-    )
-
-    fun onTraversalChanged(index: Int) =
-        simulationState.onTraversalChanged(TraversalOptions.getOption(index))
-}
 
 @Preview
 @Composable
-fun GraphTraversalPreview() {
+fun TraversalPreview() {
     val size = 50.dp
-    val sizePx = size.value * LocalDensity.current.density
+    val density = LocalDensity.current.density
+    val sizePx = size.value * density
     val screenState = remember {
-        GraphTraversalScreenState(size, sizePx)
+        GraphTraversalScreenViewModel(size, sizePx)
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    GraphTraversalScreen(screenState)
+}
+
+@Composable
+fun GraphTraversalScreen(
+    screenState: GraphTraversalScreenViewModel
+) {
+    val density = LocalDensity.current.density
+    Box(
+        modifier =
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         if (screenState.inputMode.collectAsState().value) {
             GraphEditorComposable(
                 modifier = Modifier.matchParentSize(),
@@ -87,7 +53,10 @@ fun GraphTraversalPreview() {
                 }
             )
         } else {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
                 GraphTraversalScreenControl(
                     title = "GraphTraversal",
                     controls = screenState.controls,
@@ -96,9 +65,21 @@ fun GraphTraversalPreview() {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 GraphDrawer(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .height(
+                            (screenState.graphCanvasHeightPx.collectAsState().value) / density
+                        ),
                     nodes = screenState.simulationState.nodes.collectAsState().value,
                     edges = screenState.simulationState.edges.collectAsState().value,
                 )
+                if (screenState.showVariableState.collectAsState().value) {
+                    QueueVisualizationScreen(
+                        screenState.queueState
+                    )
+                }
+
             }
         }
     }

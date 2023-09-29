@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.queue_queue
+package com.khalekuzzamanjustcse.common_ui.queue_stack
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview

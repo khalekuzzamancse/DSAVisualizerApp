@@ -19,7 +19,7 @@ import kotlin.random.Random
 data class DynamicElement(
     val label: String,
     private val _size: MutableState<Dp>,
-    val density: Density,
+    val sizePx:Float =100f,
     private val _offset: MutableState<Offset> = mutableStateOf(Offset.Zero),
     private val _color: MutableState<Color> = mutableStateOf(Color.Red),
     private val _clickable: MutableState<Boolean> = mutableStateOf(false),
@@ -54,8 +54,6 @@ data class DynamicElement(
     val boundingRectangle: BoundingRectangle
         get() = BoundingRectangle(topLeft, bottomRight)
 
-     val sizePx: Float
-        get() = _size.value.value * density.density
 
 
     private var blinkingJob: Job? = null
@@ -151,7 +149,7 @@ data class DynamicElement(
         if (!isBlinking) {
             isBlinking = true
             originalColor = _color.value
-            blinkingJob = CoroutineScope(Dispatchers.Default).launch {
+            blinkingJob = CoroutineScope(Dispatchers.IO).launch {
                 while (isBlinking) {
                     _color.value = randomColor()
                     delay(500)
@@ -165,7 +163,7 @@ data class DynamicElement(
             isBlinking = true
             originalColor = _color.value
             var till = 0L
-            blinkingJob = CoroutineScope(Dispatchers.Default).launch {
+            blinkingJob = CoroutineScope(Dispatchers.IO).launch {
                 while (till < duration) {
                     _color.value = randomColor()
                     delay(500)
@@ -185,7 +183,7 @@ data class DynamicElement(
 
         if (!isBlinkingBackground) {
             isBlinkingBackground = true
-            blinkingBackgroundJob = CoroutineScope(Dispatchers.Default).launch {
+            blinkingBackgroundJob = CoroutineScope(Dispatchers.IO).launch {
                 while (isBlinkingBackground) {
                     _boundingRectangleColor.value = randomColor()
                     delay(500)
@@ -196,7 +194,7 @@ data class DynamicElement(
 
     fun blinkBackground(
         duration: Long,
-        scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+        scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
     ) {
         if (!isBlinkingBackground) {
             isBlinkingBackground = true

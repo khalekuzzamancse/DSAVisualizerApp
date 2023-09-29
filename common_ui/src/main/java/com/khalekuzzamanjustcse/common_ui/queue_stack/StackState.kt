@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.queue_queue
+package com.khalekuzzamanjustcse.common_ui.queue_stack
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -63,15 +63,15 @@ class StackState(
 
     fun push(label: String) {
         val tempList = _stackElements.value.toMutableList()
-        tempList.add(
-            DynamicElement(
-                label = label,
-                _size = mutableStateOf(cellSize),
-                density = density,
-                isHideBorder = mutableStateOf(false),
-                _draggable = mutableStateOf(false)
-            )
-        )
+     //   tempList.add(
+//            DynamicElement(
+//                label = label,
+//                _size = mutableStateOf(cellSize),
+//                density = density,
+//                isHideBorder = mutableStateOf(false),
+//                _draggable = mutableStateOf(false)
+//            )
+     //   )
         _stackElements.value = tempList
         _stackElements.value.last().blinkBackground(2000)
 

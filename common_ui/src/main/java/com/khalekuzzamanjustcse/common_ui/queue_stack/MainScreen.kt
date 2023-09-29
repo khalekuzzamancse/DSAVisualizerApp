@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.queue_queue
+package com.khalekuzzamanjustcse.common_ui.queue_stack
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
@@ -37,7 +37,7 @@ class LinearDSViewModel(
 ) {
 
     //view models
-    val queueViewModel = QueueViewModel(density)
+   // val queueViewModel = QueueViewModel(density)
     val stackViewModel = StackViewModel(density)
     private val linkedListViewModel = LinkedListViewModel(density)
 
@@ -75,11 +75,11 @@ class LinearDSViewModel(
             IconComponent(label = LinearDSDestinations.QUEUE_SCREEN, icon = Icons.Filled.Queue) {
             override fun onClick() {
                 currentScreen = QueueScreen
-                currentTopAppbar.value = queueViewModel.topAppbarData
-                if (queueViewModel.queue.element.isEmpty()){
-                    for (i in 1 until 4)
-                        queueViewModel.queue.enqueue("$i")
-                }
+//                currentTopAppbar.value = queueViewModel.topAppbarData
+//                if (queueViewModel.queue.element.isEmpty()){
+//                    for (i in 1 until 4)
+//                        queueViewModel.queue.enqueue("$i")
+//                }
 
             }
         }

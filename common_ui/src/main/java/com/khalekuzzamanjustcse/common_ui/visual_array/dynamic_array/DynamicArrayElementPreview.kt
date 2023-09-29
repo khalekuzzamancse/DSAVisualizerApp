@@ -41,52 +41,52 @@ import androidx.compose.ui.unit.dp
 @Preview
 @Composable
 fun DynamicArrayElementPreview() {
-    val size = 64.dp
-    val density = LocalDensity.current
-    val element1 = remember {
-        DynamicElement(
-            label = "10",
-            _size = mutableStateOf(size),
-            density = density,
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .padding(top = 16.dp, start = 16.dp)
-            .fillMaxSize()
-    ) {
-        FlowRow {
-            MyButton(label = "Move(200,200)") { element1.moveAt(Offset(200f, 200f)) }
-            MyButton(label = "ChangeColor") { element1.changeColor(Color.Blue) }
-            MyButton(label = "ResetColor") { element1.resetColor() }
-            MyButton(label = "ResetOffset") { element1.resetOffset() }
-            MyButton(label = "MoveToInfinity") { element1.moveAtInfinite() }
-            MyButton(label = "FlipClickable") { if (element1.clickable) element1.disableClick() else element1.enableClick() }
-            MyButton(label = "FlipDraggable") { if (element1.draggable) element1.disableDrag() else element1.enableDrag() }
-            MyButton(label = "Blink") { element1.blink() }
-            MyButton(label = "StopBlink") { element1.stopBlink() }
-            MyButton(label = "BlinkBG") { element1.blinkBackground() }
-            MyButton(label = "StopBlinkBG") { element1.stopBlinkBackground() }
-            MyButton(label = "Show/HideBorder") { if (element1.shouldShowBorder) element1.hideBorder() else element1.showBorder() }
-            MyButton(label = "ChangeRectColor") { element1.changeBoundingRectColor(Color.Yellow) }
-        }
-
-        VisualElementComposable(
-            label = element1.label,
-            size = element1.size,
-            offset = element1.topLeft,
-            color = element1.color,
-            clickable = element1.clickable,
-            onDragStart = element1::onDragStart,
-            onDrag = element1::onDrag,
-            onDragEnd = element1::onDragEnd,
-            draggable = element1.draggable,
-            onClick = element1::onClick,
-        )
-
-        VisualElementComposable(element1)
-    }
+//    val size = 64.dp
+//    val density = LocalDensity.current
+//    val element1 = remember {
+////        DynamicElement(
+////            label = "10",
+////            _size = mutableStateOf(size),
+////            density = density,
+////        )
+//    }
+//
+//    Column(
+//        modifier = Modifier
+//            .padding(top = 16.dp, start = 16.dp)
+//            .fillMaxSize()
+//    ) {
+//        FlowRow {
+//            MyButton(label = "Move(200,200)") { element1.moveAt(Offset(200f, 200f)) }
+//            MyButton(label = "ChangeColor") { element1.changeColor(Color.Blue) }
+//            MyButton(label = "ResetColor") { element1.resetColor() }
+//            MyButton(label = "ResetOffset") { element1.resetOffset() }
+//            MyButton(label = "MoveToInfinity") { element1.moveAtInfinite() }
+//            MyButton(label = "FlipClickable") { if (element1.clickable) element1.disableClick() else element1.enableClick() }
+//            MyButton(label = "FlipDraggable") { if (element1.draggable) element1.disableDrag() else element1.enableDrag() }
+//            MyButton(label = "Blink") { element1.blink() }
+//            MyButton(label = "StopBlink") { element1.stopBlink() }
+//            MyButton(label = "BlinkBG") { element1.blinkBackground() }
+//            MyButton(label = "StopBlinkBG") { element1.stopBlinkBackground() }
+//            MyButton(label = "Show/HideBorder") { if (element1.shouldShowBorder) element1.hideBorder() else element1.showBorder() }
+//            MyButton(label = "ChangeRectColor") { element1.changeBoundingRectColor(Color.Yellow) }
+//        }
+//
+//        VisualElementComposable(
+//            label = element1.label,
+//            size = element1.size,
+//            offset = element1.topLeft,
+//            color = element1.color,
+//            clickable = element1.clickable,
+//            onDragStart = element1::onDragStart,
+//            onDrag = element1::onDrag,
+//            onDragEnd = element1::onDragEnd,
+//            draggable = element1.draggable,
+//            onClick = element1::onClick,
+//        )
+//
+//        VisualElementComposable(element1)
+//    }
 
 }
 

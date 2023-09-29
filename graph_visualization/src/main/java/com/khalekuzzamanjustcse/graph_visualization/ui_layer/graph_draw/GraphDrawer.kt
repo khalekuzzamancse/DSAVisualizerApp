@@ -134,6 +134,7 @@ List<EdgeState> represents edges
 
 @Composable
 fun GraphDrawer(
+    modifier: Modifier=Modifier,
     nodes: List<NodeComposableState>,
     edges: List<EdgeComposableState>,
     onDragStart: (Int, Offset) -> Unit = { _, _ -> },
@@ -143,9 +144,7 @@ fun GraphDrawer(
     onCanvasTapped: (Offset) -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize()
+        modifier = modifier
             .drawBehind {
                 edges.forEach { edgeState ->
                     drawEdge(edgeState)

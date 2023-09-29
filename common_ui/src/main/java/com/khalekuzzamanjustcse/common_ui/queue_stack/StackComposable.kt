@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.queue_queue
+package com.khalekuzzamanjustcse.common_ui.queue_stack
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color

@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.khalekuzzamanjustcse.common_ui.appbar.TopAppbarData
-import com.khalekuzzamanjustcse.common_ui.queue_queue.QueueState
 
 class LinkedListViewModel(
     val density: Density,

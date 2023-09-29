@@ -1,12 +1,11 @@
 package com.khalekuzzamanjustcse.graph_visualization.graph_simulator
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.BFSSimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.DFSSimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.SimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.NodeComposableState
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_input.GraphEditorResult
+import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_editor.GraphEditorResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,16 +33,13 @@ data class GraphSimulatorState(
     fun onNext() {
         when (val res = sequence?.next()) {
             is Simulating -> {
-                Log.i("Simulating:Procesing", "${res.processingNodeIndex}")
                 processing(res.processingNodeIndex)
             }
 
             is Started -> {
-                Log.i("Simulating:Procesing", "Started")
             }
 
             is Finished -> {
-                Log.i("Simulating:Procesing", "Finsished")
             }
         }
     }

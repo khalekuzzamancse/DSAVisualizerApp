@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.queue_queue
+package com.khalekuzzamanjustcse.common_ui.queue_stack
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwipeLeft
@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 
 
 class QueueViewModel(
-    val density: Density,
+    val sizePx: Float,
 ) : ViewModel() {
-    val queue = QueueState(cellSize = 64.dp, density = density)
+    val queue = QueueState(cellSize = 64.dp, sizePx = sizePx)
     private val _topAppbarData by mutableStateOf(
         TopAppbarData(
             title = "Queue Screen",
@@ -51,7 +51,7 @@ class QueueViewModel(
 
 class QueueState(
     val cellSize: Dp,
-    val density: Density,
+    val sizePx: Float,
 ) {
 
     private val _elements: MutableState<List<DynamicElement>> =
@@ -66,13 +66,13 @@ class QueueState(
             DynamicElement(
                 label = label,
                 _size = mutableStateOf(cellSize),
-                density = density,
+                sizePx = sizePx,
                 isHideBorder = mutableStateOf(false),
                 _draggable = mutableStateOf(false)
             )
         )
         _elements.value = tempList
-        _elements.value.last().blinkBackground(2000)
+        //  _elements.value.last().blinkBackground(2000)
     }
 
     val rearPointerPosition: Offset
@@ -83,13 +83,14 @@ class QueueState(
     fun dequeue() {
         val tempList = _elements.value.map { it }.toMutableList()
         if (tempList.isNotEmpty()) {
-            val scope = CoroutineScope(Dispatchers.Default)
-            scope.launch {
-                _elements.value.first().blinkBackground(2000)
-                delay(2000)
-                tempList.removeFirst()
-                _elements.value = tempList
-            }
+//            val scope = CoroutineScope(Dispatchers.IO)
+//            scope.launch {
+//                _elements.value.first().blinkBackground(1000)
+//                delay(1000)
+//
+//            }
+            tempList.removeFirst()
+            _elements.value = tempList
         }
 
     }
