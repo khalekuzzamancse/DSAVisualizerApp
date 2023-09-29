@@ -73,9 +73,10 @@ fun GraphTraversalScreen() {
         GraphDrawer(
             nodes = viewModel.nodes.collectAsState().value,
             edges = viewModel.edges.collectAsState().value,
-            onDrag = viewModel::onDrag,
             onClick = viewModel::onNodeClick,
-            onCanvasTapped = viewModel::onCanvasTapped
+            onDrag = viewModel::onDrag,
+            onCanvasTapped = viewModel::onCanvasTapped,
+            canvasSize = Pair(500.dp,500.dp)
         )
     }
 

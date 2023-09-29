@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.graph_visualization.graph_simulator.GraphSimulatorState
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.GraphDrawer
@@ -63,7 +64,11 @@ fun GraphMakerComposablePreview() {
                 }) {
                     Text(text = "Go to Graph Editor")
                 }
-                GraphDrawer(nodes = result.value.nodes, edges = result.value.edges)
+                GraphDrawer(
+                    nodes = result.value.nodes,
+                    edges = result.value.edges,
+                    canvasSize = Pair(500.dp,500.dp)
+                )
             }
         }
 
@@ -76,6 +81,7 @@ fun GraphMakerComposablePreview() {
 @Composable
 fun GraphEditorComposable(
     modifier: Modifier = Modifier,
+    canvasHeight: Dp=500.dp,
     state: GraphEditorState,
     onDone: () -> Unit,
 ) {
@@ -118,15 +124,16 @@ fun GraphEditorComposable(
             override fun onClick() = onDone()
         },
     )
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier) {
         ControlsComposable(title = "Graph Editor", controls = controls)
         Spacer(modifier = Modifier.height(20.dp))
         GraphDrawer(
             nodes = state.nodes.collectAsState().value,
             edges = state.edges.collectAsState().value,
-            onDrag = state::onDrag,
             onClick = state::onNodeClick,
-            onCanvasTapped = state::onCanvasTapped
+            onDrag = state::onDrag,
+            onCanvasTapped = state::onCanvasTapped,
+            canvasSize = Pair(500.dp,500.dp)
         )
     }
 

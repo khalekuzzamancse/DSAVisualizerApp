@@ -20,6 +20,11 @@ interface GraphCommonNode<T> {
     fun addToOffset(amount: Offset): GraphCommonNode<T>
 }
 
+/*
+Want to do one operation at a time,so to avoid multiple
+thread do more than one operation at a time use synchronization block.
+try to avoid dead lock
+ */
 @Immutable
 data class GraphNode<T>(
     override val data: T,
@@ -29,21 +34,29 @@ data class GraphNode<T>(
 ) : GraphCommonNode<T> {
     override val label: String
         get() = "$data"
-
+    val lock = Any()
     override fun addNeighbors(id: Int): GraphCommonNode<T> {
-        return this.copy(neighborsId = this.neighborsId + id)
+        synchronized(lock) {
+            return this.copy(neighborsId = this.neighborsId + id)
+        }
     }
 
     override fun removeNeighbors(id: Int): GraphCommonNode<T> {
-        return this.copy(neighborsId = this.neighborsId.filter { it != id })
+        synchronized(lock) {
+            return this.copy(neighborsId = this.neighborsId.filter { it != id })
+        }
     }
 
     override fun changeId(newId: Int): GraphCommonNode<T> {
-        return this.copy(id = newId)
+        synchronized(lock) {
+            return this.copy(id = newId)
+        }
     }
 
     override fun addToOffset(amount: Offset): GraphCommonNode<T> {
-        return this.copy(offset = offset + amount)
+        synchronized(lock) {
+            return this.copy(offset = offset + amount)
+        }
     }
 }
 
@@ -52,25 +65,32 @@ data class AdjacencyList<T>(
     val undirected: Boolean = true,
     val nodes: List<GraphCommonNode<T>> = emptyList()
 ) {
-
+    private val lock = Any()
 
     val adjacencyList: Map<Int, List<Int>>
         get() = nodes.associate { it.id to it.neighborsId }
 
     //manipulating nodes
     fun addOffset(nodeId: Int, amount: Offset): AdjacencyList<T> {
-        val tempNodes = nodes.toMutableList()
-        val node = nodes.find { it.id == nodeId }
-        val index = nodes.indexOf(node)
-        if (node != null && index != -1) {
-            tempNodes[index] = node.addToOffset(amount)
+        synchronized(lock) {
+            val tempNodes = nodes.toMutableList()
+            val node = nodes.find { it.id == nodeId }
+            val index = nodes.indexOf(node)
+            if (node != null && index != -1) {
+                tempNodes[index] = node.addToOffset(amount)
+            }
+            return this.copy(nodes = tempNodes)
         }
-        return this.copy(nodes = tempNodes)
-
     }
 
-    fun addNode(node: GraphCommonNode<T>) = this.copy(nodes = nodes + node)
-    fun removeNode(id: Int) = this.copy(nodes = nodes.filter { it.id != id })
+    fun addNode(node: GraphCommonNode<T>) = synchronized(lock) {
+        this.copy(nodes = nodes + node)
+    }
+
+    fun removeNode(id: Int) = synchronized(lock) {
+        this.copy(nodes = nodes.filter { it.id != id })
+    }
+
     val edges: List<Pair<GraphCommonNode<T>, GraphCommonNode<T>>>
         get() {
             var edges: List<Pair<GraphCommonNode<T>, GraphCommonNode<T>>> = emptyList()
@@ -82,34 +102,38 @@ data class AdjacencyList<T>(
 
 
     fun addEdge(uId: Int, vId: Int): AdjacencyList<T> {
-        val tempNodes = nodes.toMutableList()
-        val nodeU = nodes.find { it.id == uId }
-        val indexOfU = nodes.indexOf(nodeU)
-        val nodeV = nodes.find { it.id == vId }
-        val indexOfV = nodes.indexOf(nodeV)
-        if (nodeU != null && indexOfU != -1 && nodeV != null && indexOfV != -1) {
-            tempNodes[indexOfU] = nodeU.addNeighbors(vId)
-        }
-        if (undirected) {
-            if (nodeV != null && indexOfV != -1 && nodeU != null) {
-                tempNodes[indexOfV] = nodeV.addNeighbors(uId)
+        synchronized(lock) {
+            val tempNodes = nodes.toMutableList()
+            val nodeU = nodes.find { it.id == uId }
+            val indexOfU = nodes.indexOf(nodeU)
+            val nodeV = nodes.find { it.id == vId }
+            val indexOfV = nodes.indexOf(nodeV)
+            if (nodeU != null && indexOfU != -1 && nodeV != null && indexOfV != -1) {
+                tempNodes[indexOfU] = nodeU.addNeighbors(vId)
             }
+            if (undirected) {
+                if (nodeV != null && indexOfV != -1 && nodeU != null) {
+                    tempNodes[indexOfV] = nodeV.addNeighbors(uId)
+                }
+            }
+            return this.copy(nodes = tempNodes)
         }
-        return this.copy(nodes = tempNodes)
+
     }
 
     fun removeEdge(uId: Int, vId: Int): AdjacencyList<T> {
-        val nodes = nodes.map { node ->
-            when (node.id) {
-                vId -> node.removeNeighbors(uId)
-                uId -> node.removeNeighbors(vId)
-                else -> node
+        synchronized(lock) {
+            val nodes = nodes.map { node ->
+                when (node.id) {
+                    vId -> node.removeNeighbors(uId)
+                    uId -> node.removeNeighbors(vId)
+                    else -> node
+                }
             }
+            //keep edge list up to date
+            return this.copy(nodes = nodes)
         }
-        //keep edge list up to date
-        return this.copy(nodes = nodes)
     }
-
 
     private fun getNeighborsByIds(ids: List<Int>): List<GraphCommonNode<T>> {
         val neighbours = mutableListOf<GraphCommonNode<T>>()
@@ -156,19 +180,17 @@ data class Graph<T>(val undirected: Boolean = true) {
         get() = adjacencyList.adjacencyList
 
     fun setNodes(nodes: List<GraphCommonNode<T>>) {
-        synchronized(lock) {
             nodes.forEach {
                 addNode(it)
             }
-        }
+
     }
 
     fun setEdges(edges: List<Pair<Int, Int>>) {
-        synchronized(lock) {
             edges.forEach { (u, v) ->
                 addEdge(u, v)
             }
-        }
+
     }
 
     fun addNode(node: GraphCommonNode<T>) {

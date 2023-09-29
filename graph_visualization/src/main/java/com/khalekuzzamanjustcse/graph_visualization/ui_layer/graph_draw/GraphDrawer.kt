@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 
@@ -90,7 +91,7 @@ fun GraphDrawerPreview() {
                 label = "33", offset = lastTappedLocation
             )
         )
-        nodes=updatedNodes
+        nodes = updatedNodes
 
     }
     val onCanvasTapped: (Offset) -> Unit = {
@@ -107,6 +108,8 @@ fun GraphDrawerPreview() {
         )
         edges = newEdges
     }
+    //Canvas has no initial size so if we make sure you give some initial size
+    //other wise tapping and other gestures will nor work
     Column(modifier = Modifier.fillMaxSize()) {
         Row {
             MyButton(label = "AddEdge", onClick = addEdge)
@@ -115,9 +118,10 @@ fun GraphDrawerPreview() {
         GraphDrawer(
             nodes = nodes,
             edges = edges,
-            onDrag = onDrag,
             onClick = onNodeClick,
-            onCanvasTapped =onCanvasTapped
+            onDrag = onDrag,
+            onCanvasTapped = onCanvasTapped,
+            canvasSize = Pair(500.dp, 500.dp)
         )
     }
 
@@ -134,17 +138,19 @@ List<EdgeState> represents edges
 
 @Composable
 fun GraphDrawer(
-    modifier: Modifier=Modifier,
+    modifier: Modifier = Modifier,
+    canvasSize: Pair<Dp, Dp>,
     nodes: List<NodeComposableState>,
     edges: List<EdgeComposableState>,
     onDragStart: (Int, Offset) -> Unit = { _, _ -> },
     onDragEnd: (Int) -> Unit = {},
     onClick: (Int) -> Unit = {},
     onDrag: (Int, Offset) -> Unit = { _, _ -> },
-    onCanvasTapped: (Offset) -> Unit = {}
+    onCanvasTapped: (Offset) -> Unit = {},
 ) {
     Box(
         modifier = modifier
+            .size(canvasSize.first, canvasSize.second)
             .drawBehind {
                 edges.forEach { edgeState ->
                     drawEdge(edgeState)

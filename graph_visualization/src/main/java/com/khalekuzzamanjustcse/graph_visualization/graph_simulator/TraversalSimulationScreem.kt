@@ -73,6 +73,7 @@ fun GraphTraversalScreen(
                         ),
                     nodes = screenState.simulationState.nodes.collectAsState().value,
                     edges = screenState.simulationState.edges.collectAsState().value,
+                    canvasSize = Pair(500.dp,500.dp),
                 )
                 if (screenState.showVariableState.collectAsState().value) {
                     QueueVisualizationScreen(
