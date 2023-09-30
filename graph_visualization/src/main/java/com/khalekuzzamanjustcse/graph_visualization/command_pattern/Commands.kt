@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.graph_visualization.command_pattern
 
+import com.khalekuzzamanjustcse.common_ui.command_pattern.Command
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode
 

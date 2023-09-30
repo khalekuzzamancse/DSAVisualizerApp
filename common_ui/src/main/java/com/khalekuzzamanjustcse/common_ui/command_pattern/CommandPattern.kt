@@ -1,9 +1,8 @@
-package com.khalekuzzamanjustcse.graph_visualization.command_pattern
+package com.khalekuzzamanjustcse.common_ui.command_pattern
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.khalekuzzamanjustcse.common_ui.command_pattern.Command
 
 interface Command {
 

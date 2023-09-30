@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.khalekuzzamanjustcse.graph_visualization.command_pattern.AddEdgeCommand
 import com.khalekuzzamanjustcse.graph_visualization.command_pattern.AddNodeCommand
 import com.khalekuzzamanjustcse.graph_visualization.command_pattern.RemoveNodeCommand
-import com.khalekuzzamanjustcse.graph_visualization.command_pattern.UndoManager
+import com.khalekuzzamanjustcse.common_ui.command_pattern.UndoManager
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.Graph
 import com.khalekuzzamanjustcse.graph_visualization.data_layer.GraphNode
 import kotlinx.coroutines.flow.MutableStateFlow

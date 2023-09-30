@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.common_ui.graph_editor
 
+import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.flow.update
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -24,6 +26,7 @@ fun GraphBuilder(
     edges: List<DrawingEdge>,
     onCanvasTapped: (Offset) -> Unit = {},
 ) {
+    Log.i("GraphEditor:GraBuilder", "${nodes.map { "${it.label} ,${it.position}" }}")
     Box(
         modifier = modifier
             .fillMaxSize()
