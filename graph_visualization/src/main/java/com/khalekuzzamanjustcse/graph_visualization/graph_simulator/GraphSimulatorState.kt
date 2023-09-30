@@ -66,7 +66,7 @@ data class GraphSimulatorState(
 sealed class SimulationResult
 object Finished : SimulationResult()
 object Started : SimulationResult()
-object Paused : SimulationResult()
+object  Paused : SimulationResult()
 data class SelectChild(val unVisitedNeighboursRef: List<Int>) : SimulationResult()
 data class Simulating(
     val processingNodeIndex: Int,
