@@ -18,8 +18,9 @@ provide any undo and redo options inside this class.
 the client will decide he will undo or redo of a operation
  */
 class GraphEditorGraphHolder(
+    private val isDirected: Boolean = false,
     private val onEdgeUpdated: (Set<Edge>) -> Unit = {},
-    private val onNodesUpdated: (Set<GraphBasicNode>) -> Unit = {}
+    private val onNodesUpdated: (Set<GraphBasicNode>) -> Unit = {},
 ) {
     var nodes = setOf<GraphBasicNode>()
         private set
@@ -27,7 +28,6 @@ class GraphEditorGraphHolder(
         private set
 
     fun addNode(node: GraphBasicNode) {
-
         nodes = nodes + node
         onNodesUpdated(nodes)
     }
@@ -83,6 +83,8 @@ class GraphEditorGraphHolder(
         edges = edges - Edge(v.id, u.id)
         onEdgeUpdated(edges)
     }
+
+
 
 
 }

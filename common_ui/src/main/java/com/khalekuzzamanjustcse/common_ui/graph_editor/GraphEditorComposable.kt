@@ -33,7 +33,6 @@ fun GraphEditorComposable() {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
 
-
     val controls = listOf(
         object : ControlButton {
             override val icon = Icons.Filled.Grain
@@ -79,7 +78,7 @@ fun GraphEditorComposable() {
             override val label = "Done"
             override val enabled = enabled
             override fun onClick() {
-
+                editor.onInputComplete()
             }
         },
     )
