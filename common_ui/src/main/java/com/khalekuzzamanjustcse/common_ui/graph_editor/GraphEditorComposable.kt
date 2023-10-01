@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Redo
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
@@ -25,7 +24,7 @@ fun GraphEditorComposable() {
     val minSize=50.dp
     val minSizePx=minSize.value* LocalDensity.current.density
     val editor = remember {
-       GraphEditorCanvas(minSize, minSizePx)
+       GraphEditorCanvasUIState(minSize, minSizePx)
     }
     val enabled = remember {
         mutableStateOf(true)

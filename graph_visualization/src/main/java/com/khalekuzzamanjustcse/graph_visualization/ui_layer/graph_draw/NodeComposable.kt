@@ -32,26 +32,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphBasicNode
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 import kotlin.concurrent.timer
 import kotlin.random.Random
 
+
 @Immutable
 data class NodeComposableState(
-    val label: String,
-    val size: Dp,
-    val sizePx: Float,
-    val offset: Offset = Offset.Zero,
+    val basicNode: GraphBasicNode,
     val color: Color = Color.Green,
     val backgroundColor: Color = Color.Unspecified,
-    val clickable: Boolean = true,
-    val draggable: Boolean = true,
-    val id: Int = 0,
-) {
+    override val label: String = basicNode.label,
+    override val size: Dp = basicNode.size,
+    override val sizePx: Float = basicNode.sizePx,
+    override val id: Int = basicNode.id,
+    override val position: Offset = Offset.Zero,
+) : GraphBasicNode {
     val textColor: Color
         get() = if (color.luminance() > 0.5) Color.Black else Color.White
     val center: Offset
-        get() = offset + Offset(sizePx / 2, sizePx / 2)
+        get() = position + Offset(sizePx / 2, sizePx / 2)
 
 }
 
@@ -65,44 +66,50 @@ however in real project change the state only inside the View model
 @Composable
 private fun NodeComposePreview() {
 
-    val size = 64.dp
-    val sizePx = LocalDensity.current.density * size.value
-    var state by remember {
-        mutableStateOf(NodeComposableState(size = size, sizePx = sizePx, label = "20"))
-    }
-    val randomColor: () -> Color = {
-        val random = Random.Default
-        val red = random.nextInt(256)
-        val green = random.nextInt(256)
-        val blue = random.nextInt(256)
-        Color(red, green, blue)
-    }
-    val blink: () -> Unit = {
-        timer(period = 300) {
-            state = state.copy(color = randomColor(), backgroundColor = randomColor())
-        }
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row {
-            MyButton(label = "ChangeState") {
-                state = state.copy(
-                    offset = Offset(200f, 200f),
-                    backgroundColor = Color.Magenta,
-                    clickable = false,
-                    draggable = false
-                )
-            }
-            MyButton(label = "Blink", onClick = blink)
-        }
-        NodeComposable(
-            state = state,
-            onDragStart = {},
-            onDragEnd = { },
-            onClick = { },
-            onDrag = {}
-        )
-    }
+//    val size = 64.dp
+//    val sizePx = LocalDensity.current.density * size.value
+//    var state by remember {
+//        mutableStateOf(
+//            NodeComposableState(
+//                size = size,
+//                sizePx = sizePx,
+//                label = "20"
+//            )
+//        )
+//    }
+//    val randomColor: () -> Color = {
+//        val random = Random.Default
+//        val red = random.nextInt(256)
+//        val green = random.nextInt(256)
+//        val blue = random.nextInt(256)
+//        Color(red, green, blue)
+//    }
+//    val blink: () -> Unit = {
+//        timer(period = 300) {
+//            state = state.copy(color = randomColor(), backgroundColor = randomColor())
+//        }
+//    }
+//
+//    Column(modifier = Modifier.fillMaxSize()) {
+//        Row {
+//            MyButton(label = "ChangeState") {
+//                state = state.copy(
+//                    position = Offset(200f, 200f),
+//                    backgroundColor = Color.Magenta,
+////                    clickable = false,
+////                    draggable = false
+//                )
+//            }
+//            MyButton(label = "Blink", onClick = blink)
+//        }
+//        NodeComposable(
+//            state = state,
+//            onDragStart = {},
+//            onDragEnd = { },
+//            onClick = { },
+//            onDrag = {}
+//        )
+//    }
 
 
 }
@@ -116,7 +123,7 @@ fun NodeComposable(
     onClick: () -> Unit,
     onDrag: (Offset) -> Unit,
 ) {
-    val offsetAnimation by animateOffsetAsState(state.offset, label = "")
+    val offsetAnimation by animateOffsetAsState(state.position, label = "")
     val nodeColor by animateColorAsState(targetValue = state.color, label = "")
     val backgroundColor by animateColorAsState(targetValue = state.backgroundColor, label = "")
 
@@ -125,29 +132,6 @@ fun NodeComposable(
         .offset {
             IntOffset(offsetAnimation.x.toInt(), offsetAnimation.y.toInt())
         }
-        .then(
-            if (state.draggable) {
-                Modifier.pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = onDragStart,
-                        onDrag = { change, dragAmount ->
-                            onDrag(dragAmount)
-                            change.consume()
-                        },
-                        onDragEnd = onDragEnd
-                    )
-                }
-            } else {
-                Modifier
-            }
-        )
-        .then(
-            if (state.clickable) {
-                Modifier.clickable { onClick() }
-            } else {
-                Modifier
-            }
-        )
         .background(backgroundColor)
 
 

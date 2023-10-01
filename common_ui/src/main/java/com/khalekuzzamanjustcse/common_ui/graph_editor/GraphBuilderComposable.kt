@@ -22,7 +22,7 @@ import kotlin.math.sin
 fun GraphBuilder(
     modifier: Modifier = Modifier,
     nodes: List<GraphEditorVisualNode>,
-    edges: List<DrawingEdge>,
+    edges: List<VisualEdge>,
     onCanvasTapped: (Offset) -> Unit = {},
 ) {
     Log.i("GraphEditor:GraBuilder", "${nodes.map { "${it.label} ,${it.position}" }}")
@@ -49,7 +49,7 @@ fun GraphBuilder(
 
 
 fun DrawScope.drawEdge(
-    state: DrawingEdge,
+    state: VisualEdge,
 ) {
     drawLine(
         color = Color.Black, start = state.start,

@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,7 +64,7 @@ private fun NodeCompose2Preview() {
         Row {
             MyButton(label = "ChangeState") {
                 state = state.copy(
-                    offset = Offset(200f, 200f),
+                    position = Offset(200f, 200f),
                     backgroundColor = Color.Magenta,
                     clickable = false,
                     draggable = false
@@ -77,7 +76,7 @@ private fun NodeCompose2Preview() {
             state = state,
             onDragStart = {},
             onClick = { },
-            onDragEnd = { state = state.copy(offset = it)}
+            onDragEnd = { state = state.copy(position = it)}
         )
     }
 
@@ -92,7 +91,7 @@ fun NodeComposable(
     onClick: () -> Unit
 ) {
     var offsetWithDragged by remember {
-        mutableStateOf(Offset.Zero + state.offset)
+        mutableStateOf(Offset.Zero + state.position)
     }
     // val offsetAnimation by animateOffsetAsState(state.offset, label = "")
 //    val offsetAnimation by animateOffsetAsState(state.offset, label = "")

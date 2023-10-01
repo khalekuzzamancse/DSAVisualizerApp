@@ -17,36 +17,38 @@ We want that class has single responsibility that is why we directly do not
 provide any undo and redo options inside this class.
 the client will decide he will undo or redo of a operation
  */
-class GraphEditorGraphHolder(
-    private val isDirected: Boolean = false,
-    private val onEdgeUpdated: (Set<Edge>) -> Unit = {},
-    private val onNodesUpdated: (Set<GraphBasicNode>) -> Unit = {},
-) {
-    var nodes = setOf<GraphBasicNode>()
+
+
+
+class GraphEditorGraph(
+) : GraphEditor {
+    override var onEdgeUpdated: (Set<Edge>) -> Unit = {}
+    override var onNodesUpdated: (Set<GraphBasicNode>) -> Unit = {}
+    override var nodes = setOf<GraphBasicNode>()
         private set
-    var edges = setOf<Edge>()
+    override var edges = setOf<Edge>()
         private set
 
-    fun addNode(node: GraphBasicNode) {
+    override fun addNode(node: GraphBasicNode) {
         nodes = nodes + node
         onNodesUpdated(nodes)
     }
 
-    fun resetGraph(_nodes: Set<GraphBasicNode>) {
-        nodes = _nodes
-        onNodesUpdated(nodes)
+    override fun resetGraph(nodes: Set<GraphBasicNode>) {
+        this.nodes = nodes
+        onNodesUpdated(this.nodes)
         edges = edges.filter { edge ->
-            nodes.any { it.id != edge.startNodeId } || nodes.any { it.id != edge.endNodeId }
+            this.nodes.any { it.id != edge.startNodeId } || this.nodes.any { it.id != edge.endNodeId }
         }.toSet()
         onEdgeUpdated(edges)
     }
 
-    fun addEdge(u: GraphBasicNode, v: GraphBasicNode) {
+    override fun addEdge(u: GraphBasicNode, v: GraphBasicNode) {
         edges = edges + Edge(u.id, v.id)
         onEdgeUpdated(edges)
     }
 
-    fun updateExistingNode(node: GraphBasicNode) {
+    override fun updateExistingNode(node: GraphBasicNode) {
         nodes = nodes.map {
             if (it.id == node.id)
                 object : GraphBasicNode {
@@ -62,7 +64,7 @@ class GraphEditorGraphHolder(
         onEdgeUpdated(edges)
     }
 
-    fun makeHomogenous() {
+    override fun makeHomogenous() {
         val maxSizeNode = nodes.maxBy { it.size }
         nodes = nodes.map {
             object : GraphBasicNode {
@@ -78,13 +80,10 @@ class GraphEditorGraphHolder(
         onEdgeUpdated(edges)
     }
 
-    fun removeEdge(u: GraphBasicNode, v: GraphBasicNode) {
+    override fun removeEdge(u: GraphBasicNode, v: GraphBasicNode) {
         edges = edges - Edge(u.id, v.id)
         edges = edges - Edge(v.id, u.id)
         onEdgeUpdated(edges)
     }
-
-
-
 
 }

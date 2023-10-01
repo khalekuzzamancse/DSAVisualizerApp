@@ -1,22 +1,24 @@
 package com.khalekuzzamanjustcse.graph_visualization.graph_simulator
 
 import androidx.compose.ui.graphics.Color
+import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorResultImp
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.BFSSimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.DFSSimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.SimulationSequence
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.NodeComposableState
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_editor.GraphEditorResult
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class GraphSimulatorState(
-    private val result: GraphEditorResult
+    private val result: GraphEditorResultImp
 ) {
-    private val _nodes = MutableStateFlow(result.nodes)
-    val nodes: StateFlow<List<NodeComposableState>>
-        get()=_nodes.asStateFlow()
+    private val _nodes = MutableStateFlow(
+        result.nodes.map {
+            NodeComposableState(it)
+        }
+    )
+    val nodes=_nodes.asStateFlow()
 
     private val _edges = MutableStateFlow(result.edges)
     val edges = _edges.asStateFlow()

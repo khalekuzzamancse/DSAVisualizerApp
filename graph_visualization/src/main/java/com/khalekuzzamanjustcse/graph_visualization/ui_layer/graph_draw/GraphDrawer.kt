@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -18,7 +17,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 
@@ -40,19 +38,19 @@ fun GraphMakerPreview() {
             listOf(
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "10",
-                    offset = Offset(10f, 10f),id=0
+                    position = Offset(10f, 10f),id=0
                 ),
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "20",
-                    offset = Offset(2 * sizePx + 10f, 10f),id=1
+                    position = Offset(2 * sizePx + 10f, 10f),id=1
                 ),
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "30",
-                    offset = Offset(10f, sizePx + 180f),id=2
+                    position = Offset(10f, sizePx + 180f),id=2
                 ),
                 NodeComposableState(
                     size = size, sizePx = sizePx, label = "30",
-                    offset = Offset(3 * sizePx + 10f, sizePx + 180f),id=3
+                    position = Offset(3 * sizePx + 10f, sizePx + 180f),id=3
                 )
             )
         )
@@ -75,7 +73,7 @@ fun GraphMakerPreview() {
     val onDragEnd: (Int, Offset) -> Unit = { nodeIndex, offset ->
         val updatedNodes = nodes.toMutableList()
         val oldState = nodes[nodeIndex]
-        updatedNodes[nodeIndex] = oldState.copy(offset = offset + oldState.offset)
+        updatedNodes[nodeIndex] = oldState.copy(position = offset + oldState.position)
         nodes = updatedNodes
     }
     val onNodeClick: (Int) -> Unit = { nodeId ->
@@ -88,7 +86,7 @@ fun GraphMakerPreview() {
         updatedNodes.add(
             NodeComposableState(
                 size = size, sizePx = sizePx,
-                label = "33", offset = lastTappedLocation
+                label = "33", position = lastTappedLocation
             )
         )
         nodes = updatedNodes

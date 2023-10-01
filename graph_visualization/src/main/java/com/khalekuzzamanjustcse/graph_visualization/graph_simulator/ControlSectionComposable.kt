@@ -25,9 +25,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.khalekuzzamanjustcse.common_ui.ControlButton
 import com.khalekuzzamanjustcse.common_ui.DropdownMenuOption
 import com.khalekuzzamanjustcse.common_ui.pop_up_window.CustomExposedDropDownMenu
-import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_editor.ControlButton
+
 
 sealed class GraphTraversalOption(private val algorithmName: String) : DropdownMenuOption {
     override val label: String

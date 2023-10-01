@@ -42,7 +42,7 @@ class AdjacencyListTest {
 
 }
 
-class GraphEditorGraphHolderTUnitTest {
+class GraphEditorGraphTUnitTest {
     private val graph = Graph<String>()
     private fun printGraph() {
         println("Nodes : ${graph.adjacencyList.nodes.map { it.label }}")
