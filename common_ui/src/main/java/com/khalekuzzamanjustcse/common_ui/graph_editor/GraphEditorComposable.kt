@@ -49,7 +49,7 @@ fun GraphEditorComposable() {
             override fun onClick() = editor.addEdge()
         },
         object : ControlButton {
-            override val icon = Icons.Filled.Undo
+            override val icon = Icons.Filled.Grain
             override val label = "AllNodeSameSize"
             override val enabled = enabled
             override fun onClick() {
@@ -57,11 +57,19 @@ fun GraphEditorComposable() {
             }
         },
         object : ControlButton {
+            override val icon = Icons.Filled.Undo
+            override val label = "Undo"
+            override val enabled = enabled
+            override fun onClick() {
+             editor.undo()
+            }
+        },
+        object : ControlButton {
             override val icon = Icons.Filled.Redo
             override val label = "Redo"
             override val enabled = enabled
             override fun onClick() {
-
+                editor.redo()
             }
         },
         object : ControlButton {
