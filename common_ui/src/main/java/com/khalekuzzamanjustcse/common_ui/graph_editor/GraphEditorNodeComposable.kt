@@ -35,40 +35,40 @@ so we can easily ...
 @Preview
 @Composable
 private fun GraphEditorNodeComposablePreview() {
-    val onClick: (GraphEditorNode) -> Unit = { id ->
+    val onClick: (GraphEditorVisualNode) -> Unit = { id ->
         Log.i("NodeEventOccurred:Clicked-> ", "$id")
     }
-    val onDragEnd: (GraphEditorNode) -> Unit = {node->
+    val onDragEnd: (GraphEditorVisualNode) -> Unit = { node->
         Log.i("NodeEventOccurred:dragged-> ", "$node")
     }
 
 
-    val node1 = remember {
-        GraphEditorNode(
-            id = 1, size = 50.dp, label = "10",
-            position = Offset.Zero,
-            onClick = onClick, onDragEnd = onDragEnd
-        )
-    }
-    val node2 = remember {
-        GraphEditorNode(
-            id = 2, size = 50.dp, label = "20",
-            position = Offset(100f, 100f),
-            onClick = onClick, onDragEnd = onDragEnd
-        )
-    }
-
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        GraphEditorNodeComposable(node1)
-        GraphEditorNodeComposable(node2)
-    }
+//    val node1 = remember {
+//        GraphEditorVisualNode(
+//            id = 1, size = 50.dp, label = "10",
+//            position = Offset.Zero,
+//            onClick = onClick, onDragEnd = onDragEnd
+//        )
+//    }
+//    val node2 = remember {
+//        GraphEditorVisualNode(
+//            id = 2, size = 50.dp, label = "20",
+//            position = Offset(100f, 100f),
+//            onClick = onClick, onDragEnd = onDragEnd
+//        )
+//    }
+//
+//
+//    Box(modifier = Modifier.fillMaxSize()) {
+//        GraphEditorNodeComposable(node1)
+//        GraphEditorNodeComposable(node2)
+//    }
 
 }
 
 @Composable
 fun GraphEditorNodeComposable(
-    node: GraphEditorNode,
+    node: GraphEditorVisualNode,
 ) {
     var offsetWithDragged by remember {
         mutableStateOf(Offset.Zero + node.position)

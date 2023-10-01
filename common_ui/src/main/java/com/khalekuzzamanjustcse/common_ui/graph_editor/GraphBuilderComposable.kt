@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
-import kotlinx.coroutines.flow.update
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -22,7 +21,7 @@ import kotlin.math.sin
 @Composable
 fun GraphBuilder(
     modifier: Modifier = Modifier,
-    nodes: List<GraphEditorNode>,
+    nodes: List<GraphEditorVisualNode>,
     edges: List<DrawingEdge>,
     onCanvasTapped: (Offset) -> Unit = {},
 ) {

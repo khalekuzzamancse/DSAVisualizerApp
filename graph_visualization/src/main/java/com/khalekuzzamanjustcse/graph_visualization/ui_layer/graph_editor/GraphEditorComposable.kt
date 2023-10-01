@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.common_ui.ControlButton
+import com.khalekuzzamanjustcse.common_ui.ControlsComposable
 import com.khalekuzzamanjustcse.graph_visualization.graph_simulator.GraphSimulatorState
 import com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_draw.GraphDrawer
 import kotlin.random.Random

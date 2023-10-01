@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_visualization.ui_layer.graph_editor
+package com.khalekuzzamanjustcse.common_ui
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -30,13 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.khalekuzzamanjustcse.common_ui.ControlButton
 
-interface ControlButton {
-    val icon: Any
-    val label: String
-    val enabled: MutableState<Boolean>
-    fun onClick()
-}
 
 @Preview
 @Composable
@@ -45,7 +40,7 @@ fun ControlSectionPreview() {
         mutableStateOf(true)
     }
     val controls= listOf(
-        object :ControlButton{
+        object : ControlButton {
             override val icon=Icons.Filled.Grain
             override val label="Add Node"
             override val enabled=enabled
