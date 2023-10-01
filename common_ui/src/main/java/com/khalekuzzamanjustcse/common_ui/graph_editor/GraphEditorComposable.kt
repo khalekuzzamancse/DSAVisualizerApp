@@ -22,8 +22,10 @@ import com.khalekuzzamanjustcse.common_ui.ControlsComposable
 @Preview
 @Composable
 fun GraphEditorComposable() {
-    val editor by remember {
-        mutableStateOf(GraphEditorCanvas())
+    val minSize=50.dp
+    val minSizePx=minSize.value* LocalDensity.current.density
+    val editor = remember {
+       GraphEditorCanvas(minSize, minSizePx)
     }
     val enabled = remember {
         mutableStateOf(true)

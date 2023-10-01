@@ -13,6 +13,9 @@ should not modify this class data,but since there is a bug for removing node,and
 in the compose framework ,so that is why to give the node remove(undo) option we
 give a setter method for the node.
 
+We want that class has single responsibility that is why we directly do not
+provide any undo and redo options inside this class.
+the client will decide he will undo or redo of a operation
  */
 class GraphEditorGraphHolder(
     private val onEdgeUpdated: (Set<Edge>) -> Unit = {},
