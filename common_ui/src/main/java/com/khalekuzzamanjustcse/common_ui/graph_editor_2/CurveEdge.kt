@@ -25,12 +25,13 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.atan2
 
 @Preview
 @Composable
 fun CurveEdge() {
-    val start = Offset(0f, 100f)
-    val end = Offset(200f, 100f)
+    val start = Offset(50f, 100f)
+    val end = Offset(200f, 300f)
     val x1 = (start.x + end.x) / 2
     val y1 = (start.y + end.y) / 2
     var controlPoint by remember {
@@ -45,8 +46,7 @@ fun CurveEdge() {
             .drawBehind {
                 withTransform(
                     {
-                        translate(100f, 100f)
-                        rotate(45f, Offset(100f, 100f))
+
                     }
                 ) {
 
@@ -78,7 +78,7 @@ fun CurveEdge() {
 }
 
 
-private fun DrawScope.draw(
+private fun DrawScope.drawEdge(
     start: Offset,
     controlPoint: Offset,
     end: Offset,
@@ -156,11 +156,18 @@ class EdgeDrawer(
     private fun drawEdgeCost() {
         if (edgeCostLabel != null && textMeasurer != null) {
             val textHalfWidth = textMeasurer.measure(edgeCostLabel).size.width / 2
-            drawScope.drawText(
-                text = edgeCostLabel,
-                topLeft = pathCenter - Offset(textHalfWidth.toFloat(), 0f),
-                textMeasurer = textMeasurer
-            )
+            val (endX, endY) = end
+            val (startX, startY) = start
+            val angleRadians = atan2(endY - startY, endX - startX)
+            val angleDegrees = Math.toDegrees(angleRadians.toDouble())
+            drawScope.rotate(angleDegrees.toFloat(), pathCenter) {
+                drawText(
+                    text = edgeCostLabel,
+                    topLeft = pathCenter - Offset(textHalfWidth.toFloat(), 0f),
+                    textMeasurer = textMeasurer
+                )
+            }
+
         }
     }
 
