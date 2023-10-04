@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +51,9 @@ fun WhiteBoard(modifier: Modifier = Modifier, onDismissButtonClick: () -> Unit) 
     var paths by remember { mutableStateOf(mutableListOf<Path>()) }
     var previousPosition: Offset = Offset.Zero
     var currentPosition: Offset
+    var cnt by remember {
+        mutableIntStateOf(0)
+    }
 
 
     val updatePathOnDragStart: (Offset) -> Unit = { offset ->
@@ -95,13 +101,18 @@ fun WhiteBoard(modifier: Modifier = Modifier, onDismissButtonClick: () -> Unit) 
                     },
                     onDrag = { change, _ ->
                         updatePathOnDragging(change.position)
+                        cnt++
+                        Log.i("OnDraggedPosition: $cnt", "${change.position}")
                     },
                     onDragEnd = {
                         paths.add(path)
                         currentPosition = Offset.Unspecified
                         previousPosition = currentPosition
+
                     }
                 )
+
+
             }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -136,7 +147,7 @@ fun WhiteBoard(modifier: Modifier = Modifier, onDismissButtonClick: () -> Unit) 
                             paths.forEach {
 
 
-                                                      }
+                            }
                         },
                         imageVector = Icons.Default.Info,
                         contentDescription = null
