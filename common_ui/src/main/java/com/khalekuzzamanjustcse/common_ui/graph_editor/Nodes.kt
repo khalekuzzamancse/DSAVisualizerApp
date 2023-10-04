@@ -3,7 +3,9 @@ package com.khalekuzzamanjustcse.common_ui.graph_editor
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.unit.Dp
 
 
@@ -11,18 +13,43 @@ interface GraphBasicNode {
     val id: Int
     val label: String
     val position: Offset
-    val sizePx:Float
+    val sizePx: Float
     val size: Dp
 }
 
-interface  GraphBasicEdge{
+interface GraphBasicEdge {
     val startNodeId: Int
     val endNodeId: Int
 }
-interface  VisualEdge{
+
+interface VisualEdge {
     val start: Offset
     val end: Offset
     val isDirected: Boolean
+}
+
+interface GraphEditorVisualEdge {
+    val id: Int
+    val start: Offset
+    val end: Offset
+    val controlPoint: Offset
+    val edgeCost: String?
+    val isDirected: Boolean
+    val showAnchor: Boolean
+    fun onAnchorPointDrag(dragAmount: Offset): GraphEditorVisualEdge
+}
+
+data class GraphEditorVisualEdgeImp(
+    override val id: Int,
+    override val start: Offset,
+    override val end: Offset,
+    override val controlPoint: Offset = start.plus(end).div(2f),
+    override val edgeCost: String?,
+    override val isDirected: Boolean,
+    override val showAnchor: Boolean = true
+) : GraphEditorVisualEdge {
+    override fun onAnchorPointDrag(dragAmount: Offset) =
+        this.copy(controlPoint = controlPoint + dragAmount)
 }
 
 
@@ -57,28 +84,28 @@ data class GraphSimulationNode(
     val textColor: Color
         get() = if (color.luminance() > 0.5) Color.Black else Color.White
     private val halfSize: Float
-        get() =sizePx/2
+        get() = sizePx / 2
     val center: Offset
         get() = position + Offset(halfSize, halfSize)
 
     val topCenter: Offset
-        get() = position+Offset(halfSize, 0f)
+        get() = position + Offset(halfSize, 0f)
     val bottomCenter: Offset
-        get() = Offset(position.x+halfSize,position.y+sizePx)
+        get() = Offset(position.x + halfSize, position.y + sizePx)
 
     val leftCenter: Offset
-        get() =Offset(position.x,position.y+halfSize)
+        get() = Offset(position.x, position.y + halfSize)
     val rightCenter: Offset
-    get() =Offset(position.x+sizePx,position.y+sizePx)
+        get() = Offset(position.x + sizePx, position.y + sizePx)
 }
 
 data class Edge(
     override val startNodeId: Int,
     override val endNodeId: Int,
-):GraphBasicEdge
+) : GraphBasicEdge
 
 data class DrawingEdge(
     override val start: Offset,
     override val end: Offset,
     override val isDirected: Boolean = false,
-):VisualEdge
+) : VisualEdge

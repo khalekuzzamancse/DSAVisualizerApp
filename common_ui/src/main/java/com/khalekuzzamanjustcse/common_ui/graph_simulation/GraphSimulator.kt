@@ -3,7 +3,7 @@ package com.khalekuzzamanjustcse.common_ui.graph_simulation
 import androidx.compose.ui.graphics.Color
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphBasicNode
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphSimulationNode
-import com.khalekuzzamanjustcse.common_ui.graph_editor.VisualEdge
+import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorVisualEdge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.update
 
 interface GraphSimulator {
     val nodes: StateFlow<Set<GraphSimulationNode>>
-    val edges: StateFlow<Set<VisualEdge>>
+    val edges: StateFlow<Set<GraphEditorVisualEdge>>
     fun changeColor(nodeId: Int)
     fun resetColors()
-    fun resetGraph(nodes: Set<GraphBasicNode>, edges: Set<VisualEdge>)
+    fun resetGraph(nodes: Set<GraphBasicNode>, edges: Set<GraphEditorVisualEdge>)
 }
 
 data class GraphSimulatorImp(
     private val basicNodes: Set<GraphBasicNode> = emptySet(),
-    private val basicEdge: Set<VisualEdge> = emptySet(),
+    private val basicEdge: Set<GraphEditorVisualEdge> = emptySet(),
 ) : GraphSimulator {
 
     private val _nodes: MutableStateFlow<Set<GraphSimulationNode>> = MutableStateFlow(
@@ -28,10 +28,10 @@ data class GraphSimulatorImp(
     override val nodes: StateFlow<Set<GraphSimulationNode>>
         get() = _nodes.asStateFlow()
 
-    private val _edges: MutableStateFlow<Set<VisualEdge>> = MutableStateFlow(
+    private val _edges: MutableStateFlow<Set<GraphEditorVisualEdge>> = MutableStateFlow(
         basicEdge.map { it }.toSet()
     )
-    override val edges: StateFlow<Set<VisualEdge>>
+    override val edges: StateFlow<Set<GraphEditorVisualEdge>>
         get() = _edges.asStateFlow()
 
     override fun changeColor(nodeId: Int) {
@@ -46,7 +46,7 @@ data class GraphSimulatorImp(
         }
     }
 
-    override fun resetGraph(nodes: Set<GraphBasicNode>, edges: Set<VisualEdge>) {
+    override fun resetGraph(nodes: Set<GraphBasicNode>, edges: Set<GraphEditorVisualEdge>) {
         _nodes.update {
             nodes.map { basicNode -> GraphSimulationNode(basicNode) }.toSet()
         }
