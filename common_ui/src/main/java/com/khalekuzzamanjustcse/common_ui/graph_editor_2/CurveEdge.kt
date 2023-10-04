@@ -31,7 +31,7 @@ import kotlin.math.atan2
 @Composable
 fun CurveEdge() {
     val start = Offset(50f, 100f)
-    val end = Offset(200f, 300f)
+    val end = Offset(200f, 100f)
     val x1 = (start.x + end.x) / 2
     val y1 = (start.y + end.y) / 2
     var controlPoint by remember {
@@ -58,6 +58,7 @@ fun CurveEdge() {
                         textMeasurer = textMeasure,
                         edgeCostLabel = "55 Tk."
                     ).draw()
+
 
                 }
             }
@@ -158,8 +159,8 @@ class EdgeDrawer(
             val textHalfWidth = textMeasurer.measure(edgeCostLabel).size.width / 2
             val (endX, endY) = end
             val (startX, startY) = start
-            val angleRadians = atan2(endY - startY, endX - startX)
-            val angleDegrees = Math.toDegrees(angleRadians.toDouble())
+            val slop = atan2(endY - startY, endX - startX)
+            val angleDegrees = Math.toDegrees(slop.toDouble())
             drawScope.rotate(angleDegrees.toFloat(), pathCenter) {
                 drawText(
                     text = edgeCostLabel,
