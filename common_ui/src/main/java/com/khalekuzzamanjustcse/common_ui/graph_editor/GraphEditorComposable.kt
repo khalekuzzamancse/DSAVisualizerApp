@@ -21,16 +21,17 @@ import com.khalekuzzamanjustcse.common_ui.ControlsComposable
 @Preview
 @Composable
 fun GraphEditorComposable() {
-    val minSize=50.dp
-    val minSizePx=minSize.value* LocalDensity.current.density
+    val minSize = 50.dp
+    val minSizePx = minSize.value * LocalDensity.current.density
     val editor = remember {
-       GraphEditorCanvasUIState(minSize, minSizePx)
+        GraphEditorCanvasUIState(minSize, minSizePx)
     }
     val enabled = remember {
         mutableStateOf(true)
     }
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
+
 
     val controls = listOf(
         object : ControlButton {
@@ -61,7 +62,7 @@ fun GraphEditorComposable() {
             override val label = "Undo"
             override val enabled = enabled
             override fun onClick() {
-             editor.undo()
+                editor.undo()
             }
         },
         object : ControlButton {
@@ -81,7 +82,10 @@ fun GraphEditorComposable() {
             }
         },
     )
-    Column {
+
+
+
+    Column{
         ControlsComposable(title = "Graph Editor", controls = controls)
         NodeDataInput(
             editor.takeInput.collectAsState().value,
@@ -94,11 +98,16 @@ fun GraphEditorComposable() {
 
             }
         )
-        GraphBuilder(
-            nodes = editor.visualNodes.collectAsState().value.toList(),
-            edges = editor.visualEdges.collectAsState().value.toList(),
-            onCanvasTapped = editor::onCanvasTap
-        )
+        //writing the Graph builder to a extra composable
+        //by the concept of decorator design pattern so that we can give it zoom and pan
+        //functionality
+
+            GraphBuilder(
+                nodes = editor.visualNodes.collectAsState().value.toList(),
+                edges = editor.visualEdges.collectAsState().value.toList(),
+                onCanvasTapped = editor::onCanvasTap
+            )
+
     }
 
 

@@ -30,8 +30,8 @@ class GraphEditorCanvasUIState (
         _visualNodes.update {
             basicNodes.map { basicNode ->
                 GraphEditorVisualNode(
-                    basicNode = basicNode, size = basicNode.size, sizePx = basicNode.sizePx,
-                    onClick = ::onNodeClick, onDragEnd = ::onNodeDragEnd
+                    basicNode = basicNode, onClick = ::onNodeClick, onDragEnd = ::onNodeDragEnd,
+                    size = basicNode.size, sizePx = basicNode.sizePx, showAnchor = false
                 )
             }.toSet()
         }

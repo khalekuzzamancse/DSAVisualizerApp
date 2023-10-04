@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/common_ui" />
+            <option value="$PROJECT_DIR$/graph_editor" />
             <option value="$PROJECT_DIR$/graph_visualization" />
             <option value="$PROJECT_DIR$/linear_datastructure" />
             <option value="$PROJECT_DIR$/tree_visualization" />

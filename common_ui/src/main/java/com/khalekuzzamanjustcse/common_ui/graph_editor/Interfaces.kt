@@ -4,23 +4,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.flow.StateFlow
 
-interface GraphBasicNode {
-    val id: Int
-    val label: String
-    val position: Offset
-    val sizePx:Float
-    val size: Dp
-}
-
-interface  GraphBasicEdge{
-    val startNodeId: Int
-    val endNodeId: Int
-}
-interface  VisualEdge{
-    val start: Offset
-    val end: Offset
-    val isDirected: Boolean
-}
 
 interface GraphEditor {
     val nodes: Set<GraphBasicNode>
