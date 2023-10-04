@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,7 +29,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorVisualEdge
-import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorVisualEdgeImp
 import kotlin.math.atan2
 
 
@@ -44,40 +43,14 @@ fun CurveEdge() {
     var enableDrag by remember {
         mutableStateOf(false)
     }
-    var currentlyDragEdgeId by remember {
-        mutableIntStateOf(-1111)
+    var draggingEdge by remember {
+        mutableStateOf<GraphEditorVisualEdge?>(null)
     }
-
-    var edges by remember {
-        mutableStateOf(
-            listOf(
-                GraphEditorVisualEdgeImp(
-                    id = 1,
-                    start = Offset(50f, 100f),
-                    end = Offset(200f, 100f),
-                    edgeCost = "55 Tk.",
-                    isDirected = true
-                ),
-                GraphEditorVisualEdgeImp(
-                    id = 2,
-                    start = Offset(150f, 200f),
-                    end = Offset(300f, 200f),
-                    edgeCost = "50 Tk.",
-                    isDirected = true
-                )
-            )
-        )
+    val edgeManger = remember {
+        GraphEditorVisualEdgeMangerImp()
     }
-
+    val edges = edgeManger.edges.collectAsState().value
     val touchTargetPx = 40.dp.value * LocalDensity.current.density
-
-    val updateAnchorPoint: (Int, Offset) -> Unit = { id, dragAmount ->
-        edges = edges.map { edge ->
-            if (edge.id == id) {
-                edge.onAnchorPointDrag(dragAmount)
-            } else edge
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -89,9 +62,8 @@ fun CurveEdge() {
                         textMeasurer = textMeasure,
                         edge = edge,
                         onControlPointTap = { tappedEdge ->
-                            Log.i("ControlPointTap:", "${tappedEdge.id}")
-                            currentlyDragEdgeId=tappedEdge.id
-                            enableDrag=true
+                            draggingEdge = tappedEdge
+                            enableDrag = true
                         }
                     )
                     edgeDrawer.draw(this)
@@ -102,7 +74,9 @@ fun CurveEdge() {
                 detectDragGestures(
                     onDrag = { _, dragAmount ->
                         if (enableDrag) {
-                            updateAnchorPoint(currentlyDragEdgeId, dragAmount)
+                            draggingEdge?.let {
+                                edgeManger.onControlPointDragging(it, dragAmount)
+                            }
                         }
 
                     }, onDragStart = {
@@ -110,7 +84,7 @@ fun CurveEdge() {
                     },
                     onDragEnd = {
                         dragStartAt = null
-                        currentlyDragEdgeId = -111
+                        draggingEdge = null
                     }
                 )
 
