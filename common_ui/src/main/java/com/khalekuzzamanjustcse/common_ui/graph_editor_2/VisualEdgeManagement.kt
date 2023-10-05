@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 
 interface GraphEditorVisualEdgeManger {
     val edges: StateFlow<List<GraphEditorVisualEdge>>
+    fun addEdge(start: Offset, end: Offset, cost: String? = null, isDirected: Boolean = true)
     fun onCanvasDragging(dragAmount: Offset)
     fun onDragStart(position: Offset)
     fun onDragEnd()
@@ -17,8 +18,9 @@ interface GraphEditorVisualEdgeManger {
 }
 
 class GraphEditorVisualEdgeMangerImp(
-    minTouchTargetPx: Float,
+    private val minTouchTargetPx: Float,
 ) : GraphEditorVisualEdgeManger {
+    private var autoGenerateId = 3
     private val _edges = MutableStateFlow(
         listOf(
             GraphEditorVisualEdgeImp(
@@ -40,6 +42,20 @@ class GraphEditorVisualEdgeMangerImp(
         )
     )
     override val edges = _edges.asStateFlow()
+    override fun addEdge(
+        start: Offset, end: Offset,
+        cost: String?, isDirected: Boolean
+    ) {
+        val edge = GraphEditorVisualEdgeImp(
+            id = autoGenerateId++,
+            start = start,
+            end = end,
+            edgeCost = cost,
+            isDirected = isDirected,
+            minTouchTargetPx = minTouchTargetPx,
+        )
+        _edges.value = _edges.value + edge
+    }
     private var dragging: GraphEditorVisualEdge? = null
 
     override fun onCanvasDragging(dragAmount: Offset) {

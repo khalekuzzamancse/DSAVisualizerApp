@@ -66,7 +66,7 @@ data class GraphEditorVisualEdgeImp(
     override val isDirected: Boolean,
     override val showAnchor: Boolean = true,
     override val anchorPointRadius: Float = 5f,
-    override val minTouchTargetPx: Float =80f
+    override val minTouchTargetPx: Float
 ) : GraphEditorVisualEdge {
     private val pathMeasurer = PathMeasure()
     override val path: Path

@@ -285,3 +285,61 @@ private fun AnchorPoint(
 
 
 }
+fun DrawScope.drawEdge(
+    start: Offset,
+    end: Offset,
+    controlPoint: Offset? = null,
+    hasDirection: Boolean,
+    onPathCreated:(Path)->Unit ={}
+) {
+
+    var midpoint = Offset((start.x + end.x) / 2, (start.y + end.y) / 2)
+    if (controlPoint != null)
+        midpoint = controlPoint
+    val path = Path().apply {
+        moveTo(start.x, start.y)
+        quadraticBezierTo(midpoint.x, midpoint.y, end.x, end.y)
+        onPathCreated(this)
+    }
+    val pathMeasured = PathMeasure().apply {
+        setPath(path, false)
+    }
+    val headStart = pathMeasured.getPosition(pathMeasured.length - 25)
+
+
+    drawPath(
+        path = path, color = Color.Black, style = Stroke(3f)
+    )
+    if (hasDirection) {
+        rotate(30f, end) {
+            drawLine(
+                color = Color.Black,
+                start = headStart,
+                end = end,
+                strokeWidth = 3f
+            )
+        }
+        rotate(-30f, end) {
+            drawLine(
+                color = Color.Black,
+                start = headStart,
+                end = end,
+                strokeWidth = 3f
+            )
+
+        }
+    }
+
+
+}
+
+
+fun calculateCoordinates(
+    angleDegree: Float, radius: Float,
+    center: Offset
+): Offset {
+    val angleRadian = Math.toRadians(angleDegree.toDouble())
+    val x = center.x + radius * cos(angleRadian).toFloat()
+    val y = center.y + radius * sin(angleRadian).toFloat()
+    return Offset(x, y)
+}
