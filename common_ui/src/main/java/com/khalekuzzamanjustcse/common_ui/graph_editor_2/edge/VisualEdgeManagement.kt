@@ -1,6 +1,5 @@
 package com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -79,24 +78,7 @@ class GraphEditorVisualEdgeMangerImp(
             _edges.update { list ->
                 list.map { edge ->
                     if (edge.id == dragging!!.id) {
-                        val (x, y) = dragAmount
-                        if (kotlin.math.abs(x) > kotlin.math.abs(y)) {
-                            when {
-                                x > 0 -> edge.move(dragAmount)
-                                x < 0 -> edge.move(dragAmount)
-                                else -> {
-                                    edge
-                                }
-                            }
-                        } else {
-                            when {
-                                y > 0 -> edge.move(dragAmount)
-                                y < 0 ->
-                                    edge.move(dragAmount)
-
-                                else -> edge
-                            }
-                        }
+                        edge.move(dragAmount)
                     } else edge
                 }
             }
@@ -111,8 +93,8 @@ class GraphEditorVisualEdgeMangerImp(
                         val (x, y) = dragAmount
                         if (kotlin.math.abs(x) > kotlin.math.abs(y)) {
                             when {
-                                x > 0 -> edge.onEndPointDrag(dragAmount)
-                                x < 0 -> edge.onEndPointDrag(dragAmount)
+                                x > 0 -> edge.changeSize(dragAmount)
+                                x < 0 -> edge.changeSize(dragAmount)
                                 else -> {
                                     edge
                                 }
@@ -122,7 +104,6 @@ class GraphEditorVisualEdgeMangerImp(
                                 y > 0 -> edge.onAnchorPointDrag(dragAmount)
                                 y < 0 ->
                                     edge.onAnchorPointDrag(dragAmount)
-
                                 else -> edge
                             }
                         }

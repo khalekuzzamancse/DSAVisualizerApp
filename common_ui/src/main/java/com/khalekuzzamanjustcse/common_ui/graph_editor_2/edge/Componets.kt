@@ -24,11 +24,8 @@ interface GraphEditorVisualEdge {
 
     fun onAnchorPointDrag(dragAmount: Offset): GraphEditorVisualEdge
     fun isAnchorTouched(touchPosition: Offset): Boolean
-    fun isStarPointTouched(touchPosition: Offset): Boolean
-    fun isEndPointTouched(touchPosition: Offset): Boolean
-    fun onStartPointDrag(dragAmount: Offset): GraphEditorVisualEdge
-    fun onEndPointDrag(dragAmount: Offset): GraphEditorVisualEdge
     fun move(dragAmount: Offset): GraphEditorVisualEdge
+    fun changeSize(dragAmount: Offset): GraphEditorVisualEdge
 
 
 }
@@ -91,38 +88,12 @@ data class GraphEditorVisualEdgeImp(
         )
     }
 
-    override fun isStarPointTouched(touchPosition: Offset): Boolean {
-        return touchPosition.x in Range(
-            start.x - minTouchTargetPx / 2,
-            start.x + minTouchTargetPx / 2
-        ) &&
-                touchPosition.y in Range(
-            start.y - minTouchTargetPx / 2,
-            start.y + minTouchTargetPx / 2
-        )
-    }
-
-    override fun isEndPointTouched(touchPosition: Offset): Boolean {
-        return touchPosition.x in Range(
-            end.x - minTouchTargetPx / 2,
-            end.x + minTouchTargetPx / 2
-        ) &&
-                touchPosition.y in Range(
-            end.y - minTouchTargetPx / 2,
-            end.y + minTouchTargetPx / 2
-        )
-    }
-
-    override fun onStartPointDrag(dragAmount: Offset): GraphEditorVisualEdge {
-     return   this.copy(start = start + dragAmount)
-    }
-
-    override fun onEndPointDrag(dragAmount: Offset): GraphEditorVisualEdge {
-        return   this.copy(end = end + dragAmount)
-    }
-
     override fun move(dragAmount: Offset): GraphEditorVisualEdge {
         return   this.copy(start = start + dragAmount,end = end + dragAmount)
+    }
+
+    override fun changeSize(dragAmount: Offset): GraphEditorVisualEdge {
+        return this.copy(end = end + dragAmount)
     }
 
 }
