@@ -3,7 +3,7 @@ package com.khalekuzzamanjustcse.common_ui.graph_simulation
 import androidx.compose.ui.graphics.Color
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphBasicNode
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphSimulationNode
-import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorVisualEdge
+import com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge.GraphEditorVisualEdge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

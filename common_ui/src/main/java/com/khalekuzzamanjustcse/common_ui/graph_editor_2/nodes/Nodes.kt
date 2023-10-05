@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.graph_editor_2
+package com.khalekuzzamanjustcse.common_ui.graph_editor_2.nodes
 
 
 import android.util.Log
@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +37,16 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphBasicNode
 import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorVisualNode
+import com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge.DragType
+import com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge.GraphEditorVisualEdgeMangerImp
+import com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge.drawEdge
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 import kotlin.math.cos
 import kotlin.math.sin
@@ -57,6 +63,15 @@ so we can easily ...
 private fun GraphEditorNodeComposablePreview2() {
     val size = 64.dp
     val sizePx = size.value * LocalDensity.current.density
+    val textMeasure = rememberTextMeasurer()
+    val touchTargetPx = 40.dp.value * LocalDensity.current.density
+    val edgeManger = remember {
+        GraphEditorVisualEdgeMangerImp(touchTargetPx)
+    }
+    LaunchedEffect(Unit){
+        edgeManger.setEdges(emptyList())
+    }
+    val edges = edgeManger.edges.collectAsState().value
 
     var clickedNodes by remember {
         mutableStateOf(setOf<Int>())
@@ -98,17 +113,12 @@ private fun GraphEditorNodeComposablePreview2() {
     }
 
 
-    val onDragEnd: (GraphEditorVisualNode) -> Unit = { dragged ->
-        Log.i("NodeEventOccurred:dragged-> ", "$dragged")
-    }
 
 
     var twoPoints by remember {
-        mutableStateOf(setOf<Pair<Int, Offset>>())
+        mutableStateOf(setOf<Offset>())
     }
-    var edges by remember {
-        mutableStateOf(listOf<Pair<Offset, Offset>>())
-    }
+
 
 
     var edgeDrawMode by remember {
@@ -138,14 +148,41 @@ private fun GraphEditorNodeComposablePreview2() {
                     it.copy(showAnchor = false)
                 }
             }
+            MyButton(
+                label = "AddEdge",
+                enabled = twoPoints.size==2
+            ) {
+                if(twoPoints.size==2){
+                    edgeManger.addEdge(
+                        start =twoPoints.first(),
+                        end =twoPoints.last(),
+                        cost ="10 Tk",
+                        isDirected = true
+                    )
+                    twoPoints = emptySet()
+                }
+            }
         }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBehind {
                     edges.forEach {
-                        drawEdge(it.first, it.second, hasDirection = false)
+                        edges.forEach { edge ->
+                            drawEdge(textMeasurer = textMeasure, edge = edge)
+                        }
                     }
+                }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { _, dragAmount ->
+                            edgeManger.dragOngoing(DragType.Normal,dragAmount)
+                        },
+                        onDragStart ={
+                            edgeManger.dragOngoing(DragType.Normal,it)
+                        },
+                        onDragEnd = edgeManger::dragEnded
+                    )
                 }
         ) {
             nodes.forEach {
@@ -153,13 +190,9 @@ private fun GraphEditorNodeComposablePreview2() {
                     it, enableDrag = edgeDrawMode,
                     onAnchorPointClick = { node, offset ->
                         Log.i("AnchorPointClick: ", "$offset")
-                        twoPoints = twoPoints + Pair(node.id, offset)
+                        twoPoints = twoPoints +offset
                         if (twoPoints.size > 2)
                             twoPoints = twoPoints.toMutableSet().drop(1).toSet()
-                        if (twoPoints.size == 2) {
-                            edges = edges + Pair(twoPoints.first().second, twoPoints.last().second)
-                            twoPoints = emptySet()
-                        }
 
                     }
                 )

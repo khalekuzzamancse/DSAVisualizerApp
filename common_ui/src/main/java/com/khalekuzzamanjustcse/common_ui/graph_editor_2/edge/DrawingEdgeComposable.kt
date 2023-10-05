@@ -1,8 +1,9 @@
-package com.khalekuzzamanjustcse.common_ui.graph_editor_2
+package com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge
 
-import android.util.Log
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -29,7 +30,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorVisualEdge
+
 import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 
 /*
@@ -62,12 +63,15 @@ fun CurveEdge() {
         }
         .pointerInput(Unit) {
             detectDragGestures(
-                onDrag = { _, dragAmount ->
-                    edgeManger.onCanvasDragging(dragAmount)
+                onDrag = { change, dragAmount ->
+                    edgeManger.dragOngoing(DragType.Normal, dragAmount)
                 },
-                onDragStart = edgeManger::onDragStart,
-                onDragEnd = edgeManger::onDragEnd
+                onDragStart = {
+                    edgeManger.dragStarted(DragType.Normal, it)
+                },
+                onDragEnd = edgeManger::dragEnded
             )
+
         }
         .pointerInput(Unit) {
             detectTapGestures {
@@ -79,6 +83,18 @@ fun CurveEdge() {
                 }
             }
         }
+        .pointerInput(Unit) {
+            detectDragGesturesAfterLongPress(
+                onDragStart = {
+                    edgeManger.dragStarted(DragType.AfterLongPress, it)
+
+                },
+                onDrag = { change, dragAmount ->
+                    edgeManger.dragOngoing(DragType.AfterLongPress, dragAmount)
+                },
+                onDragEnd =edgeManger::dragEnded
+            )
+        }
     Column(
         modifier = Modifier
             .padding(start = 16.dp, top = 16.dp)
@@ -87,13 +103,13 @@ fun CurveEdge() {
         FlowRow {
             MyButton(
                 label = "AddEdge",
-                enabled = tappedLocations.size==2
+                enabled = tappedLocations.size == 2
             ) {
-                if(tappedLocations.size==2){
+                if (tappedLocations.size == 2) {
                     edgeManger.addEdge(
-                        start =tappedLocations.first(),
-                        end =tappedLocations.last(),
-                        cost ="10 Tk",
+                        start = tappedLocations.first(),
+                        end = tappedLocations.last(),
+                        cost = "10 Tk",
                         isDirected = true
                     )
                 }
@@ -120,7 +136,7 @@ fun DrawScope.drawEdge(
     val slope = edge.slopDegree
 
     //drawEdge
-    drawPath(path = path, color = Color.Black, style = Stroke(5f))
+    drawPath(path = path, color = Color.Black, style = Stroke(3f))
     //drawCost
     if (textMeasurer != null) {
         edge.edgeCost?.let { text ->
@@ -143,7 +159,7 @@ fun DrawScope.drawEdge(
                 color = Color.Black,
                 start = arrowHeadPosition,
                 end = edge.end,
-                strokeWidth = 4f
+                strokeWidth = 3f
             )
         }
         rotate(-30f, edge.end) {
@@ -151,7 +167,7 @@ fun DrawScope.drawEdge(
                 color = Color.Black,
                 start = arrowHeadPosition,
                 end = edge.end,
-                strokeWidth = 4f
+                strokeWidth = 3f
             )
         }
     }
