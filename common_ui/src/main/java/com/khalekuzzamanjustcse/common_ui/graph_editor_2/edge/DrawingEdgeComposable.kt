@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
@@ -56,14 +58,10 @@ fun CurveEdge() {
 
     val editModeModifier = Modifier
         .fillMaxSize()
-        .drawBehind {
-            edges.forEach { edge ->
-                drawEdge(textMeasurer = textMeasure, edge = edge)
-            }
-        }
         .pointerInput(Unit) {
             detectDragGestures(
                 onDrag = { change, dragAmount ->
+                    change.consume()
                     edgeManger.dragOngoing(DragType.Normal, dragAmount)
                 },
                 onDragStart = {
@@ -86,13 +84,15 @@ fun CurveEdge() {
         .pointerInput(Unit) {
             detectDragGesturesAfterLongPress(
                 onDragStart = {
+
                     edgeManger.dragStarted(DragType.AfterLongPress, it)
 
                 },
                 onDrag = { change, dragAmount ->
+                    change.consume()
                     edgeManger.dragOngoing(DragType.AfterLongPress, dragAmount)
                 },
-                onDragEnd =edgeManger::dragEnded
+                onDragEnd = edgeManger::dragEnded
             )
         }
     Column(
@@ -115,7 +115,14 @@ fun CurveEdge() {
                 }
             }
 
-            Box(editModeModifier) {
+
+            Canvas(editModeModifier) {
+                edges.forEach { edge ->
+                    drawEdge(textMeasurer = textMeasure, edge = edge)
+
+                }
+//                drawCircle(color= Color.Red, radius = 50f,center= Offset(50f,50f))
+//                drawCircle(color= Color.Red, radius = 50f,center= Offset(300f,300f))
 
             }
         }
@@ -134,9 +141,10 @@ fun DrawScope.drawEdge(
     val anchorPointRadius = edge.anchorPointRadius
     val arrowHeadPosition = edge.arrowHeadPosition
     val slope = edge.slopDegree
+    val color=edge.pathColor
 
     //drawEdge
-    drawPath(path = path, color = Color.Black, style = Stroke(3f))
+    drawPath(path = path, color =color, style = Stroke(3f))
     //drawCost
     if (textMeasurer != null) {
         edge.edgeCost?.let { text ->
@@ -156,7 +164,7 @@ fun DrawScope.drawEdge(
     if (edge.isDirected) {
         rotate(30f, edge.end) {
             drawLine(
-                color = Color.Black,
+                color = color,
                 start = arrowHeadPosition,
                 end = edge.end,
                 strokeWidth = 3f
@@ -164,13 +172,15 @@ fun DrawScope.drawEdge(
         }
         rotate(-30f, edge.end) {
             drawLine(
-                color = Color.Black,
+                color = color,
                 start = arrowHeadPosition,
                 end = edge.end,
                 strokeWidth = 3f
             )
         }
     }
+
+
 }
 
 

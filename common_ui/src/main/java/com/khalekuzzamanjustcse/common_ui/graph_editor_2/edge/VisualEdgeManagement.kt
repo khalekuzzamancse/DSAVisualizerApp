@@ -1,5 +1,6 @@
 package com.khalekuzzamanjustcse.common_ui.graph_editor_2.edge
 
+import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,10 +16,10 @@ interface GraphEditorVisualEdgeManger {
     val edges: StateFlow<List<GraphEditorVisualEdge>>
     fun addEdge(start: Offset, end: Offset, cost: String? = null, isDirected: Boolean = true)
     fun setEdges(edges: List<GraphEditorVisualEdge>)
-
     fun dragStarted(type: DragType, position: Offset)
     fun dragOngoing(type: DragType, dragAmount: Offset)
     fun dragEnded()
+
 
 }
 
@@ -39,7 +40,7 @@ class GraphEditorVisualEdgeMangerImp(
             ),
             GraphEditorVisualEdgeImp(
                 id = 2,
-                start = Offset(150f, 200f),
+                start = Offset(50f, 200f),
                 end = Offset(500f, 200f),
                 edgeCost = "50 Tk.",
                 isDirected = true,
@@ -104,6 +105,7 @@ class GraphEditorVisualEdgeMangerImp(
                                 y > 0 -> edge.onAnchorPointDrag(dragAmount)
                                 y < 0 ->
                                     edge.onAnchorPointDrag(dragAmount)
+
                                 else -> edge
                             }
                         }
@@ -112,18 +114,43 @@ class GraphEditorVisualEdgeMangerImp(
             }
         }
     }
+
     override fun dragStarted(type: DragType, position: Offset) {
         dragging = edges.value.find { it.isAnchorTouched(position) }
         dragMode = type
+        dragging?.let {
+            _edges.update { list ->
+                list.map { edge ->
+                    if (edge.id == dragging!!.id) {
+                        edge.onReadyToOperation()
+                    } else edge
+                }
+            }
+
+        }
     }
 
     override fun dragOngoing(type: DragType, dragAmount: Offset) {
         when (type) {
-            DragType.Normal -> transformEdge(dragAmount)
+            DragType.Normal -> {
+                transformEdge(dragAmount)
+            }
             DragType.AfterLongPress -> moveEdge(dragAmount)
         }
     }
+
     override fun dragEnded() {
-        dragging = null
+
+        dragging?.let {
+            _edges.update { list ->
+                list.map { edge ->
+                    if (edge.id == dragging!!.id) {
+                        edge.onMoveOperationEnd()
+                    } else edge
+                }
+            }
+            dragging = null
+        }
+
     }
 }

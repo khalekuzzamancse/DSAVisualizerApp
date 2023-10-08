@@ -31,7 +31,7 @@ import com.khalekuzzamanjustcse.common_ui.visual_array.dynamic_array.MyButton
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
-fun CanvasPreview() {
+fun NodeDrawPreview() {
     val textMeasure = rememberTextMeasurer()
     val density = LocalDensity.current.density
     val paddingPx = 8.dp.value * density
