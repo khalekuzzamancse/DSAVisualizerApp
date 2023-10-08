@@ -82,15 +82,33 @@ data class DemoEdge(
     fun updatePoint(amount: Offset): DemoEdge {
         return when (selectedPoint) {
             EdgePoint.Start -> {
-                this.copy(start = start + amount, control = (start + end) / 2f)
+                var (x, y) = start + amount
+                if (x < 0f)
+                    x = 0f
+                if (y < 0f)
+                    y = 0f
+                val newStart = Offset(x, y)
+                this.copy(start = newStart, control = (newStart + end) / 2f)
             }
 
             EdgePoint.End -> {
-                this.copy(end = end + amount, control = (start + end) / 2f)
+                var (x, y) = end + amount
+                if (x < 0f)
+                    x = 0f
+                if (y < 0f)
+                    y = 0f
+                val newEnd = Offset(x, y)
+                this.copy(end = newEnd, control = (start + newEnd) / 2f)
             }
 
             EdgePoint.Control -> {
-                this.copy(control = control + amount)
+                var (x, y) = control + amount
+                if (x < 0f)
+                    x = 0f
+                if (y < 0f)
+                    y = 0f
+                val newMid = Offset(x, y)
+                this.copy(control =newMid)
             }
 
             else -> this
@@ -146,44 +164,44 @@ fun EdgeComposable() {
     var selectedPoint by remember {
         mutableStateOf<EdgePoint?>(null)
     }
-        Canvas(
-            modifier = Modifier
-                .padding(start = 16.dp, top = 16.dp)
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { touchedPosition ->
-                            demoEdge = demoEdge.goEditMode(touchedPosition)
-                        })
-                }
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDrag = { _, dragAmount ->
-                            demoEdge = demoEdge.updatePoint(dragAmount)
-                        },
-                        onDragEnd = {
-                            selectedPoint = null
-                        }
-                    )
-                }
-        ) {
-            drawEdge(
-                demoEdge,
-                textMeasurer
-            )
-            //draw sample nodes
-            drawCircle(
-                color = Color.Red,
-                radius = 20.dp.toPx(),
-                center = Offset(150f, 200f)
-            )
-            drawCircle(
-                color = Color.Red,
-                radius = 20.dp.toPx(),
-                center = Offset(400f, 300f)
-            )
+    Canvas(
+        modifier = Modifier
+            .padding(start = 16.dp, top = 16.dp)
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { touchedPosition ->
+                        demoEdge = demoEdge.goEditMode(touchedPosition)
+                    })
+            }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { _, dragAmount ->
+                        demoEdge = demoEdge.updatePoint(dragAmount)
+                    },
+                    onDragEnd = {
+                        selectedPoint = null
+                    }
+                )
+            }
+    ) {
+        drawEdge(
+            demoEdge,
+            textMeasurer
+        )
+        //draw sample nodes
+        drawCircle(
+            color = Color.Red,
+            radius = 20.dp.toPx(),
+            center = Offset(150f, 200f)
+        )
+        drawCircle(
+            color = Color.Red,
+            radius = 20.dp.toPx(),
+            center = Offset(400f, 300f)
+        )
 
-        }
+    }
 
 
 }
@@ -201,7 +219,7 @@ fun DrawScope.drawEdge(
     val anchorPointRadius = demoEdge.anchorPointRadius.toPx()
     val arrowHeadPosition = demoEdge.arrowHeadPosition
     val selectedPoint = demoEdge.selectedPoint
-    val selectedPointColor=demoEdge.selectedPointColor
+    val selectedPointColor = demoEdge.selectedPointColor
 
     //drawEdge
     drawPath(path = path, color = color, style = Stroke(3f))
@@ -212,7 +230,7 @@ fun DrawScope.drawEdge(
         }
 
         EdgePoint.End -> {
-            drawCircle(color =selectedPointColor, radius = anchorPointRadius, center = end)
+            drawCircle(color = selectedPointColor, radius = anchorPointRadius, center = end)
         }
 
         EdgePoint.Control -> {
