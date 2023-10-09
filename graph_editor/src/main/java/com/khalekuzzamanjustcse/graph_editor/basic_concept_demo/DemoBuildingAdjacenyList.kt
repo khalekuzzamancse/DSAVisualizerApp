@@ -110,7 +110,7 @@ fun DemoAdjacentList() {
                     )
                 }
         ) {
-            drawEdge(
+            drawDemoEdge(
                 demoEdge,
                 textMeasurer
             )

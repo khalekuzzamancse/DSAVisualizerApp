@@ -148,7 +148,7 @@ data class DemoEdge(
 
 @Preview
 @Composable
-fun EdgeComposable() {
+private fun EdgeComposable() {
     val minTouchTargetPx = 30.dp.value * LocalDensity.current.density
     var demoEdge by remember {
         mutableStateOf(
@@ -185,7 +185,7 @@ fun EdgeComposable() {
                 )
             }
     ) {
-        drawEdge(
+        drawDemoEdge(
             demoEdge,
             textMeasurer
         )
@@ -206,7 +206,7 @@ fun EdgeComposable() {
 
 }
 
-fun DrawScope.drawEdge(
+ fun DrawScope.drawDemoEdge(
     demoEdge: DemoEdge,
     textMeasurer: TextMeasurer? = null,
 ) {
