@@ -35,7 +35,7 @@ fun DrawScope.drawEdge(
             drawEdgeCost(text, textMeasurer, edge.slop, edge.pathCenter)
         }
     }
-    if (edge.arrowHeadPosition != Offset.Unspecified) {
+    if (edge.isDirected) {
         drawArrowHead(edge.pathColor, edge.arrowHeadPosition, edge.end)
     }
 
@@ -47,27 +47,33 @@ private fun DrawScope.drawEdgeCost(
     slop: Float,
     pathCenter: Offset
 ) {
-    val textHalfWidth = textMeasurer.measure(cost).size.width / 2
-    rotate(slop, pathCenter) {
-        drawText(
-            text = cost,
-            topLeft = pathCenter - Offset(textHalfWidth.toFloat(), 0f),
-            textMeasurer = textMeasurer
-        )
+    if(pathCenter!= Offset.Unspecified){
+        val textHalfWidth = textMeasurer.measure(cost).size.width / 2
+        rotate(slop, pathCenter) {
+            drawText(
+                text = cost,
+                topLeft = pathCenter - Offset(textHalfWidth.toFloat(), 0f),
+                textMeasurer = textMeasurer
+            )
+        }
     }
+
 }
 
 private fun DrawScope.drawControlPoints(color: Color, radius: Dp, center: Offset) {
     drawCircle(color, radius = radius.toPx(), center = center)
 }
 
-private fun DrawScope.drawArrowHead(color: Color, start: Offset, end: Offset) {
-    rotate(30f, end) {
-        drawLine(color, start = start, end = end, 3f)
+private fun DrawScope.drawArrowHead(color: Color, arrowHeadPosition: Offset, end: Offset) {
+    if (arrowHeadPosition != Offset.Unspecified){
+        rotate(30f, end) {
+            drawLine(color, start = arrowHeadPosition, end = end, 3f)
+        }
+        rotate(-30f, end) {
+            drawLine(color, arrowHeadPosition, end, 3f)
+        }
     }
-    rotate(-30f, end) {
-        drawLine(color, start, end, 3f)
-    }
+
 
 }
 

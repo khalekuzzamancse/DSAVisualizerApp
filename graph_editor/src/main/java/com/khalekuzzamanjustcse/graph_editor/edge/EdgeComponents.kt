@@ -79,7 +79,9 @@ data class GraphEditorVisualEdgeImp(
         get() {
             pathMeasurer.setPath(path, false)
             val pathLength = pathMeasurer.length
-            return pathMeasurer.getPosition(pathLength / 2)//path center
+            return if (pathMeasurer.length < 20)
+                Offset.Unspecified
+            else pathMeasurer.getPosition(pathLength / 2)//path center
         }
 
 
@@ -120,7 +122,7 @@ data class GraphEditorVisualEdgeImp(
         }
     }
 
-    override fun goEditMode(touchPosition: Offset): GraphEditorVisualEdge {
+    override fun goEditMode(touchPosition: Offset): GraphEditorVisualEdgeImp {
         return if (isStartTouched(touchPosition)) {
             this.copy(selectedPoint = EdgePoint.Start)
         } else if (isEndTouched(touchPosition)) {
@@ -128,6 +130,11 @@ data class GraphEditorVisualEdgeImp(
         } else if (isControlTouched(touchPosition)) {
             this.copy(selectedPoint = EdgePoint.Control)
         } else this.copy(selectedPoint = EdgePoint.None)
+    }
+
+    fun isAnyControlTouched(touchPosition: Offset): Boolean {
+        return isStartTouched(touchPosition) || isEndTouched(touchPosition) ||
+                isControlTouched(touchPosition)
     }
 
     private fun isControlTouched(touchPosition: Offset) = isTargetTouched(touchPosition, pathCenter)

@@ -34,8 +34,9 @@ fun GraphEditor() {
         GraphEditorVisualEdgeMangerImp(minTouchTargetPx)
     }
     val textMeasurer = rememberTextMeasurer()
-    val currentDrawingEdge=edgeManger.currentAddingEdge.collectAsState().value
-    val edges=edgeManger.edges.collectAsState().value
+    val currentDrawingEdge = edgeManger.currentAddingEdge.collectAsState().value
+    val edges = edgeManger.edges.collectAsState().value
+    val selectedEdge=edgeManger.selectedEdge.collectAsState().value
     Column(
         modifier = Modifier
             .padding(top = 16.dp, start = 16.dp)
@@ -48,10 +49,10 @@ fun GraphEditor() {
 
         }
         NodeDataInput(
-            isOpen = false,
+            isOpen = edgeManger.showEdgeInputPopUp.collectAsState().value,
             message = "Enter Edge Cost"
         ) {
-
+            edgeManger.addEdge(it)
         }
         FlowRow(modifier = Modifier.fillMaxWidth()) {
             MyButton(label = "AddNode") {
@@ -65,9 +66,7 @@ fun GraphEditor() {
             Spacer(modifier = Modifier.width(4.dp))
             MyButton(
                 label = "AddEdge",
-                onClick = {
-                    edgeManger.addEdge("55 Tk.")
-                }
+                onClick = edgeManger::onEdgeInputRequest
             )
             Spacer(modifier = Modifier.width(4.dp))
             MyButton(
@@ -77,8 +76,8 @@ fun GraphEditor() {
             Spacer(modifier = Modifier.width(4.dp))
             MyButton(
                 label = "Undirected",
-                onClick = { edgeManger.onGraphTypeChanged()},
-                enabled =edgeManger.isDirected.collectAsState().value
+                onClick = { edgeManger.onGraphTypeChanged() },
+                enabled = edgeManger.isDirected.collectAsState().value
             )
         }
 
@@ -89,7 +88,7 @@ fun GraphEditor() {
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { touchedPosition ->
-
+                            edgeManger.onTap(touchedPosition)
                         })
                 }
                 .pointerInput(Unit) {
@@ -103,21 +102,14 @@ fun GraphEditor() {
                 }
         ) {
             edges.forEach {
-                drawEdge(it)
+                drawEdge(it, textMeasurer)
             }
             currentDrawingEdge?.let {
-                drawEdge(it)
+                drawEdge(it, textMeasurer)
             }
-//            drawEdge(
-//                GraphEditorVisualEdgeImp(
-//                    id = 1,
-//                    start = Offset.Zero,
-//                    end = Offset(100f,100f),
-//                    control = Offset(50f,50f),
-//                    cost = "cost",
-//                    minTouchTargetPx = minTouchTargetPx
-//                )
-//            )
+            selectedEdge?.let {
+                drawEdge(it, textMeasurer)
+            }
         }
 
     }
