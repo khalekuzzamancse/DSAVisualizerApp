@@ -85,7 +85,7 @@ data class GraphEditorVisualEdgeImp(
         }
 
 
-    override fun updatePoint(amount: Offset): GraphEditorVisualEdge {
+    override fun updatePoint(amount: Offset): GraphEditorVisualEdgeImp {
         return when (selectedPoint) {
             EdgePoint.Start -> {
                 var (x, y) = start + amount

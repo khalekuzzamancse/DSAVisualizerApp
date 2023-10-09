@@ -36,7 +36,7 @@ fun GraphEditor() {
     val textMeasurer = rememberTextMeasurer()
     val currentDrawingEdge = edgeManger.currentAddingEdge.collectAsState().value
     val edges = edgeManger.edges.collectAsState().value
-    val selectedEdge=edgeManger.selectedEdge.collectAsState().value
+
     Column(
         modifier = Modifier
             .padding(top = 16.dp, start = 16.dp)
@@ -107,9 +107,7 @@ fun GraphEditor() {
             currentDrawingEdge?.let {
                 drawEdge(it, textMeasurer)
             }
-            selectedEdge?.let {
-                drawEdge(it, textMeasurer)
-            }
+
         }
 
     }
