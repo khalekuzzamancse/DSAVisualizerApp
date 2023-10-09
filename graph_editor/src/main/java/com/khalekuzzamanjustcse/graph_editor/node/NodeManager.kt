@@ -42,7 +42,7 @@ data class NodeManager(
 
     fun onDragEnd() {
         _nodes.update { set ->
-            set.map { it.copy(dragEnabled = false) }.toSet()
+            set.map { it.disableEdit() }.toSet()
         }
     }
 }

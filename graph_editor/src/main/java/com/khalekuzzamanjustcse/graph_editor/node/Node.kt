@@ -27,9 +27,13 @@ data class Node(
         else this
     }
 
+    fun disableEdit(): Node {
+        return this.copy(dragEnabled = false, color = Color.Blue)
+    }
+
     fun updateCenter(amount: Offset): Node {
         return if (dragEnabled) {
-            this.copy(center = center + amount)
+            this.copy(center = center + amount, color = Color.Green)
         } else this
     }
 
