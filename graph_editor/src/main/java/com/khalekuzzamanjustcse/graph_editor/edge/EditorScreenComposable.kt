@@ -96,6 +96,7 @@ fun GraphEditor() {
                     detectTapGestures(
                         onTap = { touchedPosition ->
                             edgeManger.onTap(touchedPosition)
+                            nodeManger.onCanvasTap(touchedPosition)
                         })
                 }
                 .pointerInput(Unit) {
