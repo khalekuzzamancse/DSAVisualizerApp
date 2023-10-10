@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_editor.edge
+package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
 
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,6 +1,7 @@
-package com.khalekuzzamanjustcse.graph_editor.node
+package com.khalekuzzamanjustcse.graph_editor.ui.ui.node
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +15,22 @@ data class NodeManager(
     val nodes = _nodes.asStateFlow()
 
     fun nodeTapped(offset: Offset): Node? {
-        return _nodes.value.find { it.isInsideCircle(offset) }
+        val node = _nodes.value.find { it.isInsideCircle(offset) }
+        if (node != null) {
+            _nodes.update { nodeSet ->
+                nodeSet.map {
+                    if (it.id == node.id) it.copy(color = Color.Blue) else it
+                }.toSet()
+            }
+        }
+        else {
+            _nodes.update { nodeSet ->
+                nodeSet.map {
+                   it.copy(color = Color.Red)
+                }.toSet()
+            }
+        }
+        return node
     }
 
     fun removeNode(node: Node) {

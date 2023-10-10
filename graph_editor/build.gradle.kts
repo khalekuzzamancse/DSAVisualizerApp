@@ -48,7 +48,13 @@ android {
 
 dependencies {
 
-    implementation("androidx.compose.material:material-icons-extended:1.5.2")
+    implementation("androidx.compose.material:material-icons-extended:1.5.3")
+
+
+    // custom design system based on Foundation)
+    implementation("androidx.compose.material:material-icons-core")
+ 
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.7.2")

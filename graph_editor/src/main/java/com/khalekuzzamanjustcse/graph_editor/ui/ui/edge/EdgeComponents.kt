@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_editor.edge
+package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
 
 import android.util.Range
 import androidx.compose.ui.geometry.Offset
@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.khalekuzzamanjustcse.graph_editor.un_used.basic_concept_demo.EdgePoint
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.basic_concept_demo.EdgePoint
 import kotlin.math.atan2
 
 
@@ -124,12 +124,12 @@ data class GraphEditorVisualEdgeImp(
 
     override fun goEditMode(touchPosition: Offset): GraphEditorVisualEdgeImp {
         return if (isStartTouched(touchPosition)) {
-            this.copy(selectedPoint = EdgePoint.Start)
+            this.copy(selectedPoint = EdgePoint.Start, pathColor = Color.Blue)
         } else if (isEndTouched(touchPosition)) {
-            this.copy(selectedPoint = EdgePoint.End)
+            this.copy(selectedPoint = EdgePoint.End, pathColor = Color.Blue)
         } else if (isControlTouched(touchPosition)) {
-            this.copy(selectedPoint = EdgePoint.Control)
-        } else this.copy(selectedPoint = EdgePoint.None)
+            this.copy(selectedPoint = EdgePoint.Control, pathColor = Color.Blue)
+        } else this.copy(selectedPoint = EdgePoint.None, pathColor = Color.Black)
     }
 
     fun isAnyControlTouched(touchPosition: Offset): Boolean {

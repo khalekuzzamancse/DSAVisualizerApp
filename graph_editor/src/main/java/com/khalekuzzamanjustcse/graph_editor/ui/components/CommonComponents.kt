@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.graph_editor.components
+package com.khalekuzzamanjustcse.graph_editor.ui.components
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
