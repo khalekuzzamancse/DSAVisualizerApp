@@ -34,7 +34,7 @@ import com.khalekuzzamanjustcse.graph_editor.node.drawNode
 @Composable
 fun GraphEditor() {
     val density = LocalDensity.current.density
-    val minTouchTargetPx = 30.dp.value * density
+
 
     val textMeasurer = rememberTextMeasurer() //
     val viewModel = remember {
@@ -80,6 +80,20 @@ fun GraphEditor() {
                     openAddEdgePopup = true
                 }
             )
+            MyButton(
+                label = "RemoveNode",
+                enabled = viewModel.selectedNode.collectAsState().value!=null,
+            ) {
+                viewModel.onRemoveNodeRequest()
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            MyButton(
+                label = "RemoveEdge",
+                enabled = viewModel.selectedEdge.collectAsState().value!=null
+
+            ) {
+                viewModel.onRemoveEdgeRequest()
+            }
         }
 
         Canvas(

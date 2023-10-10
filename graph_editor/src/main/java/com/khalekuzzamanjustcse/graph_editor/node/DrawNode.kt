@@ -20,7 +20,7 @@ data class Node(
     private val radius: Dp =20.dp,
     private val dragEnabled: Boolean = false
 ) {
-    private fun isInsideCircle(touchPosition: Offset): Boolean {
+     fun isInsideCircle(touchPosition: Offset): Boolean {
         val minX = topLeft.x
         val minY = topLeft.y
         val shapeSize = minNodeSize
@@ -29,6 +29,7 @@ data class Node(
         return touchPosition.x in minX..maxX && touchPosition.y in minY..maxY
         // return center.minus(touchPosition).getDistanceSquared() <= radiusPx * radiusPx
     }
+
 
     fun enableEdit(touchPosition: Offset): Node {
         return if (isInsideCircle(touchPosition))

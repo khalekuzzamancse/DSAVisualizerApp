@@ -39,9 +39,19 @@ class GraphEditorVisualEdgeMangerImp : GraphEditorVisualEdgeManger {
         nextAddedEdge.value = edge
     }
 
+    fun removeEdge(edge: GraphEditorVisualEdge) {
+        _edges.update { edgeSet ->
+            edgeSet.filter { it.id != edge.id }
+        }
+    }
+
 
     fun onGraphTypeChanged() {
         _isDirected.value = false
+    }
+
+    fun selectedEdge(offset: Offset): GraphEditorVisualEdge? {
+        return _edges.value.find { it.isAnyControlTouched(offset) }
     }
 
 
@@ -50,7 +60,6 @@ class GraphEditorVisualEdgeMangerImp : GraphEditorVisualEdgeManger {
         _edges.update { edges ->
             edges.map { it.goEditMode(tappedPosition) }
         }
-
     }
 
     fun onDragStart(offset: Offset) {
