@@ -1,11 +1,16 @@
 package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.CallSplit
@@ -81,8 +86,7 @@ fun GraphEditor() {
                         onClick = { openAddNodePopup = true },
 
 
-
-                    ) {
+                        ) {
                         Icon(imageVector = Icons.Filled.AddCircleOutline, null)
                     }
 
@@ -102,8 +106,7 @@ fun GraphEditor() {
                         },
 
 
-
-                    ) {
+                        ) {
                         Icon(imageVector = Icons.Filled.Moving, null)
                     }
                     IconButton(
@@ -112,7 +115,7 @@ fun GraphEditor() {
                         },
                         enabled = viewModel.selectedEdge.collectAsState().value != null,
 
-                    ) {
+                        ) {
                         Icon(imageVector = Icons.Filled.CallSplit, null)
                     }
                     IconButton(
@@ -142,6 +145,7 @@ fun GraphEditor() {
             modifier = Modifier
                 .padding(scaffoldPadding)
                 .fillMaxSize()
+
         ) {
             NodeDataInput(
                 isOpen = openAddNodePopup,
@@ -158,10 +162,8 @@ fun GraphEditor() {
                 openAddEdgePopup = false
             }
 
-
             Canvas(
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 16.dp)
                     .fillMaxSize()
                     .pointerInput(Unit) {
                         detectTapGestures(
