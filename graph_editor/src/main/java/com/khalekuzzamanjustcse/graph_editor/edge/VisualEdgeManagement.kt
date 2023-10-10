@@ -13,7 +13,6 @@ enum class EditingMode {
 
 interface GraphEditorVisualEdgeManger {
     val edges: StateFlow<List<GraphEditorVisualEdge>>
-    fun addEdge(cost: String)
     fun onTap(tappedPosition: Offset)
     fun dragOngoing(dragAmount: Offset, position: Offset)
     fun dragEnded()
@@ -21,10 +20,7 @@ interface GraphEditorVisualEdgeManger {
 
 }
 
-class GraphEditorVisualEdgeMangerImp(
-    private val minTouchTargetPx: Float,
-) : GraphEditorVisualEdgeManger {
-    private var autoGenerateId = 3
+class GraphEditorVisualEdgeMangerImp : GraphEditorVisualEdgeManger {
 
     private val _edges: MutableStateFlow<List<GraphEditorVisualEdgeImp>> =
         MutableStateFlow(emptyList())
@@ -36,30 +32,13 @@ class GraphEditorVisualEdgeMangerImp(
     //
     private val nextAddedEdge = MutableStateFlow<GraphEditorVisualEdgeImp?>(null)
     val currentAddingEdge = nextAddedEdge.asStateFlow()
-    private val _showEdgeInputPopUp = MutableStateFlow(false)
-    val showEdgeInputPopUp = _showEdgeInputPopUp.asStateFlow()
 
 
-    override fun addEdge(
-        cost: String
-    ) {
-        nextAddedEdge.value = GraphEditorVisualEdgeImp(
-            id = autoGenerateId,
-            start = Offset.Zero,
-            end = Offset.Zero,
-            control = Offset.Zero,
-            cost = cost,
-            isDirected = isDirected.value,
-            minTouchTargetPx = minTouchTargetPx
-        )
-        _showEdgeInputPopUp.value = false
-
-    }
-
-    fun onEdgeInputRequest() {
-        _showEdgeInputPopUp.value = true
+    fun addEdge(edge: GraphEditorVisualEdgeImp) {
         editingMode = EditingMode.AddEdge
+        nextAddedEdge.value = edge
     }
+
 
     fun onGraphTypeChanged() {
         _isDirected.value = false
@@ -67,8 +46,8 @@ class GraphEditorVisualEdgeMangerImp(
 
 
     override fun onTap(tappedPosition: Offset) {
-            editingMode = EditingMode.EditEdge
-        _edges.update {edges->
+        editingMode = EditingMode.EditEdge
+        _edges.update { edges ->
             edges.map { it.goEditMode(tappedPosition) }
         }
 
@@ -96,8 +75,8 @@ class GraphEditorVisualEdgeMangerImp(
                 }
 
                 EditingMode.EditEdge -> {
-                    _edges.update {edges->
-                        edges.map {edge-> edge.updatePoint(dragAmount) }
+                    _edges.update { edges ->
+                        edges.map { edge -> edge.updatePoint(dragAmount) }
                     }
 
                 }
@@ -108,9 +87,9 @@ class GraphEditorVisualEdgeMangerImp(
     }
 
     override fun dragEnded() {
-        editingMode?.let {mode ->
-            when(mode){
-                EditingMode.AddEdge->{
+        editingMode?.let { mode ->
+            when (mode) {
+                EditingMode.AddEdge -> {
                     nextAddedEdge.value?.let {
                         _edges.value = edges.value + it
                         nextAddedEdge.value = null
@@ -120,6 +99,6 @@ class GraphEditorVisualEdgeMangerImp(
                 else -> {}
             }
         }
-        editingMode=null
+        editingMode = null
     }
 }

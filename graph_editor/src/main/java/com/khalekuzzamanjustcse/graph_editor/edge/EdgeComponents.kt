@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.khalekuzzamanjustcse.graph_editor.basic_concept_demo.EdgePoint
+import com.khalekuzzamanjustcse.graph_editor.un_used.basic_concept_demo.EdgePoint
 import kotlin.math.atan2
 
 

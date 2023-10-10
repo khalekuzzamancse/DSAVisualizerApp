@@ -47,6 +47,7 @@ fun NodeDataInput(
                     TextField(
                         value = text,
                         onValueChange = { text = it },
+                        singleLine = true
                     )
                     TextButton(onClick = {
                         onInputComplete(text)

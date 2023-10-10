@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -22,7 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.graph_editor.components.MyButton
 import com.khalekuzzamanjustcse.graph_editor.components.NodeDataInput
+import com.khalekuzzamanjustcse.graph_editor.edtior.GraphEditorManger
 import com.khalekuzzamanjustcse.graph_editor.node.NodeManager
+import com.khalekuzzamanjustcse.graph_editor.node.drawNode
 
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
@@ -30,18 +35,20 @@ import com.khalekuzzamanjustcse.graph_editor.node.NodeManager
 fun GraphEditor() {
     val density = LocalDensity.current.density
     val minTouchTargetPx = 30.dp.value * density
-    val edgeManger = remember {
-        GraphEditorVisualEdgeMangerImp(minTouchTargetPx)
-    }
-    val textMeasurer = rememberTextMeasurer()
-    val currentDrawingEdge = edgeManger.currentAddingEdge.collectAsState().value
-    val edges = edgeManger.edges.collectAsState().value
 
-    //node
-    val nodeManger = remember {
-        NodeManager(density)
+    val textMeasurer = rememberTextMeasurer() //
+    val viewModel = remember {
+        GraphEditorManger(density)
     }
-    val nodes= nodeManger.nodes.collectAsState().value
+
+
+    var openAddNodePopup by remember { mutableStateOf(false) }
+    var openAddEdgePopup by remember { mutableStateOf(false) }
+    //
+    val nodes = viewModel.nodes.collectAsState().value
+    val edges = viewModel.edges.collectAsState().value
+    val currentDrawingEdge = viewModel.currentAddingEdge.collectAsState().value
+
 
     Column(
         modifier = Modifier
@@ -49,42 +56,29 @@ fun GraphEditor() {
             .fillMaxSize()
     ) {
         NodeDataInput(
-            isOpen = false,
+            isOpen = openAddNodePopup,
             message = "Enter Node Value"
         ) {
-
+            viewModel.onAddNodeRequest(cost = it)
+            openAddNodePopup = false
         }
         NodeDataInput(
-            isOpen = edgeManger.showEdgeInputPopUp.collectAsState().value,
+            isOpen = openAddEdgePopup,
             message = "Enter Edge Cost"
         ) {
-            edgeManger.addEdge(it)
+            viewModel.onEdgeConstInput(it)
+            openAddEdgePopup = false
         }
         FlowRow(modifier = Modifier.fillMaxWidth()) {
             MyButton(label = "AddNode") {
-                nodeManger.add()
+                openAddNodePopup = true
             }
             Spacer(modifier = Modifier.width(4.dp))
             MyButton(
-                label = "RemoveNode",
-                onClick = { }
-            )
-
-            Spacer(modifier = Modifier.width(4.dp))
-            MyButton(
                 label = "AddEdge",
-                onClick = edgeManger::onEdgeInputRequest
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            MyButton(
-                label = "RemoveEdge",
-                onClick = {}
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            MyButton(
-                label = "Undirected",
-                onClick = { edgeManger.onGraphTypeChanged() },
-                enabled = edgeManger.isDirected.collectAsState().value
+                onClick = {
+                    openAddEdgePopup = true
+                }
             )
         }
 
@@ -95,23 +89,22 @@ fun GraphEditor() {
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { touchedPosition ->
-                            edgeManger.onTap(touchedPosition)
-                            nodeManger.onCanvasTap(touchedPosition)
+                            viewModel.onTap(touchedPosition)
                         })
                 }
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {
-                            edgeManger.onDragStart(it)
-                            nodeManger.onDragStart(it)
+
+                            viewModel.onDragStart(it)
                         },
                         onDrag = { change, dragAmount ->
-                            edgeManger.dragOngoing(dragAmount, change.position)
-                            nodeManger.onDragging(dragAmount)
+
+                            viewModel.onDrag(dragAmount)
                         },
                         onDragEnd = {
-                            edgeManger.dragEnded()
-                            nodeManger.onDragEnd()
+
+                            viewModel.dragEnd()
                         }
                     )
                 }
@@ -122,12 +115,8 @@ fun GraphEditor() {
             currentDrawingEdge?.let {
                 drawEdge(it, textMeasurer)
             }
-            nodes.forEach{
-                drawCircle(
-                    color = it.color,
-                    center = it.center,
-                    radius = it.radiusPx
-                )
+            nodes.forEach {
+                drawNode(it, textMeasurer)
             }
 
 
