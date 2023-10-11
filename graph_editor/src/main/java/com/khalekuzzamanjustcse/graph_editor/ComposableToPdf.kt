@@ -116,7 +116,7 @@ private fun captureBitmap(
     return ::captureBitmap
 }
 
-fun writePdf(context: Context, document: PdfDocument) {
+fun writePdf(context: Context, document: PdfDocument,onSuccess: () -> Unit={}) {
     val outputStream: OutputStream
     try {
         val contentResolver: ContentResolver = context.contentResolver
@@ -137,6 +137,7 @@ fun writePdf(context: Context, document: PdfDocument) {
         try {
             document.writeTo(outputStream)
             document.close()
+            onSuccess()
 
         } catch (e: Exception) {
             e.printStackTrace()
