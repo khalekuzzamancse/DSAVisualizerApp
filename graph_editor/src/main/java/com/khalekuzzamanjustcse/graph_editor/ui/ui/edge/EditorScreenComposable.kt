@@ -77,6 +77,7 @@ fun GraphEditor() {
                 scope.launch {
                     hostState.showSnackbar("Pdf Saved Successfully")
                 }
+                printPdf=false
             }
         }
     }
@@ -149,7 +150,7 @@ fun GraphEditor() {
                     }
                     IconButton(
                         onClick = {
-                                  printPdf=!printPdf
+                                  printPdf=true
 
                         },
                     ) {
