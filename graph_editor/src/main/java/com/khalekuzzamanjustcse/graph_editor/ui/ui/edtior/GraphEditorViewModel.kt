@@ -31,7 +31,6 @@ enum class GraphEditorMode {
 }
 
 
-
 data class GraphEditorManger(
     private val density: Float,
     private val context: Context,
@@ -60,37 +59,41 @@ data class GraphEditorManger(
      */
     private val dao =
         EditDatabase(context, density)
-    private val scope= CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main)
 
     fun onSave() {
         dao.insert(nodes.value.toList())
         dao.insertEdge(edges.value)
     }
+
     init {
         try {
             scope.launch {
-                dao.getNodes().collect{
+                dao.getNodes().collect {
                     nodeManger.setNode(it.toSet())
                 }
 
             }
-        }
-        catch (_: Exception){
+        } catch (_: Exception) {
 
         }
         try {
             scope.launch {
-                dao.getEdges().collect{
+                dao.getEdges().collect {
                     edgeManger.setEdge(it)
 
                 }
             }
-        }
-        catch (_: Exception){
+        } catch (_: Exception) {
 
         }
     }
 
+    //Direction
+    private var hasDirection: Boolean = true
+    fun onDirectionChanged(hasDirection: Boolean) {
+        this.hasDirection = hasDirection
+    }
 
 
     fun onAddNodeRequest(cost: String) {
@@ -121,7 +124,8 @@ data class GraphEditorManger(
                 end = Offset.Zero,
                 control = Offset.Zero,
                 cost = cost,
-                minTouchTargetPx = 30.dp.value * density
+                minTouchTargetPx = 30.dp.value * density,
+                isDirected = hasDirection,
             )
         )
     }

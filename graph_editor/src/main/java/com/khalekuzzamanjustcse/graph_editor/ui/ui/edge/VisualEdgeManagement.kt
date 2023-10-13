@@ -21,13 +21,12 @@ interface GraphEditorVisualEdgeManger {
 
 }
 
-class GraphEditorVisualEdgeMangerImp : GraphEditorVisualEdgeManger {
+class GraphEditorVisualEdgeMangerImp(
+) : GraphEditorVisualEdgeManger {
 
     private val _edges: MutableStateFlow<List<GraphEditorVisualEdgeImp>> =
         MutableStateFlow(emptyList())
     override val edges = _edges.asStateFlow()
-    private var _isDirected = MutableStateFlow(true)
-    val isDirected = _isDirected.asStateFlow()
     private var editingMode: EditingMode? = null
 
     //
@@ -47,9 +46,6 @@ class GraphEditorVisualEdgeMangerImp : GraphEditorVisualEdgeManger {
     }
 
 
-    fun onGraphTypeChanged() {
-        _isDirected.value = false
-    }
 
     fun selectedEdge(offset: Offset): GraphEditorVisualEdge? {
         return _edges.value.find { it.isAnyControlTouched(offset) }

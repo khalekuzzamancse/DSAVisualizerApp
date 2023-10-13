@@ -1,6 +1,7 @@
-package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
+package com.khalekuzzamanjustcse.graph_editor.ui.ui
 
 import android.graphics.pdf.PdfDocument
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -41,7 +42,10 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.khalekuzzamanjustcse.graph_editor.ComposableToPdf
+import com.khalekuzzamanjustcse.graph_editor.ui.components.CustomDropDownMenu
+import com.khalekuzzamanjustcse.graph_editor.ui.components.GraphTypeInput
 import com.khalekuzzamanjustcse.graph_editor.ui.components.NodeDataInput
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.drawEdge
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edtior.GraphEditorManger
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.drawNode
 import com.khalekuzzamanjustcse.graph_editor.writePdf
@@ -52,19 +56,35 @@ import kotlinx.coroutines.launch
 @Composable
 fun GraphEditor() {
     val density = LocalDensity.current.density
-
+    val context = LocalContext.current
     val hostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    //
+    //
+
+    val viewModel = remember {
+      GraphEditorManger(density, context)
+    }
+    var takeDirection by remember {
+        mutableStateOf(true)
+    }
+    GraphTypeInput(takeDirection) {
+        takeDirection = false
+        if (it == "Undirected"){
+           viewModel.onDirectionChanged(false)
+        }
+
+    }
+
 
     var pdfDocument by remember {
         mutableStateOf<PdfDocument?>(null)
     }
-    val context = LocalContext.current
 
 
-    val viewModel = remember {
-        GraphEditorManger(density, context)
-    }
+
+
     var printPdf by remember {
         mutableStateOf(false)
     }
@@ -73,11 +93,11 @@ fun GraphEditor() {
             Editor(viewModel)
         }) {
             pdfDocument = it
-            writePdf(context,it){
+            writePdf(context, it) {
                 scope.launch {
                     hostState.showSnackbar("Pdf Saved Successfully")
                 }
-                printPdf=false
+                printPdf = false
             }
         }
     }
@@ -127,8 +147,6 @@ fun GraphEditor() {
                         onClick = {
                             openAddEdgePopup = true
                         },
-
-
                         ) {
                         Icon(imageVector = Icons.Filled.Moving, null)
                     }
@@ -143,14 +161,18 @@ fun GraphEditor() {
                     }
                     IconButton(
                         onClick = {
-                                  viewModel.onSave()
+                            viewModel.onSave()
+                            scope.launch {
+                                hostState.showSnackbar("Saved Successfully")
+
+                            }
                         },
                     ) {
                         Icon(imageVector = Icons.Filled.Save, null)
                     }
                     IconButton(
                         onClick = {
-                                  printPdf=true
+                            printPdf = true
 
                         },
                     ) {
@@ -171,6 +193,8 @@ fun GraphEditor() {
                 .fillMaxSize()
 
         ) {
+
+
             NodeDataInput(
                 isOpen = openAddNodePopup,
                 message = "Enter Node Value"

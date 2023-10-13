@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.khalekuzzamanjustcse.dsavisulizer.ui.theme.DSAVisulizerTheme
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditor
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.GraphEditor
 
 
 class MainActivity : ComponentActivity() {

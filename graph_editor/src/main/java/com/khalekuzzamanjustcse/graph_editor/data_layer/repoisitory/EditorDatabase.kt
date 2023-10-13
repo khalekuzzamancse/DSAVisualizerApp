@@ -90,7 +90,8 @@ class EditDatabase(
             end = Offset(entity.endX, entity.endY),
             control = Offset(entity.controlX, entity.controlY),
             cost = entity.cost,
-            minTouchTargetPx = 30.dp.value * density
+            minTouchTargetPx = 30.dp.value * density,
+            isDirected = entity.hasDirection
         )
 
 }

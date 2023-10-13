@@ -41,7 +41,7 @@ data class GraphEditorVisualEdgeImp(
     override val end: Offset,
     override val control: Offset,
     override val cost: String?,
-    override val isDirected: Boolean = true,
+    override val isDirected: Boolean,
     override val pathColor: Color = Color.Black,
     override val selectedPointColor: Color = Color.Red,
     override val showSelectedPoint: Boolean = false,
