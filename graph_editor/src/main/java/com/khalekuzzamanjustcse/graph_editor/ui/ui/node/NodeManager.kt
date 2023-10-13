@@ -42,6 +42,9 @@ data class NodeManager(
     fun add(node: Node) {
         _nodes.value = _nodes.value + node
     }
+    fun setNode(set: Set<Node>){
+        _nodes.update { set }
+    }
 
 
     fun onDragStart(offset: Offset) {

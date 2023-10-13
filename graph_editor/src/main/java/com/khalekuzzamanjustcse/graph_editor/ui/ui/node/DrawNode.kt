@@ -12,13 +12,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 data class Node(
-    val id: Int,
+    val id: String,
     val color: Color = Color.Red,
     val density: Float,
     val text: String,
     val topLeft: Offset = Offset.Zero,
     val minNodeSize: Dp = 50.dp,
-    private val radius: Dp = 20.dp,
+     val radius: Dp = 20.dp,
     private val dragEnabled: Boolean = false
 ) {
     fun isInsideCircle(touchPosition: Offset): Boolean {

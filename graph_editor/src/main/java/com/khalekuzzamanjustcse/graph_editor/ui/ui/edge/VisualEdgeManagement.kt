@@ -16,6 +16,7 @@ interface GraphEditorVisualEdgeManger {
     fun onTap(tappedPosition: Offset)
     fun dragOngoing(dragAmount: Offset, position: Offset)
     fun dragEnded()
+    fun setEdge(edges: List<GraphEditorVisualEdgeImp>)
 
 
 }
@@ -109,5 +110,9 @@ class GraphEditorVisualEdgeMangerImp : GraphEditorVisualEdgeManger {
             }
         }
         editingMode = null
+    }
+
+    override fun setEdge(edges: List<GraphEditorVisualEdgeImp>) {
+        _edges.update { edges }
     }
 }

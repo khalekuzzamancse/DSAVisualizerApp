@@ -63,7 +63,7 @@ fun GraphEditor() {
 
 
     val viewModel = remember {
-        GraphEditorManger(density)
+        GraphEditorManger(density, context)
     }
     var printPdf by remember {
         mutableStateOf(false)
@@ -143,7 +143,7 @@ fun GraphEditor() {
                     }
                     IconButton(
                         onClick = {
-
+                                  viewModel.onSave()
                         },
                     ) {
                         Icon(imageVector = Icons.Filled.Save, null)

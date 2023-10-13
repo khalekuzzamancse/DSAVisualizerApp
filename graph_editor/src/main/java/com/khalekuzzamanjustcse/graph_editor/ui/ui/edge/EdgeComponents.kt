@@ -12,7 +12,7 @@ import kotlin.math.atan2
 
 
 interface GraphEditorVisualEdge {
-    val id: Int
+    val id: String
     val start: Offset
     val end: Offset
     val control: Offset
@@ -36,7 +36,7 @@ interface GraphEditorVisualEdge {
 }
 
 data class GraphEditorVisualEdgeImp(
-    override val id: Int,
+    override val id: String,
     override val start: Offset,
     override val end: Offset,
     override val control: Offset,
