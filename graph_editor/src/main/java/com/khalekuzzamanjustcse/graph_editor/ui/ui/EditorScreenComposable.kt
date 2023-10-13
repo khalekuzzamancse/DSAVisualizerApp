@@ -1,7 +1,6 @@
 package com.khalekuzzamanjustcse.graph_editor.ui.ui
 
 import android.graphics.pdf.PdfDocument
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,7 +41,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.khalekuzzamanjustcse.graph_editor.ComposableToPdf
-import com.khalekuzzamanjustcse.graph_editor.ui.components.CustomDropDownMenu
 import com.khalekuzzamanjustcse.graph_editor.ui.components.GraphTypeInput
 import com.khalekuzzamanjustcse.graph_editor.ui.components.NodeDataInput
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.drawEdge
@@ -135,16 +133,6 @@ fun GraphEditor() {
 
                     IconButton(
                         onClick = {
-                            viewModel.onRemoveNodeRequest()
-                        },
-                        enabled = viewModel.selectedNode.collectAsState().value != null,
-                    ) {
-                        Icon(imageVector = Icons.Filled.RemoveCircleOutline, null)
-
-                    }
-
-                    IconButton(
-                        onClick = {
                             openAddEdgePopup = true
                         },
                         ) {
@@ -152,12 +140,13 @@ fun GraphEditor() {
                     }
                     IconButton(
                         onClick = {
-                            viewModel.onRemoveEdgeRequest()
+                            viewModel.onRemovalRequest()
                         },
-                        enabled = viewModel.selectedEdge.collectAsState().value != null,
+                        enabled = viewModel.selectedNode.collectAsState().value != null
+                                ||viewModel.selectedEdge.collectAsState().value != null,
+                    ) {
+                        Icon(imageVector = Icons.Filled.RemoveCircleOutline, null)
 
-                        ) {
-                        Icon(imageVector = Icons.Filled.CallSplit, null)
                     }
                     IconButton(
                         onClick = {

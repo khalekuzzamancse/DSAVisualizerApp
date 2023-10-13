@@ -46,12 +46,25 @@ data class GraphEditorManger(
     private var nextAddedNode: Node? = null
     val currentAddingEdge = edgeManger.currentAddingEdge
 
+    //Edge and Node Deletion
 
     var selectedNode = MutableStateFlow<Node?>(null)
         private set
 
     var selectedEdge = MutableStateFlow<GraphEditorVisualEdge?>(null)
         private set
+    fun onRemovalRequest() {
+        selectedNode.value?.let {
+            nodeManger.removeNode(it)
+        }
+        selectedEdge.value?.let {
+            edgeManger.removeEdge(it)
+        }
+        selectedEdge.value=null
+        selectedNode.value=null
+    }
+
+
 
     /*
     Database operations,
@@ -85,7 +98,7 @@ data class GraphEditorManger(
                 }
             }
         } catch (_: Exception) {
-
+//
         }
     }
 
@@ -102,18 +115,7 @@ data class GraphEditorManger(
     }
 
 
-    fun onRemoveNodeRequest() {
-        selectedNode.value?.let {
-            nodeManger.removeNode(it)
-        }
-    }
 
-    fun onRemoveEdgeRequest() {
-        selectedEdge.value?.let {
-            edgeManger.removeEdge(it)
-        }
-
-    }
 
     fun onEdgeConstInput(cost: String) {
         operationMode = GraphEditorMode.EdgeAdd
