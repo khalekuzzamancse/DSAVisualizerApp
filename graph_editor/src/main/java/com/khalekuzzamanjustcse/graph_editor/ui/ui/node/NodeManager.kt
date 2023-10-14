@@ -6,7 +6,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-//
+/*
+
+We used here some extension method on nodes because these are only
+used by the node manager so other going  to use it,so we do not keep these
+method inside the Node class itself so that the node class become lightweight
+ */
 data class GraphEditorNodeManager(
     private val deviceDensity: Float,
 ) {

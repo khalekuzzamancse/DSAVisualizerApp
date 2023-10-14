@@ -6,7 +6,6 @@ import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.graph_editor.data_layer.data.EditorEdgeEntity
 import com.khalekuzzamanjustcse.graph_editor.data_layer.data.EditorNodeEntity
 import com.khalekuzzamanjustcse.graph_editor.data_layer.data.createDao
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdge
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdgeImp
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.GraphEditorNode
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +31,7 @@ class EditDatabase(
 
     }
 
-    fun insertEdge(edges: List<GraphEditorVisualEdge>) {
+    fun insertEdge(edges: List<GraphEditorVisualEdgeImp>) {
         scope.launch {
             //before insert delete the previous nodes
             dao.deleteAllEdge()
@@ -61,7 +60,7 @@ class EditDatabase(
             radiusDp = graphEditorNode.halfSize.value.toInt()
         )
 
-    private fun createEntity(edge: GraphEditorVisualEdge) =
+    private fun createEntity(edge: GraphEditorVisualEdgeImp) =
         EditorEdgeEntity(
             cost = edge.cost,
             hasDirection = edge.isDirected,

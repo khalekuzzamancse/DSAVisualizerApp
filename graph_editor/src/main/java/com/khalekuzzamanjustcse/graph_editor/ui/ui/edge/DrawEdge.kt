@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.Dp
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.basic_concept_demo.EdgePoint
 
 fun DrawScope.drawEdge(
-    edge: GraphEditorVisualEdge,
+    edge: GraphEditorVisualEdgeImp,
     textMeasurer: TextMeasurer? = null,
 ) {
     //drawEdge

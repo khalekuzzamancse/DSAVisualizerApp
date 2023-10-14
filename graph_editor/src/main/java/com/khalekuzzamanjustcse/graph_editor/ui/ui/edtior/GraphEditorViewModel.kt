@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.khalekuzzamanjustcse.graph_editor.data_layer.repoisitory.EditDatabase
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdge
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdgeImp
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdgeMangerImp
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorEdgeManger
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.GraphEditorNode
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.GraphEditorNodeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -36,8 +34,8 @@ data class GraphEditorManger(
     private val context: Context,
 ) {
     private val nodeManger = GraphEditorNodeManager(density)
-    private val edgeManger = GraphEditorVisualEdgeMangerImp()
-    val edges: StateFlow<List<GraphEditorVisualEdge>>
+    private val edgeManger = GraphEditorEdgeManger()
+    val edges: StateFlow<List<GraphEditorVisualEdgeImp>>
         get() = edgeManger.edges
     val nodes: StateFlow<Set<GraphEditorNode>>
         get() = nodeManger.nodes
@@ -49,14 +47,11 @@ data class GraphEditorManger(
     //Edge and Node Deletion
     val selectedNode= nodeManger.selectedNode
 
-    var selectedEdge = MutableStateFlow<GraphEditorVisualEdge?>(null)
-        private set
+    var selectedEdge =edgeManger.selectedEdge
 
     fun onRemovalRequest() {
         nodeManger.removeNode()
-        selectedEdge.value?.let {
-            edgeManger.removeEdge(it)
-        }
+        edgeManger.removeEdge()
     }
 
 
@@ -126,7 +121,7 @@ data class GraphEditorManger(
 
     fun onTap(tappedPosition: Offset) {
         nodeManger.observeCanvasTap(tappedPosition)
-        selectedEdge.value = edgeManger.selectedEdge(tappedPosition)
+      //  selectedEdge.value = edgeManger.selectedEdge(tappedPosition)
 
         when (operationMode) {
             GraphEditorMode.NodeAdd -> {
