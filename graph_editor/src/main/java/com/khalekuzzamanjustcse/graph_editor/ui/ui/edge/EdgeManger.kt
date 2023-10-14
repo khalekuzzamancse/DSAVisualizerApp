@@ -1,7 +1,6 @@
 package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
 
 import androidx.compose.ui.geometry.Offset
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.basic_concept_demo.EdgePoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -11,7 +10,6 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
         MutableStateFlow(emptyList())
     override val edges = _edges.asStateFlow()
     private var editingMode: EditingMode? = null
-    private var tappedPosition = Offset.Infinite
 
     //
     private val nextAddedEdge = MutableStateFlow<GraphEditorVisualEdgeImp?>(null)
@@ -34,7 +32,6 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     val selectedEdge = _selectedEdge.asStateFlow()
 
     override fun onTap(tappedPosition: Offset) {
-        this.tappedPosition = tappedPosition
         editingMode = EditingMode.EditEdge
         val tapListener = EdgeSelectionManager(_edges.value, tappedPosition)
         _selectedEdge.value = tapListener.findSelectedEdge()
@@ -80,8 +77,7 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
                     _selectedEdge.value?.let { activeEdge ->
                         _edges.update { edges ->
                             edges.map { edge ->
-                                if (edge.id == activeEdge.id) edge.updatePoint(dragAmount)
-                                else edge
+                                if (edge.id == activeEdge.id) ExistingEdgeDragManager(edge).onDrag(dragAmount) else edge
                             }
                         }
                     }
@@ -113,32 +109,5 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
         _edges.update { edges }
     }
 
-    private fun GraphEditorVisualEdgeImp.updatePoint(amount: Offset): GraphEditorVisualEdgeImp {
-        return when (selectedPoint) {
-            EdgePoint.Start -> {
-                val newStart = getPositionWithinCanvas(start + amount)
-                this.copy(start = newStart, control = (newStart + end) / 2f)
-            }
-
-            EdgePoint.End -> {
-                val newEnd = getPositionWithinCanvas(end + amount)
-                this.copy(end = newEnd, control = (start + newEnd) / 2f)
-            }
-
-            EdgePoint.Control -> {
-                this.copy(control = getPositionWithinCanvas(control + amount))
-            }
-
-            else -> this
-
-        }
-    }
-
 }
 
-private fun getPositionWithinCanvas(offset: Offset): Offset {
-    var (x, y) = offset
-    if (x < 0f) x = 0f
-    if (y < 0f) y = 0f
-    return Offset(x, y)
-}
