@@ -123,7 +123,8 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     }
 
     override fun dragOngoing(dragAmount: Offset, position: Offset) {
-        editingMode?.let {editingMode
+        editingMode?.let {
+            editingMode
             when (editingMode) {
                 EditingMode.AddEdge -> {
                     nextAddedEdge.value?.let {
@@ -188,41 +189,28 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     private fun GraphEditorVisualEdgeImp.updatePoint(amount: Offset): GraphEditorVisualEdgeImp {
         return when (selectedPoint) {
             EdgePoint.Start -> {
-                var (x, y) = start + amount
-                if (x < 0f)
-                    x = 0f
-                if (y < 0f)
-                    y = 0f
-                val newStart = Offset(x, y)
+                val newStart = getPositionWithinCanvas(start + amount)
                 this.copy(start = newStart, control = (newStart + end) / 2f)
             }
-
             EdgePoint.End -> {
-                var (x, y) = end + amount
-                if (x < 0f)
-                    x = 0f
-                if (y < 0f)
-                    y = 0f
-                val newEnd = Offset(x, y)
+                val newEnd = getPositionWithinCanvas(end + amount)
                 this.copy(end = newEnd, control = (start + newEnd) / 2f)
             }
-
             EdgePoint.Control -> {
-                var (x, y) = control + amount
-                if (x < 0f)
-                    x = 0f
-                if (y < 0f)
-                    y = 0f
-                val newMid = Offset(x, y)
-                this.copy(control = newMid)
+                this.copy(control = getPositionWithinCanvas(control + amount))
             }
-
             else -> this
 
         }
     }
 
+}
 
+private fun getPositionWithinCanvas(offset: Offset): Offset {
+    var (x, y) = offset
+    if (x < 0f) x = 0f
+    if (y < 0f) y = 0f
+    return Offset(x, y)
 }
 
 fun GraphEditorVisualEdgeImp.isAnyControlTouched(touchPosition: Offset): Boolean {

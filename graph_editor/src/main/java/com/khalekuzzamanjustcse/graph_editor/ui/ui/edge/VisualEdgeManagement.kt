@@ -18,6 +18,5 @@ interface GraphEditorVisualEdgeManger {
     fun dragEnded()
     fun setEdge(edges: List<GraphEditorVisualEdgeImp>)
 
-
 }
 

@@ -146,7 +146,6 @@ data class GraphEditorManger(
     }
 
     fun dragEnd() {
-
         edgeManger.dragEnded()
     }
 
