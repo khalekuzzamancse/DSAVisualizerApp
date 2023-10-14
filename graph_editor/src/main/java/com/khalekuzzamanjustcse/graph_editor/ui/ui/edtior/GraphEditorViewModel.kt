@@ -7,8 +7,8 @@ import com.khalekuzzamanjustcse.graph_editor.data_layer.repoisitory.EditDatabase
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdge
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdgeImp
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdgeMangerImp
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.Node
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.NodeManager
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.GraphEditorNode
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.GraphEditorNodeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ import java.util.UUID
  after tap if mode==AddNode is on then change the mode.
  */
 enum class GraphEditorMode {
-    NodeAdd, DragNode, EdgeAdd, DragEdge, None
+    NodeAdd, EdgeAdd, None
 }
 
 
@@ -35,35 +35,29 @@ data class GraphEditorManger(
     private val density: Float,
     private val context: Context,
 ) {
-    private val nodeManger = NodeManager(density)
+    private val nodeManger = GraphEditorNodeManager(density)
     private val edgeManger = GraphEditorVisualEdgeMangerImp()
     val edges: StateFlow<List<GraphEditorVisualEdge>>
         get() = edgeManger.edges
-    val nodes: StateFlow<Set<Node>>
+    val nodes: StateFlow<Set<GraphEditorNode>>
         get() = nodeManger.nodes
 
     private var operationMode = GraphEditorMode.None
-    private var nextAddedNode: Node? = null
+    private var nextAddedGraphEditorNode: GraphEditorNode? = null
     val currentAddingEdge = edgeManger.currentAddingEdge
 
     //Edge and Node Deletion
-
-    var selectedNode = MutableStateFlow<Node?>(null)
-        private set
+    val selectedNode= nodeManger.selectedNode
 
     var selectedEdge = MutableStateFlow<GraphEditorVisualEdge?>(null)
         private set
+
     fun onRemovalRequest() {
-        selectedNode.value?.let {
-            nodeManger.removeNode(it)
-        }
+        nodeManger.removeNode()
         selectedEdge.value?.let {
             edgeManger.removeEdge(it)
         }
-        selectedEdge.value=null
-        selectedNode.value=null
     }
-
 
 
     /*
@@ -110,11 +104,9 @@ data class GraphEditorManger(
 
 
     fun onAddNodeRequest(cost: String) {
-        nextAddedNode = Node(id = UUID.randomUUID().toString(), density = density, text = cost)
+        nextAddedGraphEditorNode = GraphEditorNode(id = UUID.randomUUID().toString(), label = cost)
         operationMode = GraphEditorMode.NodeAdd
     }
-
-
 
 
     fun onEdgeConstInput(cost: String) {
@@ -133,7 +125,7 @@ data class GraphEditorManger(
     }
 
     fun onTap(tappedPosition: Offset) {
-        selectedNode.value = nodeManger.nodeTapped(tappedPosition)
+        nodeManger.observeCanvasTap(tappedPosition)
         selectedEdge.value = edgeManger.selectedEdge(tappedPosition)
 
         when (operationMode) {
@@ -150,7 +142,6 @@ data class GraphEditorManger(
 
 
     fun onDragStart(startPosition: Offset) {
-        nodeManger.onDragStart(startPosition)
         edgeManger.onDragStart(startPosition)
     }
 
@@ -160,12 +151,12 @@ data class GraphEditorManger(
     }
 
     fun dragEnd() {
-        nodeManger.onDragEnd()
+
         edgeManger.dragEnded()
     }
 
     private fun addNode(position: Offset) {
-        nextAddedNode?.let {
+        nextAddedGraphEditorNode?.let {
             val radius = it.minNodeSize.value * density / 2
             nodeManger.add(it.copy(topLeft = position - Offset(radius, radius)))
         }

@@ -8,7 +8,7 @@ import com.khalekuzzamanjustcse.graph_editor.data_layer.data.EditorNodeEntity
 import com.khalekuzzamanjustcse.graph_editor.data_layer.data.createDao
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdge
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.edge.GraphEditorVisualEdgeImp
-import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.Node
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.node.GraphEditorNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -23,11 +23,11 @@ class EditDatabase(
     private val dao = createDao(context)
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    fun insert(nodes: List<Node>) {
+    fun insert(graphEditorNodes: List<GraphEditorNode>) {
         scope.launch {
             //before insert delete the previous nodes
             dao.deleteAllNode()
-            dao.insertNode(nodes.map { createEntity(it) })
+            dao.insertNode(graphEditorNodes.map { createEntity(it) })
         }
 
     }
@@ -41,7 +41,7 @@ class EditDatabase(
 
     }
 
-    fun getNodes(): Flow<List<Node>> =
+    fun getNodes(): Flow<List<GraphEditorNode>> =
         dao
             .getEditorNode()
             .map { list -> list.map { createNode(it) } }
@@ -51,14 +51,14 @@ class EditDatabase(
             .map { list -> list.map { createEdge(it) } }
 
 
-    private fun createEntity(node: Node) =
+    private fun createEntity(graphEditorNode: GraphEditorNode) =
         EditorNodeEntity(
-            id = node.id,
-            label = node.text,
-            topLeftX = node.topLeft.x,
-            topLeftY = node.topLeft.y,
-            minNodeSizeDp = node.minNodeSize.value.toInt(),
-            radiusDp = node.radius.value.toInt()
+            id = graphEditorNode.id,
+            label = graphEditorNode.label,
+            topLeftX = graphEditorNode.topLeft.x,
+            topLeftY = graphEditorNode.topLeft.y,
+            minNodeSizeDp = graphEditorNode.minNodeSize.value.toInt(),
+            radiusDp = graphEditorNode.halfWidth.value.toInt()
         )
 
     private fun createEntity(edge: GraphEditorVisualEdge) =
@@ -74,13 +74,12 @@ class EditDatabase(
         )
 
     private fun createNode(entity: EditorNodeEntity) =
-        Node(
+        GraphEditorNode(
             id = entity.id,
-            density = density,
-            text = entity.label,
+            label = entity.label,
             topLeft = Offset(entity.topLeftX, entity.topLeftY),
             minNodeSize = entity.minNodeSizeDp.dp,
-            radius = entity.radiusDp.dp
+            halfWidth = entity.radiusDp.dp
         )
 
     private fun createEdge(entity: EditorEdgeEntity) =

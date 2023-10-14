@@ -50,9 +50,10 @@ import com.khalekuzzamanjustcse.graph_editor.writePdf
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-fun GraphEditor() {
+fun GraphEditor(
+     isTree:Boolean = false,
+) {
     val density = LocalDensity.current.density
     val context = LocalContext.current
     val hostState = remember { SnackbarHostState() }

@@ -2,67 +2,111 @@ package com.khalekuzzamanjustcse.graph_editor.ui.ui.node
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class NodeManager(
-    private val density: Float,
+//
+data class GraphEditorNodeManager(
+    private val deviceDensity: Float,
 ) {
 
-    private val _nodes = MutableStateFlow(emptySet<Node>())
+    private val _nodes = MutableStateFlow(emptySet<GraphEditorNode>())
     val nodes = _nodes.asStateFlow()
 
-    fun nodeTapped(offset: Offset): Node? {
-        val node = _nodes.value.find { it.isInsideCircle(offset) }
-        if (node != null) {
-            _nodes.update { nodeSet ->
-                nodeSet.map {
-                    if (it.id == node.id) it.copy(color = Color.Blue) else it
-                }.toSet()
-            }
+    /*
+    Observe the canvas tapping so that:
+    If node is tapped we have to change it color to indicate that it is tapped.
+    User may want to remove the tapped node.
+    User may want to drag the tapped node.
+     */
+    private var _selectedGraphEditorNode = MutableStateFlow<GraphEditorNode?>(null)
+    val selectedNode=_selectedGraphEditorNode.asStateFlow()
+    fun observeCanvasTap(offset: Offset) {
+        _selectedGraphEditorNode.value = _nodes.value.find { it.isInsideCircle(offset) }
+        val aNodeIsTapped = _selectedGraphEditorNode.value != null
+        if (aNodeIsTapped){
+//            deactivateAllNodes()//remove if already some node highlighted
+            highlightTappedNode()
         }
-        else {
-            _nodes.update { nodeSet ->
-                nodeSet.map {
-                   it.copy(color = Color.Red)
-                }.toSet()
-            }
-        }
-        return node
+        else
+            deactivateAllNodes()
     }
 
-    fun removeNode(node: Node) {
+    private fun highlightTappedNode() {
+        //if a node is tapped
+        _selectedGraphEditorNode.value?.let {
+            val selectedNode = it.makeActive()
+            //replace the tapped node with active node.
+            _nodes.value = _nodes.value - it
+            _nodes.value = _nodes.value + selectedNode
+        }
+    }
+
+    private fun deactivateAllNodes() {
+        _selectedGraphEditorNode.value=null
+        val selectedNodeColor = Color.Blue
         _nodes.update { nodeSet ->
-            nodeSet.filter { it.id != node.id }.toSet()
+            nodeSet.map {
+                if (it.color == selectedNodeColor) it.copy(color = Color.Red)
+                else it
+            }.toSet()
         }
     }
 
-    fun add(node: Node) {
-        _nodes.value = _nodes.value + node
+    private fun GraphEditorNode.makeActive(): GraphEditorNode {
+        val activeNodeColor = Color.Blue
+        return copy(color = activeNodeColor)
     }
-    fun setNode(set: Set<Node>){
+
+
+    //
+
+    fun removeNode() {
+        _selectedGraphEditorNode.value?.let { activeNode ->
+            _nodes.update { nodeSet ->
+                nodeSet.filter { it.id != activeNode.id }.toSet()
+            }
+        }
+
+    }
+
+    fun add(graphEditorNode: GraphEditorNode) {
+        _nodes.value = _nodes.value + graphEditorNode
+    }
+
+    fun setNode(set: Set<GraphEditorNode>) {
         _nodes.update { set }
     }
 
 
-    fun onDragStart(offset: Offset) {
-        _nodes.update { set ->
-            set.map { it.enableEdit(offset) }.toSet()
-        }
-
-    }
-
     fun onDragging(dragAmount: Offset) {
-        _nodes.update { set ->
-            set.map { it.updateCenter(dragAmount) }.toSet()
+        _selectedGraphEditorNode.value?.let { activeNode ->
+            _nodes.update { set ->
+                set.map {
+                    if(it.id==activeNode.id)
+                    it.updateTopLeft(dragAmount)
+                    else it
+
+                }.toSet()
+            }
         }
     }
 
-    fun onDragEnd() {
-        _nodes.update { set ->
-            set.map { it.disableEdit() }.toSet()
-        }
+    private fun GraphEditorNode.isInsideCircle(touchPosition: Offset): Boolean {
+        val minX = topLeft.x
+        val minY = topLeft.y
+        val shapeSize = minNodeSize
+        val maxX = minX + shapeSize.value * deviceDensity
+        val maxY = minY + shapeSize.value * deviceDensity
+        return touchPosition.x in minX..maxX && touchPosition.y in minY..maxY
     }
+
+    private fun GraphEditorNode.updateTopLeft(amount: Offset): GraphEditorNode {
+        var (x, y) = topLeft + amount
+        if (x.isBeyondCanvas()) x = 0f
+        if (y.isBeyondCanvas()) y = 0f
+        return this.copy(topLeft = Offset(x, y))
+    }
+    private fun Float.isBeyondCanvas() = this < 0f
 }
