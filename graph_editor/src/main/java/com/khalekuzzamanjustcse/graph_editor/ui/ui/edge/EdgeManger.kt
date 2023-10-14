@@ -1,8 +1,6 @@
 package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
 
-import android.util.Range
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.basic_concept_demo.EdgePoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,73 +33,15 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     private val _selectedEdge = MutableStateFlow<GraphEditorVisualEdgeImp?>(null)
     val selectedEdge = _selectedEdge.asStateFlow()
 
-    private var _selectedPoint = EdgePoint.None
-
     override fun onTap(tappedPosition: Offset) {
         this.tappedPosition = tappedPosition
         editingMode = EditingMode.EditEdge
-
-        _selectedEdge.value = findSelectedEdge()
-        val anEdgeIsSelected = _selectedEdge.value != null
-        if (anEdgeIsSelected) {
-            _selectedPoint = selectPoint(_selectedEdge.value)
-            highLightPoint(_selectedEdge.value, _selectedPoint)
-        } else {
-            deSelectEdges()
-        }
-    }
-
-    private fun deSelectEdges() {
-        _selectedEdge.value = null
-        _selectedPoint = EdgePoint.None
-        _edges.update { edges ->
-            edges.map {
-                it.copy(
-                    selectedPoint = EdgePoint.None,
-                    pathColor = Color.Black
-                )
-            }
-        }
-    }
-
-    private fun findSelectedEdge(): GraphEditorVisualEdgeImp? {
-        return _edges.value.find { edge ->
-            edge.isAnyControlTouched(tappedPosition)
-        }
-    }
-
-
-    private fun highLightPoint(edge: GraphEditorVisualEdgeImp?, point: EdgePoint) {
-        edge?.let { activeEdge ->
-            val highLightedEdge = when (point) {
-                EdgePoint.Start -> activeEdge.copy(
-                    selectedPoint = EdgePoint.Start,
-                    pathColor = Color.Blue,
-                    showSelectedPoint = true
-                )
-
-                EdgePoint.End -> activeEdge.copy(
-                    selectedPoint = EdgePoint.End,
-                    pathColor = Color.Blue,
-                    showSelectedPoint = true
-                )
-
-                EdgePoint.Control -> activeEdge.copy(
-                    selectedPoint = EdgePoint.Control,
-                    pathColor = Color.Blue,
-                    showSelectedPoint = true
-                )
-
-                else -> activeEdge.copy(
-                    selectedPoint = EdgePoint.None,
-                    pathColor = Color.Black
-                )
-            }
-            _edges.value = _edges.value - activeEdge
-            _edges.value = _edges.value + highLightedEdge
-        }
+        val tapListener = EdgeSelectionManager(_edges.value, tappedPosition)
+        _selectedEdge.value = tapListener.findSelectedEdge()
+        _edges.update { tapListener.getEdgesWithSelection() }
 
     }
+
 
     // Tapping handling done
     //-----------Removing selected edge
@@ -173,32 +113,22 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
         _edges.update { edges }
     }
 
-    private fun selectPoint(edge: GraphEditorVisualEdgeImp?): EdgePoint {
-        edge?.let {
-            return if (edge.isStartTouched(tappedPosition)) {
-                EdgePoint.Start
-            } else if (edge.isEndTouched(tappedPosition)) {
-                EdgePoint.End
-            } else if (edge.isControlTouched(tappedPosition)) {
-                EdgePoint.Control
-            } else EdgePoint.None
-        }
-        return EdgePoint.None
-    }
-
     private fun GraphEditorVisualEdgeImp.updatePoint(amount: Offset): GraphEditorVisualEdgeImp {
         return when (selectedPoint) {
             EdgePoint.Start -> {
                 val newStart = getPositionWithinCanvas(start + amount)
                 this.copy(start = newStart, control = (newStart + end) / 2f)
             }
+
             EdgePoint.End -> {
                 val newEnd = getPositionWithinCanvas(end + amount)
                 this.copy(end = newEnd, control = (start + newEnd) / 2f)
             }
+
             EdgePoint.Control -> {
                 this.copy(control = getPositionWithinCanvas(control + amount))
             }
+
             else -> this
 
         }
@@ -211,33 +141,4 @@ private fun getPositionWithinCanvas(offset: Offset): Offset {
     if (x < 0f) x = 0f
     if (y < 0f) y = 0f
     return Offset(x, y)
-}
-
-fun GraphEditorVisualEdgeImp.isAnyControlTouched(touchPosition: Offset): Boolean {
-    return isStartTouched(touchPosition) || isEndTouched(touchPosition) ||
-            isControlTouched(touchPosition)
-}
-
-
-private fun GraphEditorVisualEdgeImp.isControlTouched(touchPosition: Offset) =
-    isTargetTouched(touchPosition, pathCenter)
-
-private fun GraphEditorVisualEdgeImp.isStartTouched(touchPosition: Offset) =
-    isTargetTouched(touchPosition, start)
-
-private fun GraphEditorVisualEdgeImp.isEndTouched(touchPosition: Offset) =
-    isTargetTouched(touchPosition, end)
-
-private fun GraphEditorVisualEdgeImp.isTargetTouched(
-    touchPosition: Offset,
-    target: Offset
-): Boolean {
-    return touchPosition.x in Range(
-        target.x - minTouchTargetPx / 2,
-        target.x + minTouchTargetPx / 2
-    ) &&
-            touchPosition.y in Range(
-        target.y - minTouchTargetPx / 2,
-        target.y + minTouchTargetPx / 2
-    )
 }
