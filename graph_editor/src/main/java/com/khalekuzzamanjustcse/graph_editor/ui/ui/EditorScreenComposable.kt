@@ -215,7 +215,7 @@ fun Editor(
     //
     val nodes = viewModel.nodes.collectAsState().value
     val edges = viewModel.edges.collectAsState().value
-    val currentDrawingEdge = viewModel.currentAddingEdge.collectAsState().value
+
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -243,9 +243,6 @@ fun Editor(
             }
     ) {
         edges.forEach {
-            drawEdge(it, textMeasurer)
-        }
-        currentDrawingEdge?.let {
             drawEdge(it, textMeasurer)
         }
         nodes.forEach {

@@ -1,6 +1,7 @@
 package com.khalekuzzamanjustcse.graph_editor.ui.ui.edge
 
 import androidx.compose.ui.geometry.Offset
+import com.khalekuzzamanjustcse.graph_editor.ui.ui.basic_concept_demo.EdgePoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -9,15 +10,11 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     private val _edges: MutableStateFlow<List<GraphEditorVisualEdgeImp>> =
         MutableStateFlow(emptyList())
     override val edges = _edges.asStateFlow()
-    private var editingMode: EditingMode? = null
-
-    //
-    private val newAddingEdgeDragManager = NewAddingEdgeDragManager()
-    val currentAddingEdge = newAddingEdgeDragManager.addingEdge
 
     fun addEdge(edge: GraphEditorVisualEdgeImp) {
-        editingMode = EditingMode.AddEdge
-        newAddingEdgeDragManager.setNewAddingEdge(edge)
+        _edges.value = edges.value + edge.copy(selectedPoint=EdgePoint.End)
+        _selectedEdge.value = edge.copy(selectedPoint=EdgePoint.End)
+        newlyAdding=true
     }
     /*
     Observing when the canvas is tapped so that:
@@ -27,13 +24,13 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
 
     private val _selectedEdge = MutableStateFlow<GraphEditorVisualEdgeImp?>(null)
     val selectedEdge = _selectedEdge.asStateFlow()
+    private var newlyAdding=false
+
 
     override fun onTap(tappedPosition: Offset) {
-        editingMode = EditingMode.EditEdge
         val tapListener = EdgeSelectionManager(_edges.value, tappedPosition)
         _selectedEdge.value = tapListener.findSelectedEdge()
         _edges.update { tapListener.getEdgesWithSelection() }
-
     }
 
     // Tapping handling done
@@ -47,51 +44,40 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     }
 
     fun onDragStart(offset: Offset) {
-        if (editingMode == EditingMode.AddEdge) {
-            newAddingEdgeDragManager.onDragStart(offset)
+        if(newlyAdding){
+            _selectedEdge.value?.let { activeEdge ->
+                _edges.update { edges ->
+                    edges.map { edge ->
+                        if (edge.id == activeEdge.id)
+                            edge.copy(
+                                start = offset,
+                                end = offset,
+                                control = offset,
+                                selectedPoint = EdgePoint.End
+                            )
+                        else edge
+                    }
+                }
+            }
         }
+
     }
 
     override fun dragOngoing(dragAmount: Offset, position: Offset) {
-        editingMode?.let {
-            editingMode
-            when (editingMode) {
-                EditingMode.AddEdge -> {
-                    newAddingEdgeDragManager.onDrag(dragAmount)
+        _selectedEdge.value?.let { activeEdge ->
+            _edges.update { edges ->
+                edges.map { edge ->
+                    if (edge.id == activeEdge.id) ExistingEdgeDragManager(edge).onDrag(
+                        dragAmount
+                    ) else edge
                 }
-                //dragging existing edge
-                EditingMode.EditEdge -> {
-                    _selectedEdge.value?.let { activeEdge ->
-                        _edges.update { edges ->
-                            edges.map { edge ->
-                                if (edge.id == activeEdge.id) ExistingEdgeDragManager(edge).onDrag(
-                                    dragAmount
-                                ) else edge
-                            }
-                        }
-                    }
-                }
-
-                else -> {}
             }
         }
-
     }
 
     override fun dragEnded() {
-        editingMode?.let { mode ->
-            when (mode) {
-                EditingMode.AddEdge -> {
-                    currentAddingEdge.value?.let {
-                        _edges.value = edges.value + it
-                        newAddingEdgeDragManager.setNewAddingEdge(null)
-                    }
-                }
-
-                else -> {}
-            }
-        }
-        editingMode = null
+        _selectedEdge.value=null
+        newlyAdding=false
     }
 
     override fun setEdge(edges: List<GraphEditorVisualEdgeImp>) {

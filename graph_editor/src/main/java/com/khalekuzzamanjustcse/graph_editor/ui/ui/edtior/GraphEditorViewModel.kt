@@ -42,7 +42,7 @@ data class GraphEditorManger(
 
     private var operationMode = GraphEditorMode.None
     private var nextAddedGraphEditorNode: GraphEditorNode? = null
-    val currentAddingEdge = edgeManger.currentAddingEdge
+
 
     //Edge and Node Deletion
     val selectedNode= nodeManger.selectedNode
