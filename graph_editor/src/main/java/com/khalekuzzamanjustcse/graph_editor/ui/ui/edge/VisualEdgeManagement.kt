@@ -7,10 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-enum class EditingMode {
-    AddEdge, EditEdge,
-}
-
 interface GraphEditorVisualEdgeManger {
     val edges: StateFlow<List<GraphEditorVisualEdgeImp>>
     fun onTap(tappedPosition: Offset)
