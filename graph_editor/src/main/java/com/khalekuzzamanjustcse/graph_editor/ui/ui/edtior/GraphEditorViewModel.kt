@@ -121,14 +121,11 @@ data class GraphEditorManger(
 
     fun onTap(tappedPosition: Offset) {
         nodeManger.observeCanvasTap(tappedPosition)
-      //  selectedEdge.value = edgeManger.selectedEdge(tappedPosition)
-
         when (operationMode) {
             GraphEditorMode.NodeAdd -> {
                 addNode(tappedPosition)
                 operationMode = GraphEditorMode.None
             }
-
             else -> {
                 edgeManger.onTap(tappedPosition)
             }
