@@ -58,7 +58,7 @@ class EditDatabase(
             topLeftX = graphEditorNode.topLeft.x,
             topLeftY = graphEditorNode.topLeft.y,
             minNodeSizeDp = graphEditorNode.minNodeSize.value.toInt(),
-            radiusDp = graphEditorNode.halfWidth.value.toInt()
+            radiusDp = graphEditorNode.halfSize.value.toInt()
         )
 
     private fun createEntity(edge: GraphEditorVisualEdge) =
@@ -79,7 +79,7 @@ class EditDatabase(
             label = entity.label,
             topLeft = Offset(entity.topLeftX, entity.topLeftY),
             minNodeSize = entity.minNodeSizeDp.dp,
-            halfWidth = entity.radiusDp.dp
+            halfSize = entity.radiusDp.dp
         )
 
     private fun createEdge(entity: EditorEdgeEntity) =
