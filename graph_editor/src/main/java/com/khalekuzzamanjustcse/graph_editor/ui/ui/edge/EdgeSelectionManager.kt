@@ -4,7 +4,6 @@ import android.util.Range
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import com.khalekuzzamanjustcse.graph_editor.ui.ui.basic_concept_demo.EdgePoint
-import kotlinx.coroutines.flow.update
 
 class EdgeSelectionManager(
     private val edges: List<GraphEditorVisualEdgeImp>,
