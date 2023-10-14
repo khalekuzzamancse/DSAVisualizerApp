@@ -4,9 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class NewAddingEdgeDragManager(
-
-) {
+class NewAddingEdgeDragManager {
     private val nextAddedEdge = MutableStateFlow<GraphEditorVisualEdgeImp?>(null)
     fun setNewAddingEdge(edge:GraphEditorVisualEdgeImp?){
         nextAddedEdge.value=edge
