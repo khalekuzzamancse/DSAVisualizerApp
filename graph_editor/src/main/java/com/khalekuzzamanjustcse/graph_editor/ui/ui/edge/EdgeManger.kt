@@ -12,16 +12,13 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
     private var editingMode: EditingMode? = null
 
     //
-    private val nextAddedEdge = MutableStateFlow<GraphEditorVisualEdgeImp?>(null)
-    val currentAddingEdge = nextAddedEdge.asStateFlow()
-
+    private val newAddingEdgeDragManager = NewAddingEdgeDragManager()
+    val currentAddingEdge = newAddingEdgeDragManager.addingEdge
 
     fun addEdge(edge: GraphEditorVisualEdgeImp) {
         editingMode = EditingMode.AddEdge
-        nextAddedEdge.value = edge
+        newAddingEdgeDragManager.setNewAddingEdge(edge)
     }
-
-
     /*
     Observing when the canvas is tapped so that:
     Select a point of the edge to edit it.
@@ -39,7 +36,6 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
 
     }
 
-
     // Tapping handling done
     //-----------Removing selected edge
     fun removeEdge() {
@@ -52,10 +48,7 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
 
     fun onDragStart(offset: Offset) {
         if (editingMode == EditingMode.AddEdge) {
-            nextAddedEdge.value?.let {
-                nextAddedEdge.value =
-                    it.copy(start = offset, end = offset, control = offset)
-            }
+            newAddingEdgeDragManager.onDragStart(offset)
         }
     }
 
@@ -64,20 +57,16 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
             editingMode
             when (editingMode) {
                 EditingMode.AddEdge -> {
-                    nextAddedEdge.value?.let {
-                        val start = it.start
-                        val end = it.end + dragAmount
-                        val control = (start + end) / 2f
-                        nextAddedEdge.value = it.copy(start = start, end = end, control = control)
-                    }
+                    newAddingEdgeDragManager.onDrag(dragAmount)
                 }
-
                 //dragging existing edge
                 EditingMode.EditEdge -> {
                     _selectedEdge.value?.let { activeEdge ->
                         _edges.update { edges ->
                             edges.map { edge ->
-                                if (edge.id == activeEdge.id) ExistingEdgeDragManager(edge).onDrag(dragAmount) else edge
+                                if (edge.id == activeEdge.id) ExistingEdgeDragManager(edge).onDrag(
+                                    dragAmount
+                                ) else edge
                             }
                         }
                     }
@@ -93,9 +82,9 @@ class GraphEditorEdgeManger : GraphEditorVisualEdgeManger {
         editingMode?.let { mode ->
             when (mode) {
                 EditingMode.AddEdge -> {
-                    nextAddedEdge.value?.let {
+                    currentAddingEdge.value?.let {
                         _edges.value = edges.value + it
-                        nextAddedEdge.value = null
+                        newAddingEdgeDragManager.setNewAddingEdge(null)
                     }
                 }
 
