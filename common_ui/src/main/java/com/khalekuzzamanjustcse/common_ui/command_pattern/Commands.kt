@@ -1,8 +1,7 @@
 package com.khalekuzzamanjustcse.common_ui.command_pattern
 
-import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphBasicNode
-import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditor
-import com.khalekuzzamanjustcse.common_ui.graph_editor.GraphEditorGraph
+import com.khalekuzzamanjustcse.common_ui.graph_ed.GraphBasicNode
+import com.khalekuzzamanjustcse.common_ui.graph_ed.GraphEditor
 
 
 /*

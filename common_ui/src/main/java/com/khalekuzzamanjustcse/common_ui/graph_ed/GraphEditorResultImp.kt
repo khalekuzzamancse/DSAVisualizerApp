@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.graph_editor
+package com.khalekuzzamanjustcse.common_ui.graph_ed
 
 data class GraphEditorResultImp(
     override val nodes: List<GraphBasicNode> = emptyList(),

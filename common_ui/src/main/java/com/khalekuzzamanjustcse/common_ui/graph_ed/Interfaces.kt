@@ -1,4 +1,4 @@
-package com.khalekuzzamanjustcse.common_ui.graph_editor
+package com.khalekuzzamanjustcse.common_ui.graph_ed
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
