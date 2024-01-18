@@ -28,8 +28,20 @@ This is the repository for the [  Data Structure and Algorithms Visulization(DSA
 app. It is a **work in progress** 🚧.
 
 **Data Structure and Algorithms Visulization(DSAV)** is a fully functional Android app built entirely with Kotlin and  Compose Multiplatform,Ktor. It
-follows best design and development best practices such as design pattern and solid principle,clean code.
-The app is currently in development. The `App Link`  [will be avaiable soon](https://play.google.com/store/apps/).
+# Techlogy 
+
+<figure>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Kotlin_Icon.svg/512px-Kotlin_Icon.svg.png"
+         alt="Albuquerque, New Mexico" width="50" height="50">
+    <figcaption>Kotlin</figcaption>
+</figure>
+<figure>
+    <img src="https://3.bp.blogspot.com/-VVp3WvJvl84/X0Vu6EjYqDI/AAAAAAAAPjU/ZOMKiUlgfg8ok8DY8Hc-ocOvGdB0z86AgCLcBGAsYHQ/s1600/jetpack%2Bcompose%2Bicon_RGB.png"
+         alt="Albuquerque, New Mexico" width="50" height="50">
+    <figcaption>Compose(Kotlin)Multiplatform</figcaption>
+</figure>
+
+
 
 # Features
 
