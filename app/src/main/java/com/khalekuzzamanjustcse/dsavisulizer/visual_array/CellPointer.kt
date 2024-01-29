@@ -30,6 +30,7 @@ sealed class PointerName {
     object NULL : PointerName()
 
 }
+//
 sealed class SelectionSortPointerName : PointerName() {
     object I : SelectionSortPointerName()
     object J : SelectionSortPointerName()
